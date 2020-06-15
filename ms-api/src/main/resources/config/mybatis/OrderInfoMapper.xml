@@ -793,6 +793,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         CONVERT(osi.amount,DECIMAL(10,2)) amount,
         dhi.longitude currentLongitude,
         dhi.latitude currentLatitude,
+        oddi.it_is_self_driver itIsSelfDriver,
         (select notes from apply_info where journey_id=ji.journey_id)notes,
         (select reason from apply_info where journey_id=ji.journey_id)reason,
         (select car_group_name   from car_group_info where car_group_id= ci.car_group_id)carGroupName,
@@ -822,6 +823,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         group by dd.driver_id,dd.order_id) d2
         where d1.driver_id=d2.driver_id and d1.order_id=d2.order_id and d1.create_time=d2.mtime ) dhi
         on dhi.driver_id=s.driver_id and dhi.order_id=s.order_id
+        left join order_dispatche_detail_info oddi on oddi.order_id=s.order_id
         <where>
                 s.order_id=#{orderId}
             </where>
