@@ -99,4 +99,6 @@ public class ApplyDispatch{
          */
         @ApiModelProperty(value = "用车单位")
         private Long useCarDeptId;
+        private String state;
+        private String itIsSelfDriver;
 }
