@@ -255,9 +255,9 @@ public interface OrderInfoMapper {
      */
     OrderInfo selectOrderStateById(@Param("orderId")Long orderId);
 
-    Long getCountForDispatched(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+    Long getCountForDispatched(ApplyDispatch query);
 
-    Long getCountForReassigned(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+    Long getCountForReassigned(ApplyDispatch query);
 
     /*
      * @author ghb
@@ -490,9 +490,10 @@ public interface OrderInfoMapper {
 
     /**
      * 获取调度工作台订单的统计数量信息
+     * @param state
      * @return
      */
-    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount(@Param("state") String state);
 
     PayeeInfoDto getPayeeInfo(ReckoningDto param);
 

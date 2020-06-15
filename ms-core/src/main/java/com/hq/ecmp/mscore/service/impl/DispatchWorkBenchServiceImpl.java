@@ -35,9 +35,11 @@ public class DispatchWorkBenchServiceImpl implements DispatchWorkBenchService {
     @Override
     public DisWorkBenchInfo getDispatchInfoListWorkBench(String state,Integer pageNum,Integer pageSize) {
         List<DisOrderStateCount> stateCount = new ArrayList<>();
-        List<DisOrderStateCount> dispatchOrderListWorkBenchCount = orderInfoMapper.getDispatchOrderListWorkBenchCount();
+        List<DisOrderStateCount> dispatchOrderListWorkBenchCount = orderInfoMapper.getDispatchOrderListWorkBenchCount(null);
+        List<DisOrderStateCount> dispatchOrderListWorkBenchCount1 = orderInfoMapper.getDispatchOrderListWorkBenchCount(DispatchListState.alreadySendCar.getStateName());
         List<DisOrderStateCount> carByStateCount = carInfoMapper.getCarByStateCount();
         stateCount.addAll(dispatchOrderListWorkBenchCount);
+        stateCount.addAll(dispatchOrderListWorkBenchCount1);
         stateCount.addAll(carByStateCount);
         Long total = 0L;
         DisWorkBenchInfo disWorkBenchInfo = new DisWorkBenchInfo();
