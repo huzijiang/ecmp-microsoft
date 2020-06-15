@@ -68,7 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         car_imgae_url, car_driving_license_images_url, car_license_image_url, buy_date, rent_end_date,
         rent_start_date, create_by, create_time, update_by, update_time,
         ic_card,fn_number,registe_time,annual_verification_time,last_maintain_time,company_id
-        from car_infoo
+        from car_info
 
     </sql>
 
