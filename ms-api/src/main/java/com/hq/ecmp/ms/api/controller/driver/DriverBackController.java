@@ -94,13 +94,13 @@ public class DriverBackController {
     public ApiResponse<OrderStateCountVO> getOrderStateCount(){
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        Long userId = loginUser.getUser().getUserId();
-        Long orgComcany=null;
-        EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
-        if (ecmpOrg!=null){
-            orgComcany=ecmpOrg.getDeptId();
-        }
-        OrderStateCountVO pageResult=dispatchService.getOrderStateCount(orgComcany);
+//        Long userId = loginUser.getUser().getUserId();
+//        Long orgComcany=null;
+//        EcmpOrg ecmpOrg = ecmpOrgService.getOrgByDeptId(loginUser.getUser().getDeptId());
+//        if (ecmpOrg!=null){
+//            orgComcany=ecmpOrg.getDeptId();
+//        }
+        OrderStateCountVO pageResult=dispatchService.getOrderStateCount(loginUser.getUser());
         return ApiResponse.success(pageResult);
     }
 }
