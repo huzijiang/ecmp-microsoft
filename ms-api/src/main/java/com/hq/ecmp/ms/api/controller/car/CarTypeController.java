@@ -51,7 +51,8 @@ public class CarTypeController {
     @PostMapping("/saveCarType")
     public ApiResponse saveCarType(@RequestBody CarTypeDTO carTypeDto){
         Long userId = getLoginUser().getUserId();
-        Long companyId = Long.valueOf(getLoginCompanyId());
+        //Long companyId = Long.valueOf(getLoginCompanyId());
+        Long  companyId = getLoginUser().getOwnerCompany();
         carTypeDto.setCompanyId(companyId);
         try {
             enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
