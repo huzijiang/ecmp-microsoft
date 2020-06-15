@@ -330,6 +330,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                             #{item}
                         </foreach>
                     </if>
+                    and cgi.it_is_inner = 'C000'
                 </where>
     </select>
 

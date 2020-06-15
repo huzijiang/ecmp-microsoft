@@ -2651,7 +2651,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and z.state='S930'
         </if>
         <if test="orderNumber!=null and orderNumber!=''">
-            and oi.order_number= like concat('%', #{orderNumber}, '%')
+            and oi.order_number like concat('%', #{orderNumber}, '%')
         </if>
         GROUP BY  ai.journey_id
         order by orderState='待派车' DESC ,orderState='已派车' DESC , beginTime ASC
@@ -3366,14 +3366,18 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         GROUP BY o.order_id
     </select>
     <select id="selectOrderCarGroup" resultType="map">
-        select DATE_FORMAT(order_info.create_time,'%Y-%m-%d')date,car_group_info.it_is_inner,car_group_info.car_group_id,
+        select GROUP_CONCAT(order_state_trace_info.state)states,DATE_FORMAT(add1.action_time,'%Y-%m-%d')date,DATE_FORMAT(add2.action_time,'%Y-%m-%d')end_date,car_group_info.it_is_inner,car_group_info.car_group_id,
 				car_info.source,
 				order_info.* from order_info
+				left join order_address_info add1 on order_info.order_id = add1.order_id and add1.type = 'A000'
+				left join order_address_info add2 on order_info.order_id = add2.order_id and add2.type = 'A999'
 				left join car_info on order_info.car_id = car_info.car_id
-        left join car_group_info on car_group_info.car_group_id=car_info.car_group_id
+                left join car_group_info on car_group_info.car_group_id=car_info.car_group_id
+				left join order_state_trace_info on order_info.order_id = order_state_trace_info.order_id
         where order_info.car_id is NOT null
         and order_info.company_id = #{companyId}
-        and date(order_info.create_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        and date(add1.action_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+				GROUP BY order_info.order_id
     </select>
 
     <select id="selectNormalOrderReserveTime" resultType="map">
