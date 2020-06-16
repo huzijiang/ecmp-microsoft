@@ -3476,8 +3476,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id     -- 部门表的 部门id = 用户表的 部门id
         LEFT JOIN  car_info ci ON ci.car_id = oi.car_id          -- 车辆表的 车辆id = 订单表的 车辆id
         LEFT JOIN  enterprise_car_type_info ecti ON ecti.car_type_id = ci.car_type_id   -- 车型标表的 车型id = 车辆表的 车型id
-        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id      -- 车队司机关联表的 司机id = 订单吧表的 司机id
-        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id           -- 车队表的 车队id = 车队司机关联表的 车队id
+        --  LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id      -- 车队司机关联表的 司机id = 订单吧表的 司机id
+        LEFT JOIN order_dispatche_detail_info oddi ON oddi.`order_id` = oi.`order_id`
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = oddi.car_cg_id           -- 车队表的 车队id = 车队司机关联表的 车队i
         LEFT JOIN
         (SELECT order_id,TYPE,address,address_long
         FROM order_address_info WHERE TYPE = 'A000') oai1  -- 从订单地址信息表查询 订单id，A000,真实出发地址，真实出发长地址
