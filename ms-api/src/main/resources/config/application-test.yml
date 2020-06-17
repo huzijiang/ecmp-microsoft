@@ -91,7 +91,7 @@ token:
   expireTime: 30
 
 thirdService:
-  enterpriseId: 100000
+  enterpriseId: 200000
   licenseContent: AAAAAAAA
   apiUrl: http://10.117.1.231:51002
 
@@ -163,4 +163,4 @@ ali:
 
 cloud:
   service:
-    url: http://10.7.106.112:51002
+    url: http://10.117.1.231:51002
