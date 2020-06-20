@@ -275,6 +275,48 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
     </select>
 
 
+    <select id="getOrderOutList" resultType="com.hq.ecmp.mscore.domain.OrderListInfo">
+        select * from (
+        select
+        (select ecti1.`name` from enterprise_car_type_info ecti1 where ecti1.car_type_id=ai.car_type_id) carTypeName,
+        jn.use_time useTime,
+        o.order_number orderNumber,
+        ai.it_is_self_driver selfDriver,
+        jpi.`name` useCarName,
+        jpi.mobile useCarMobile,
+        oai.action_time useCarDate,
+        oai.address beginAddress,
+        o.order_id orderId,
+        o.create_time,
+        o.it_is_supplement  itIsSupplement,
+        opi.state payState,
+        ecti.`level`,
+        o.use_car_mode useCarMode,
+        o.state,
+        jn.service_type serviceType,
+        (select state from order_state_trace_info sti where sti.order_id=o.order_id order by trace_id desc limit 1) labelState
+        from order_info o
+        left join journey_info jn on o.journey_id=jn.journey_id
+        LEFT  join order_pay_info opi on o.order_id = opi.order_id
+        left join journey_node_info jni on  jni.node_id=o.node_id
+        left join car_info ci on ci.car_id=o.car_id
+        left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
+        left join order_address_info oai on oai.order_id=o.order_id and oai.type='A000'
+        left join order_address_info oai2 on oai2.order_id=o.order_id and oai2.type='A999'
+        left join apply_info ai on ai.journey_id=o.journey_id
+        left join journey_passenger_info jpi on jpi.journey_id=o.journey_id
+        LEFT JOIN order_dispatche_detail_info oddi on o.orderr_id = oddi.order_id
+        where oddi.next_car_group_id is not NULL and o.user_id in (select user_id from ecmp_user where dept_id=#{deptId} and status='0' and del_flag='0' )
+        and o.state in('S200','S299','S500','S600','S616','S699','S900','S635')
+        )cc1
+        where cc1.labelState not in ('S930','S921','S911')
+        <if test="isConfirmState ==1 ">
+            and cc1.state='S699'
+        </if>
+        order by cc1.create_time  desc
+    </select>
+
+
     <select id="queryOrderRelateInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo" resultType="com.hq.ecmp.mscore.domain.DispatchOrderInfo">
     SELECT
 	a.order_id AS orderId,
