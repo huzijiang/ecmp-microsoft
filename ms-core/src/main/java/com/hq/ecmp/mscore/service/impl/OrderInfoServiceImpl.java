@@ -227,11 +227,46 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     @Override
     public PageResult<OrderListInfo> getOrderList(SysUser user, int pageNum, int pageSize, int isConfirmState) {
         PageHelper.startPage(pageNum, pageSize);
-        List<OrderListInfo> orderList = orderInfoMapper.getOrderList(user.getDeptId(), isConfirmState);
+        boolean flag = checkItIsDispatcher(user);
+        List<OrderListInfo> orderList;
+        if(flag){
+            orderList = orderInfoMapper.getOrderOutList(user.getDeptId(), isConfirmState);
+        }else {
+            orderList = orderInfoMapper.getOrderList(user.getDeptId(), isConfirmState);
+        }
         PageInfo<OrderListInfo> pageInfo = new PageInfo<>(orderList);
         PageResult<OrderListInfo> pageResult = new PageResult<>(pageInfo.getTotal(), pageInfo.getPages(), orderList);
         return pageResult;
     }
+
+    /**
+     * 如果外部调度员，当前人所在车队，外部车队，新逻辑，内部车队老逻辑
+     * @param user
+     */
+    private boolean checkItIsDispatcher(SysUser user) {
+        if(user.getItIsDispatcher().equals(1)) {
+            log.warn("当前用户user={}不是调度员", user.getUserName());
+            return false;
+        }
+        CarGroupDispatcherInfo carGroupDispatcherInfo = new CarGroupDispatcherInfo();
+        carGroupDispatcherInfo.setUserId(user.getUserId());
+        List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
+        if(carGroupDispatcherInfos == null || carGroupDispatcherInfos.size() == 0) {
+            log.warn("通过用户id查询调度信息为空");
+            return false;
+        }
+        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupDispatcherInfos.get(0).getCarGroupId());
+        if(carGroupInfo == null) {
+            log.warn("车队信息为空carGroupId={}", carGroupDispatcherInfos.get(0).getCarGroupId());
+            return false;
+        }
+        if(carGroupInfo.getItIsInner().equals("C111")){
+            return true;
+        }
+        return false;
+    }
+
+
 
 
     /**
