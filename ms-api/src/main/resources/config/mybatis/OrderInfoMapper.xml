@@ -3100,9 +3100,9 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 用车单位
        ifnull(eo.dept_name, '无') deptName,
        -- 联系人
-       ifnull(eu.nick_name, '无') nickName,
+       ifnull(jpi.name, '无') nickName,
        -- 联系电话
-       ifnull(eu.phonenumber, '无')phoneNumber,
+       ifnull(jpi.mobile, '无')phoneNumber,
        -- 车辆类型
        ifnull(ecti.name, '无')  name,
        -- 乘车人数
