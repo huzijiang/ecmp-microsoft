@@ -144,7 +144,7 @@ wx:
 #回调地址
  notify_url: ${WX_NOTIFY_URL}
 #交易类型
- trade_type: ${WX_SIGN_TYPE}
+ trade_type: ${WX_TRADE_TYPE}
 #签名类型
  sign_type: ${WX_SIGN_TYPE}
 
