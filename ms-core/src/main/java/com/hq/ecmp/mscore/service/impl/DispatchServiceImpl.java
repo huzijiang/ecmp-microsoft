@@ -88,6 +88,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -615,8 +616,11 @@ public class DispatchServiceImpl implements IDispatchService {
 
             log.info("select.car..orderTaskClashBo={}", orderTaskClashBo);
 
-            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+//            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+//            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
+
 
             log.info("select.car..orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
 
@@ -698,11 +702,13 @@ public class DispatchServiceImpl implements IDispatchService {
         ApiResponse<List<CarGroupServeScopeInfo>> carGroupServiceScopesApiResponse = selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
 
         if (!carGroupServiceScopesApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!carGroupServiceScopesApiResponse.isSuccess()");
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
 
         ApiResponse<OrderTaskClashBo> orderTaskClashBoApiResponse = selectOrderSetOutAndArrivalTime(orderInfo);
         if (!orderTaskClashBoApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!orderTaskClashBoApiResponse.isSuccess()");
             return ApiResponse.error(orderTaskClashBoApiResponse.getMsg());
         }
         Date setOutDate = new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
@@ -763,12 +769,10 @@ public class DispatchServiceImpl implements IDispatchService {
             carGroupInfo = carGroupInfoMapper.selectCarGroupsByDriverId(driver.getDriverId());
             waitSelectedDriverBo.setFleetPhone(carGroupInfo.get(0).getTelephone());
 
-//            if(driver.getMobile().equals("15901315301")){
-//                log.info("===========I catch you....=====");
-//            }
             log.info("selectDrivers.......orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo, driver.getMobile());
-            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getArrivalClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
+
 
             log.info("selectDrivers....... orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
             if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
@@ -831,6 +835,23 @@ public class DispatchServiceImpl implements IDispatchService {
         return ApiResponse.success(waitSelectedDriverBoList);
     }
 
+
+    Predicate<String> clashOrder = state -> {
+        return !OrderState.endServerStates().contains(state);
+    };
+
+    private List<OrderInfo> getArrivalClashTask(OrderTaskClashBo orderTaskClashBo) {
+        List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getArrivalClashTask(orderTaskClashBo);
+        return orderInfosArrivalClash.stream().filter(o->clashOrder.test(  o.getState()))
+                .collect(Collectors.toList());
+    }
+
+    private List<OrderInfo> getSetOutClashTask(OrderTaskClashBo orderTaskClashBo) {
+        List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+        return orderInfosSetOutClash.stream().filter(o->clashOrder.test(  o.getState()))
+                .collect(Collectors.toList());
+    }
+
     /**
      * 获取  订单对的行程节点的 计划开始时间和结束时间  从预算价表中获取
      *
@@ -849,10 +870,11 @@ public class DispatchServiceImpl implements IDispatchService {
             return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_PLAN_PRICE.getDesc());
         }
         journeyPlanPriceInfo = journeyPlanPriceInfos.get(0);
-        log.info("journeyPlanPriceInfo.2.={}", journeyPlanPriceInfo);
+        log.info("journeyPlanPriceInfo.2.={} ", journeyPlanPriceInfo );
         Calendar setOutCalendar = Calendar.getInstance();
         setOutCalendar.setTime(journeyPlanPriceInfo.getPlannedDepartureTime());
         setOutCalendar.add(Calendar.MINUTE, -notBackCarGroup);
+
 
         Calendar arrivalCalendar = Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfo.getPlannedArrivalTime());
@@ -862,6 +884,7 @@ public class DispatchServiceImpl implements IDispatchService {
         orderTaskClashBo.setSetOutTime(new Date(setOutCalendar.getTimeInMillis()));
         orderTaskClashBo.setArrivalTime(new Date(arrivalCalendar.getTimeInMillis()));
 
+        log.info("orderTaskClashBo={}",orderTaskClashBo);
         return ApiResponse.success(orderTaskClashBo);
     }
 
@@ -873,15 +896,15 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse<List       <       CarGroupServeScopeInfo>>
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode, Long dispatcherUserId) {
-        log.info("cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
+        log.info("selectCarGroupServiceScope...cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
         CarGroupDispatcherInfo carGroupDispatcher = new CarGroupDispatcherInfo();
         if (dispatcherUserId.equals(0L)) {
             carGroupDispatcher.setDispatcherId(null);
         }
         carGroupDispatcher.setUserId(dispatcherUserId);
-        log.info("carGroupDispatcher={}", carGroupDispatcher);
+        log.info("selectCarGroupServiceScope...carGroupDispatcher={}", carGroupDispatcher);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
-        log.info("select.driver....carGroupDispatcherInfos={}", carGroupDispatcherInfos);
+        log.info("selectCarGroupServiceScope.......carGroupDispatcherInfos={}", carGroupDispatcherInfos);
         if (carGroupDispatcherInfos.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE.getDesc());
         }
@@ -916,7 +939,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 carGroupServeScopeInfoListResult.addAll(carGroupServeScopeInfoList);
             }
         }
-        log.info("select.driver....carGroupServeScopeInfoListResult={}", carGroupServeScopeInfoListResult);
+        log.info("selectCarGroupServiceScope......carGroupServeScopeInfoListResult={}", carGroupServeScopeInfoListResult);
         if (carGroupServeScopeInfoListResult.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_OWN_CAR_GROUP_SCOPE_IS_TOO_SMALL.getDesc());
         }
