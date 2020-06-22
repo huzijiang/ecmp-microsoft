@@ -1001,7 +1001,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
 
     @Override
     public List<CarGroupInfo> userDeptCarGroupList(Long deptId){
-        return carGroupInfoMapper.userDeptCarGroupList(CarConstant.START_UP_CAR_GROUP,deptId);
+        //用车统计查询所有车队列表（包括已删除的 但实际查不出已删除的，因为服务部门表的数据已清除）
+        return carGroupInfoMapper.userDeptCarGroupList(null,deptId);
     }
 
     @Override

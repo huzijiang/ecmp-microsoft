@@ -88,6 +88,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -179,7 +180,7 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     @Override
     public ApiResponse<DispatchResultVo> getWaitSelectedCars(DispatchSelectCarDto dispatchSelectCarDto) {
-        log.info("select.car....dispatchSelectCarDto={}",dispatchSelectCarDto);
+        log.info("select.car....dispatchSelectCarDto={}", dispatchSelectCarDto);
         Long orderId = Long.parseLong(dispatchSelectCarDto.getOrderNo());
 
         LoginUser loginUser = new LoginUser();
@@ -188,14 +189,14 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
-        log.info("select.car....orderInfo={}",orderInfo);
+        log.info("select.car....orderInfo={}", orderInfo);
         OrderAddressInfo orderAddressInfo = verifyOrderActualSetoutAddress(orderInfo).getData();
-        log.info("select.car....orderAddressInfo={}",orderAddressInfo);
+        log.info("select.car....orderAddressInfo={}", orderAddressInfo);
         String userCarCity = orderAddressInfo.getCityPostalCode();
         String carModelLevelType = dispatchSelectCarDto.getCarModelLevelType();
 
         int passengers = journeyPassengerInfoMapper.queryPeerCount(orderInfo.getJourneyId()) + 2;
-        log.info("select.car....passengers={}",passengers);
+        log.info("select.car....passengers={}", passengers);
         SelectCarConditionBo selectCarConditionBo = new SelectCarConditionBo();
         selectCarConditionBo.setCarLevel(carModelLevelType);
         selectCarConditionBo.setPassengers(passengers);
@@ -494,17 +495,17 @@ public class DispatchServiceImpl implements IDispatchService {
      *
      * @param selectCarConditionBo selectCarConditionBo
      * @param orderInfo            orderInfo
-     * @return ApiResponse<List   <   WaitSelectedCarBo>>
+     * @return ApiResponse<List       <       WaitSelectedCarBo>>
      */
     private ApiResponse<List<WaitSelectedCarBo>> selectCars(SelectCarConditionBo selectCarConditionBo, OrderInfo orderInfo) {
-        log.info("select.car....selectCarConditionBo={}",selectCarConditionBo);
+        log.info("select.car....selectCarConditionBo={}", selectCarConditionBo);
         ApiResponse<List<CarGroupServeScopeInfo>> carGroupServiceScopes = selectCarGroupServiceScope(selectCarConditionBo.getCityCode(), selectCarConditionBo.getDispatcherId());
 
         if (!carGroupServiceScopes.isSuccess()) {
             return ApiResponse.error(carGroupServiceScopes.getMsg());
         }
 
-        log.info("select.car....carGroupServiceScopes getData={}",carGroupServiceScopes.getData());
+        log.info("select.car....carGroupServiceScopes getData={}", carGroupServiceScopes.getData());
 
         List<CarInfo> cars = new ArrayList<>();
 
@@ -518,7 +519,7 @@ public class DispatchServiceImpl implements IDispatchService {
             }
             cars.addAll(acars);
         }
-        log.info("select.car...cars={}",cars);
+        log.info("select.car...cars={}", cars);
 
         //如果有驾驶员，过滤驾驶员车辆数据
         if (selectCarConditionBo.getDriverId() != null) {
@@ -529,11 +530,11 @@ public class DispatchServiceImpl implements IDispatchService {
             longs.add(orderInfo.getCarId());
             cars = cars.stream().filter(x -> longs.contains(x.getCarId())).collect(Collectors.toList());
         }
-        log.info("select.car...cars.2.={}",cars);
+        log.info("select.car...cars.2.={}", cars);
 
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
         RegimeInfo regimeInfo = regimeInfoMapper.selectRegimeInfoById(journeyInfo.getRegimenId());
-        log.info("select.car...journeyInfo ={}regimeInfo={}",journeyInfo,regimeInfo);
+        log.info("select.car...journeyInfo ={}regimeInfo={}", journeyInfo, regimeInfo);
 
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
         journeyPassengerInfo.setJourneyId(journeyInfo.getJourneyId());
@@ -542,7 +543,7 @@ public class DispatchServiceImpl implements IDispatchService {
         if (journeyPassengerInfoList.isEmpty()) {
             return ApiResponse.error("行程乘客数据异常");
         }
-        log.info("select.car...journeyPassengerInfoList.={}",journeyPassengerInfoList);
+        log.info("select.car...journeyPassengerInfoList.={}", journeyPassengerInfoList);
 
 
         int seatNumber = 0;
@@ -553,7 +554,7 @@ public class DispatchServiceImpl implements IDispatchService {
             //人数=同行人+1
             seatNumber = journeyPassengerInfoList.get(0).getPeerNumber() == null ? 0 : journeyPassengerInfoList.get(0).getPeerNumber() + 1;
         }
-        log.info("select.car...seatNumber.={}",seatNumber);
+        log.info("select.car...seatNumber.={}", seatNumber);
 
 
         //车辆荷载人数 筛选
@@ -564,7 +565,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 iteratorCarSeatNumber.remove();
             }
         }
-        log.info("select.car...车辆荷载人数 筛选={}",cars);
+        log.info("select.car...车辆荷载人数 筛选={}", cars);
 
 
         String allowCarModelLevel = regimeInfo.getUseCarModeOwnerLevel();
@@ -575,7 +576,7 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         OrderTaskClashBo orderTaskClashBo = apiResponseSelectOrderSetOutAndArrivalTime.getData();
-        log.info("select.car...orderTaskClashBo={}",orderTaskClashBo);
+        log.info("select.car...orderTaskClashBo={}", orderTaskClashBo);
 
         List<WaitSelectedCarBo> waitSelectedCarBoList = new LinkedList<>();
         cars.stream().forEach(carInfo -> {
@@ -613,12 +614,15 @@ public class DispatchServiceImpl implements IDispatchService {
                 waitSelectedCarBo.setLevelIsMatch(CarLevelMatchEnum.UN_MATCH.getCode());
             }
 
-            log.info("select.car..orderTaskClashBo={}",orderTaskClashBo);
+            log.info("select.car..orderTaskClashBo={}", orderTaskClashBo);
 
-            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+//            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+//            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
 
-            log.info("select.car..orderInfosSetOutClash={},orderInfosArrivalClash={}",orderInfosSetOutClash,orderInfosArrivalClash);
+
+            log.info("select.car..orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
 
             if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
                 waitSelectedCarBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
@@ -662,7 +666,7 @@ public class DispatchServiceImpl implements IDispatchService {
             waitSelectedCarBoList.add(waitSelectedCarBo);
         });
 
-        log.info("select.car..waitSelectedCarBoList={}",waitSelectedCarBoList);
+        log.info("select.car..waitSelectedCarBoList={}", waitSelectedCarBoList);
 
         //车牌信息为空时，不展示冲突的车辆
         if (StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
@@ -674,7 +678,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
         }
-        log.info("select.car..不展示冲突的车辆 waitSelectedCarBoList={}",waitSelectedCarBoList);
+        log.info("select.car..不展示冲突的车辆 waitSelectedCarBoList={}", waitSelectedCarBoList);
 
 
         waitSelectedCarBoList.stream().forEach(waitSelectedCarBo -> {
@@ -690,23 +694,26 @@ public class DispatchServiceImpl implements IDispatchService {
      *
      * @param selectDriverConditionBo selectDriverConditionBo
      * @param orderInfo               orderInfo
-     * @return ApiResponse<List   <   WaitSelectedDriverBo>>
+     * @return ApiResponse<List       <       WaitSelectedDriverBo>>
      */
     private ApiResponse<List<WaitSelectedDriverBo>> selectDrivers(SelectDriverConditionBo selectDriverConditionBo,
                                                                   OrderInfo orderInfo) {
-        log.info("selectDriverConditionBo={},orderInfo={}", selectDriverConditionBo, orderInfo);
+        log.info("selectDrivers.......selectDriverConditionBo={},orderInfo={}", selectDriverConditionBo, orderInfo.toString());
         ApiResponse<List<CarGroupServeScopeInfo>> carGroupServiceScopesApiResponse = selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
 
         if (!carGroupServiceScopesApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!carGroupServiceScopesApiResponse.isSuccess()");
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
 
         ApiResponse<OrderTaskClashBo> orderTaskClashBoApiResponse = selectOrderSetOutAndArrivalTime(orderInfo);
         if (!orderTaskClashBoApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!orderTaskClashBoApiResponse.isSuccess()");
             return ApiResponse.error(orderTaskClashBoApiResponse.getMsg());
         }
         Date setOutDate = new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
         selectDriverConditionBo.setWorkDay(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, setOutDate));
+        log.info("selectDrivers.......setOutDate={}...orderTaskClashBoApiResponse.getData()={}", setOutDate,orderTaskClashBoApiResponse.getData());
 
         List<DriverInfo> drivers = new ArrayList<>();
 
@@ -719,11 +726,14 @@ public class DispatchServiceImpl implements IDispatchService {
             drivers.addAll(adrivers);
         }
 
+        log.info("selectDrivers.......drivers={}", drivers);
+
         ApiResponse<OrderTaskClashBo> apiResponseSelectOrderSetOutAndArrivalTime = selectOrderSetOutAndArrivalTime(orderInfo);
         if (!apiResponseSelectOrderSetOutAndArrivalTime.isSuccess()) {
             return ApiResponse.error(apiResponseSelectOrderSetOutAndArrivalTime.getMsg());
         }
         OrderTaskClashBo orderTaskClashBo = apiResponseSelectOrderSetOutAndArrivalTime.getData();
+        log.info("selectDrivers.......orderTaskClashBo={}", orderTaskClashBo);
 
         List<WaitSelectedDriverBo> waitSelectedDriverBoList = new ArrayList<>();
 
@@ -759,14 +769,12 @@ public class DispatchServiceImpl implements IDispatchService {
             carGroupInfo = carGroupInfoMapper.selectCarGroupsByDriverId(driver.getDriverId());
             waitSelectedDriverBo.setFleetPhone(carGroupInfo.get(0).getTelephone());
 
-//            if(driver.getMobile().equals("15901315301")){
-//                log.info("===========I catch you....=====");
-//            }
-            log.info("orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo,driver.getMobile());
-            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+            log.info("selectDrivers.......orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo, driver.getMobile());
+            List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
+            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
 
-            log.info("select_driver orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
+
+            log.info("selectDrivers....... orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
             if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
                 waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
                 List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
@@ -801,10 +809,11 @@ public class DispatchServiceImpl implements IDispatchService {
                     waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
                 }
             }
-            log.info("select.driver....waitSelectedDriverBo={}",waitSelectedDriverBo);
+            log.info("selectDrivers.......waitSelectedDriverBo={}", waitSelectedDriverBo);
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
+        log.info("selectDrivers.......waitSelectedDriverBoList={}", waitSelectedDriverBoList);
         //姓名或手机 信息为空时，不展示 冲突的司机
         if (StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
             Iterator<WaitSelectedDriverBo> iterator = waitSelectedDriverBoList.iterator();
@@ -816,12 +825,31 @@ public class DispatchServiceImpl implements IDispatchService {
             }
         }
 
+        log.info("selectDrivers.......2.waitSelectedDriverBoList={}", waitSelectedDriverBoList);
+
         waitSelectedDriverBoList.stream().forEach(driver -> {
             driver.embellish();
         });
 
 
         return ApiResponse.success(waitSelectedDriverBoList);
+    }
+
+
+    Predicate<String> clashOrder = state -> {
+        return !OrderState.endServerStates().contains(state);
+    };
+
+    private List<OrderInfo> getArrivalClashTask(OrderTaskClashBo orderTaskClashBo) {
+        List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getArrivalClashTask(orderTaskClashBo);
+        return orderInfosArrivalClash.stream().filter(o->clashOrder.test(  o.getState()))
+                .collect(Collectors.toList());
+    }
+
+    private List<OrderInfo> getSetOutClashTask(OrderTaskClashBo orderTaskClashBo) {
+        List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
+        return orderInfosSetOutClash.stream().filter(o->clashOrder.test(  o.getState()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -837,15 +865,16 @@ public class DispatchServiceImpl implements IDispatchService {
 
         log.info("journeyPlanPriceInfo.1.={}", journeyPlanPriceInfo);
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
-        log.info(" journeyPlanPriceInfos.={} ",journeyPlanPriceInfos);
+        log.info(" journeyPlanPriceInfos.={} ", journeyPlanPriceInfos);
         if (journeyPlanPriceInfos.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.ORDER_NOT_FIND_PLAN_PRICE.getDesc());
         }
         journeyPlanPriceInfo = journeyPlanPriceInfos.get(0);
-        log.info("journeyPlanPriceInfo.2.={}", journeyPlanPriceInfo);
+        log.info("journeyPlanPriceInfo.2.={} ", journeyPlanPriceInfo );
         Calendar setOutCalendar = Calendar.getInstance();
         setOutCalendar.setTime(journeyPlanPriceInfo.getPlannedDepartureTime());
         setOutCalendar.add(Calendar.MINUTE, -notBackCarGroup);
+
 
         Calendar arrivalCalendar = Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfo.getPlannedArrivalTime());
@@ -855,6 +884,7 @@ public class DispatchServiceImpl implements IDispatchService {
         orderTaskClashBo.setSetOutTime(new Date(setOutCalendar.getTimeInMillis()));
         orderTaskClashBo.setArrivalTime(new Date(arrivalCalendar.getTimeInMillis()));
 
+        log.info("orderTaskClashBo={}",orderTaskClashBo);
         return ApiResponse.success(orderTaskClashBo);
     }
 
@@ -863,18 +893,18 @@ public class DispatchServiceImpl implements IDispatchService {
      *
      * @param cityCode         cityCode
      * @param dispatcherUserId dispatcherUserId
-     * @return ApiResponse<List   <   CarGroupServeScopeInfo>>
+     * @return ApiResponse<List       <       CarGroupServeScopeInfo>>
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode, Long dispatcherUserId) {
-        log.info("cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
+        log.info("selectCarGroupServiceScope...cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
         CarGroupDispatcherInfo carGroupDispatcher = new CarGroupDispatcherInfo();
         if (dispatcherUserId.equals(0L)) {
             carGroupDispatcher.setDispatcherId(null);
         }
         carGroupDispatcher.setUserId(dispatcherUserId);
-        log.info("carGroupDispatcher={}", carGroupDispatcher);
+        log.info("selectCarGroupServiceScope...carGroupDispatcher={}", carGroupDispatcher);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
-        log.info("select.driver....carGroupDispatcherInfos={}",carGroupDispatcherInfos);
+        log.info("selectCarGroupServiceScope.......carGroupDispatcherInfos={}", carGroupDispatcherInfos);
         if (carGroupDispatcherInfos.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE.getDesc());
         }
@@ -909,7 +939,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 carGroupServeScopeInfoListResult.addAll(carGroupServeScopeInfoList);
             }
         }
-        log.info("select.driver....carGroupServeScopeInfoListResult={}",carGroupServeScopeInfoListResult);
+        log.info("selectCarGroupServiceScope......carGroupServeScopeInfoListResult={}", carGroupServeScopeInfoListResult);
         if (carGroupServeScopeInfoListResult.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_OWN_CAR_GROUP_SCOPE_IS_TOO_SMALL.getDesc());
         }

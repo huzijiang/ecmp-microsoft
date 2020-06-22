@@ -101,8 +101,8 @@ public class UseCarStatisticsController {
     }
 
 
-    @ApiOperation(value = "userDeptUseCarDetail",notes = "按车队分页查询用户部门用车统计数据",httpMethod ="POST")
-    @Log(title = "按车队分页查询用户部门用车统计数据", content = "按车队分页查询用户部门用车统计数据",businessType = BusinessType.OTHER)
+    @ApiOperation(value = "userDeptUseCarDetail",notes = "按车队分页查询用户部门用车统计订单列表",httpMethod ="POST")
+    @Log(title = "按车队分页查询用户部门用车统计订单列表", content = "按车队分页查询用户部门用车统计订单列表",businessType = BusinessType.OTHER)
     @PostMapping("/userDeptUseCarDetail")
     public ApiResponse<PageResult<StatisticsForAdminDetailVo>> userDeptUseCarDetail(@RequestBody UserDeptUseCarDetailDto userDeptUseCarDetailDto){
         try {

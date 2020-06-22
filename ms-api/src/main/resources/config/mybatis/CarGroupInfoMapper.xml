@@ -392,10 +392,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         and ci.company_id=#{companyId}
     </select>
     <select id="userDeptCarGroupList" resultType="com.hq.ecmp.mscore.domain.CarGroupInfo">
-         select c.car_group_id carGroupId,c.car_group_name carGroupName
+         select c.car_group_id carGroupId,if(c.state = 'S444',CONCAT(c.car_group_name,'(已删除)'),c.car_group_name) carGroupName
           from car_group_info c
           left join car_group_serve_org_relation o on o.car_group_id = c.car_group_id
-          where c.state =#{state}   and o.dept_id =#{deptId}
+          where 1=1
+          <if  test="state != null and state != ''"  >and  c.state =#{state} </if>
+            and o.dept_id =#{deptId}
     </select>
 
    <select id="reckoningDetail" resultType="java.lang.String" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
