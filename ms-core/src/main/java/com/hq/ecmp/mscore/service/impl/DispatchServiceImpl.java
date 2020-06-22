@@ -694,7 +694,7 @@ public class DispatchServiceImpl implements IDispatchService {
      */
     private ApiResponse<List<WaitSelectedDriverBo>> selectDrivers(SelectDriverConditionBo selectDriverConditionBo,
                                                                   OrderInfo orderInfo) {
-        log.info("selectDriverConditionBo={},orderInfo={}", selectDriverConditionBo, orderInfo);
+        log.info("selectDrivers.......selectDriverConditionBo={},orderInfo={}", selectDriverConditionBo, orderInfo.toString());
         ApiResponse<List<CarGroupServeScopeInfo>> carGroupServiceScopesApiResponse = selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
 
         if (!carGroupServiceScopesApiResponse.isSuccess()) {
@@ -707,7 +707,7 @@ public class DispatchServiceImpl implements IDispatchService {
         }
         Date setOutDate = new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
         selectDriverConditionBo.setWorkDay(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, setOutDate));
-        log.info("setOutDate={}...orderTaskClashBoApiResponse.getData()={}", setOutDate,orderTaskClashBoApiResponse.getData());
+        log.info("selectDrivers.......setOutDate={}...orderTaskClashBoApiResponse.getData()={}", setOutDate,orderTaskClashBoApiResponse.getData());
 
         List<DriverInfo> drivers = new ArrayList<>();
 
@@ -720,12 +720,14 @@ public class DispatchServiceImpl implements IDispatchService {
             drivers.addAll(adrivers);
         }
 
+        log.info("selectDrivers.......drivers={}", drivers);
+
         ApiResponse<OrderTaskClashBo> apiResponseSelectOrderSetOutAndArrivalTime = selectOrderSetOutAndArrivalTime(orderInfo);
         if (!apiResponseSelectOrderSetOutAndArrivalTime.isSuccess()) {
             return ApiResponse.error(apiResponseSelectOrderSetOutAndArrivalTime.getMsg());
         }
         OrderTaskClashBo orderTaskClashBo = apiResponseSelectOrderSetOutAndArrivalTime.getData();
-        log.info("orderTaskClashBo={}", orderTaskClashBo);
+        log.info("selectDrivers.......orderTaskClashBo={}", orderTaskClashBo);
 
         List<WaitSelectedDriverBo> waitSelectedDriverBoList = new ArrayList<>();
 
@@ -764,11 +766,11 @@ public class DispatchServiceImpl implements IDispatchService {
 //            if(driver.getMobile().equals("15901315301")){
 //                log.info("===========I catch you....=====");
 //            }
-            log.info("orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo, driver.getMobile());
+            log.info("selectDrivers.......orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo, driver.getMobile());
             List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getArrivalClashTask(orderTaskClashBo);
 
-            log.info("select_driver orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
+            log.info("selectDrivers....... orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
             if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
                 waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
                 List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
@@ -803,10 +805,11 @@ public class DispatchServiceImpl implements IDispatchService {
                     waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
                 }
             }
-            log.info("select.driver....waitSelectedDriverBo={}", waitSelectedDriverBo);
+            log.info("selectDrivers.......waitSelectedDriverBo={}", waitSelectedDriverBo);
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
+        log.info("selectDrivers.......waitSelectedDriverBoList={}", waitSelectedDriverBoList);
         //姓名或手机 信息为空时，不展示 冲突的司机
         if (StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
             Iterator<WaitSelectedDriverBo> iterator = waitSelectedDriverBoList.iterator();
@@ -817,6 +820,8 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
         }
+
+        log.info("selectDrivers.......2.waitSelectedDriverBoList={}", waitSelectedDriverBoList);
 
         waitSelectedDriverBoList.stream().forEach(driver -> {
             driver.embellish();
