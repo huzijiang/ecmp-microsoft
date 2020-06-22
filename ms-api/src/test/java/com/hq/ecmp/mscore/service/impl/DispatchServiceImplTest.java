@@ -41,7 +41,8 @@ public class DispatchServiceImplTest {
 //                .param("itIsSelfDriver", "N111"))
         DispatchSelectDriverDto dispatchSelectDriverDto
                 = new DispatchSelectDriverDto ();
-        dispatchSelectDriverDto.setOrderNo("327");
+        dispatchSelectDriverDto.setOrderNo("349");
+        dispatchSelectDriverDto.setDispatcherId("eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjliOWZiYzM3LTdlMGQtNGJhOC1iMDdmLTcxN2ZiNWFjZWQzMCJ9.7HgJSHE3fYu9N7RMUsQxxdSexuGEJ7PbnyjDpr22VOqt8eFpvUgqfETBoDv4HvBEbcHDDdNZEtl5GE6WgdHlgg");
         dispatchSelectDriverDto.setCarGroupServiceMode("CA00");
         dispatchSelectDriverDto.setCarGroupSource("C000");
         dispatchSelectDriverDto.setItIsSelfDriver("N111");

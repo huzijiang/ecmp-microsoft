@@ -698,11 +698,13 @@ public class DispatchServiceImpl implements IDispatchService {
         ApiResponse<List<CarGroupServeScopeInfo>> carGroupServiceScopesApiResponse = selectCarGroupServiceScope(selectDriverConditionBo.getCityCode(), selectDriverConditionBo.getDispatcherId());
 
         if (!carGroupServiceScopesApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!carGroupServiceScopesApiResponse.isSuccess()");
             return ApiResponse.error(carGroupServiceScopesApiResponse.getMsg());
         }
 
         ApiResponse<OrderTaskClashBo> orderTaskClashBoApiResponse = selectOrderSetOutAndArrivalTime(orderInfo);
         if (!orderTaskClashBoApiResponse.isSuccess()) {
+            log.info("selectDrivers.......!orderTaskClashBoApiResponse.isSuccess()");
             return ApiResponse.error(orderTaskClashBoApiResponse.getMsg());
         }
         Date setOutDate = new Date(orderTaskClashBoApiResponse.getData().getSetOutTime().getTime());
@@ -873,15 +875,15 @@ public class DispatchServiceImpl implements IDispatchService {
      * @return ApiResponse<List       <       CarGroupServeScopeInfo>>
      */
     private ApiResponse<List<CarGroupServeScopeInfo>> selectCarGroupServiceScope(String cityCode, Long dispatcherUserId) {
-        log.info("cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
+        log.info("selectCarGroupServiceScope...cityCode={},dispatcherUserId={}", cityCode, dispatcherUserId);
         CarGroupDispatcherInfo carGroupDispatcher = new CarGroupDispatcherInfo();
         if (dispatcherUserId.equals(0L)) {
             carGroupDispatcher.setDispatcherId(null);
         }
         carGroupDispatcher.setUserId(dispatcherUserId);
-        log.info("carGroupDispatcher={}", carGroupDispatcher);
+        log.info("selectCarGroupServiceScope...carGroupDispatcher={}", carGroupDispatcher);
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcher);
-        log.info("select.driver....carGroupDispatcherInfos={}", carGroupDispatcherInfos);
+        log.info("selectCarGroupServiceScope.......carGroupDispatcherInfos={}", carGroupDispatcherInfos);
         if (carGroupDispatcherInfos.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.NOT_FIND_SUITABLE_CAR_SERVICE_SCOPE.getDesc());
         }
@@ -916,7 +918,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 carGroupServeScopeInfoListResult.addAll(carGroupServeScopeInfoList);
             }
         }
-        log.info("select.driver....carGroupServeScopeInfoListResult={}", carGroupServeScopeInfoListResult);
+        log.info("selectCarGroupServiceScope......carGroupServeScopeInfoListResult={}", carGroupServeScopeInfoListResult);
         if (carGroupServeScopeInfoListResult.isEmpty()) {
             return ApiResponse.error(DispatchExceptionEnum.DISPATCHER_OWN_CAR_GROUP_SCOPE_IS_TOO_SMALL.getDesc());
         }
