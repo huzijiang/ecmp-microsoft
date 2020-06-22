@@ -90,6 +90,16 @@ public interface OrderInfoMapper {
     public List<OrderListInfo> getOrderList(@Param("deptId") Long deptId,@Param("isConfirmState") int isConfirmState);
 
 
+    /**
+     * 订单列表外部车队只能看到自己外部车队的订单
+     *
+     * @param userId
+     * @param isConfirmState
+     * @return
+     */
+    public List<OrderListInfo> getOrderOutList(@Param("deptId") Long deptId,@Param("isConfirmState") int isConfirmState);
+
+
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
 
     /**
