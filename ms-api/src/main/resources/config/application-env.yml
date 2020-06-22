@@ -134,34 +134,34 @@ app:
 
 wx:
 #应用ID
- appId: "${WX_APPID}"
+ appId: ${WX_APPID}
 #公众号 APP_SECRET
- appSecret: "${WX_APPSECRET}"
+ appSecret: ${WX_APPSECRET}
 #商户号
- mchId: "${WX_MCHID}"
+ mchId: ${WX_MCHID}
 #商户秘钥
- mchKey: "${WX_MCHKEY}"
+ mchKey: ${WX_MCHKEY}
 #回调地址
- notify_url: "${WX_NOTIFY_URL}"
+ notify_url: ${WX_NOTIFY_URL}
 #交易类型
- trade_type: "${WX_SIGN_TYPE}"
+ trade_type: ${WX_SIGN_TYPE}
 #签名类型
- sign_type: "${WX_SIGN_TYPE}"
+ sign_type: ${WX_SIGN_TYPE}
 
 ali:
  #商户appid,使用商户自己的appid即可
- app_id: "${ALI_APP_ID}"
+ app_id: ${ALI_APP_ID}
  #私钥 pkcs8格式的，与在支付宝存储的公钥对应
- app_private_key: "${ALI_APP_PROVATE_KEY}"
+ app_private_key: ${ALI_APP_PROVATE_KEY}
  #支付宝公钥，支付宝生成的公钥，切勿与商户公钥混淆
- ali_pay_public_key: "${ALI_PAY_PUBLIC_KEY}"
- notify_url: "${ALI_NOTIFY_URL}"
+ ali_pay_public_key: ${ALI_PAY_PUBLIC_KEY}
+ notify_url: ${ALI_NOTIFY_URL}
  url: "https://openapi.alipay.com/gateway.do"
  charset: "UTF-8"
  refund_charset: "GBK"
  format: "json"
  sign_type: "RSA2"
- refund_notify_url: "${ALI_REFUND_NOTIFY_URL}"
+ refund_notify_url: ${ALI_REFUND_NOTIFY_URL}
 
 cloud:
   service:
