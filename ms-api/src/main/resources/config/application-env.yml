@@ -1,0 +1,168 @@
+# 数据源配置
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      # 主库数据源
+      master:
+        url: ${MICROSERVICE_MYSQL_MASTER_JDBC_URL}
+        username: ${MICROSERVICE_MYSQL_USERNAME}
+        password: ${MICROSERVICE_MYSQL_PASSWORD}
+      # 从库数据源
+      slave:
+        # 从数据源开关/默认关闭
+        enabled: false
+        url: ${MICROSERVICE_MYSQL_SLAVE_JDBC_URL}
+        username: ${MICROSERVICE_MYSQL_USERNAME}
+        password: ${MICROSERVICE_MYSQL_PASSWORD}
+      # 初始连接数
+      initialSize: 5
+      # 最小连接池数量
+      minIdle: 10
+      # 最大连接池数量
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      # 配置一个连接在池中最大生存的时间，单位是毫秒
+      maxEvictableIdleTimeMillis: 900000
+      # 配置检测连接是否有效
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        # 设置白名单，不填则允许所有访问
+        allow:
+        url-pattern: /druid/*
+        # 控制台管理用户名和密码
+        login-username:
+        login-password:
+      filter:
+        stat:
+          enabled: true
+          # 慢SQL记录
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
+  redis:
+    cluster:
+      nodes: ${MICROSERVICE_REDIS_CLUSTER}
+      max-redirects: 5
+      timeout: 6000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# 开发环境配置
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # tomcat最大线程数，默认为200
+    max-threads: 800
+    # Tomcat启动初始化的线程数，默认值25
+    min-spare-threads: 30
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌秘钥
+  secret: abcdefghijklmnopqrstuvwxyz
+  # 令牌有效期（默认30分钟）
+  expireTime: 30
+
+thirdService:
+  enterpriseId: ${MICROSERVICE_THIRDSERVICE_ENTERPRISEID}
+  licenseContent: ${MICROSERVICE_THIRDSERVICE_LICENSECONTENT}
+  apiUrl: ${MICROSERVICE_THIRDSERVICE_API_URL}
+
+#行程分享路径
+order:
+  shareUrl: ${MICROSERVICE_ORDER_SHAREURL}
+file:
+  config:
+    savepath: ${MICROSERVICE_FILE_CONFIG_SAVEPATH}
+  path:
+    feedback: ${MICROSERVICE_FILE_PATH_FEEDBACK}
+  url:
+    feedback: ${MICROSERVICE_FILE_URL_FEEDBACK}
+
+
+dispatch:
+  #不回车队驻地缓冲时间: 60分钟
+  notBackCarGroup: 60
+  #回车队驻地缓冲时间: 90分钟
+  backCarGroup: 90
+  #无车驳回的可操作最小时间限制 30分钟
+  noCarDeniedMinutes: 30
+  #外部公司可展示内部公司调度单的时间间隔
+  waitIntervalMinutes: 10
+
+#调度行程确认的时间间隔
+schedule:
+  confirmTimeout: 12
+
+
+#/upload
+app:
+  zimg:
+    server: ${APP_ZIMG_SERVER}
+    access:
+      #url: http://123.127.89.218:4869/
+      url: ${APP_ZIMG_ACCESS_URL}
+  welcome: ${APP_ZIMG_WELCOME}
+  background: ${APP_ZIMG_BACKGROUND}
+
+wx:
+#应用ID
+ appId: "${WX_APPID}"
+#公众号 APP_SECRET
+ appSecret: "${WX_APPSECRET}"
+#商户号
+ mchId: "${WX_MCHID}"
+#商户秘钥
+ mchKey: "${WX_MCHKEY}"
+#回调地址
+ notify_url: "${WX_NOTIFY_URL}"
+#交易类型
+ trade_type: "${WX_SIGN_TYPE}"
+#签名类型
+ sign_type: "${WX_SIGN_TYPE}"
+
+ali:
+ #商户appid,使用商户自己的appid即可
+ app_id: "${ALI_APP_ID}"
+ #私钥 pkcs8格式的，与在支付宝存储的公钥对应
+ app_private_key: "${ALI_APP_PROVATE_KEY}"
+ #支付宝公钥，支付宝生成的公钥，切勿与商户公钥混淆
+ ali_pay_public_key: "${ALI_PAY_PUBLIC_KEY}"
+ notify_url: "${ALI_NOTIFY_URL}"
+ url: "https://openapi.alipay.com/gateway.do"
+ charset: "UTF-8"
+ refund_charset: "GBK"
+ format: "json"
+ sign_type: "RSA2"
+ refund_notify_url: "${ALI_REFUND_NOTIFY_URL}"
+
+cloud:
+  service:
+    url: ${CLOUD_SERVICE_URL}
