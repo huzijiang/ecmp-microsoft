@@ -6,10 +6,7 @@ import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.CollectionQuittanceInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.CollectionQuittanceInfoService;
 import com.hq.ecmp.mscore.service.lease.LeaseSettlementService;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -19,17 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.SimpleFormatter;
 
 
 @Service
 @Slf4j
 public class LeaseSettlementServiceImpl implements LeaseSettlementService {
-
 
     @Autowired
     private CollectionQuittanceInfoMapper collectionQuittanceInfoMapper;
@@ -41,8 +34,33 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
     private CarGroupInfoMapper carGroupInfoMapper;
     @Autowired
     private CollectionQuittanceInfoService collectionQuittanceInfoService;
+    @Autowired
+    private EcmpOrgMapper ecmpOrgMapper;
+
     /***
-     *结算单列表（调度员，外部员工，区分角色查询）
+     * 结算单列表（调度员，外部员工，区分角色查询）
+     * add by liuzb
+     * @param data
+     * @return
+     * @throws Exception
+     */
+    /*@Override
+    public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user) throws Exception {
+        log.info("结算单列表，请求参数：LeaseSettlementDto={} LoginUser={}", data, user);
+        String roleKey = isRole(user);
+        if (!("admin".equals(roleKey) || "C000".equals(roleKey))) {
+            if ("C111".equals(roleKey)) {
+                data.setCreateBy(user.getUser().getUserId());
+            } else {
+                data.setServiceOrg(user.getUser().getDeptId());
+            }
+        }
+        List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
+        PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
+        return new PageResult<>(info.getTotal(), info.getPages(), list);
+    }*/
+    /***
+     * 结算单列表（只能是调度员，并且只能查询自己的车队服务的部门的结算单）
      * add by liuzb
      * @param data
      * @return
@@ -50,17 +68,27 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
      */
     @Override
     public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user) throws Exception {
-        String roleKey = isRole(user);
-        if(!("admin".equals(roleKey) || "C000".equals(roleKey))){
-            if("C111".equals(roleKey)){
-                data.setCreateBy(user.getUser().getUserId());
-            }else{
-                data.setServiceOrg(user.getUser().getDeptId());
+        log.info("结算单列表，请求参数：LeaseSettlementDto={} LoginUser={}", data, user);
+        boolean isDispatcher = isDispatcher(user);
+        if (isDispatcher) {
+            /**
+             * 获取当前调度员所在车队服务的机构的id
+             */
+            Long userId = user.getUser().getUserId();
+            Integer carGroupIdOfDispatcher = ecmpOrgMapper.selectCarGroupIdOfDispatcher(userId);
+            if (null == carGroupIdOfDispatcher) {
+                log.info("当前调度员车队id为null，请检查核对后重试");
+                return null;
             }
+            log.info("当前调度员车队id={}", carGroupIdOfDispatcher);
+            data.setCarGroupId(carGroupIdOfDispatcher.toString());
+
+            List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryListForDispatcher(data);
+            PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
+            return new PageResult<>(info.getTotal(), info.getPages(), list);
         }
-        List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
-        PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
-        return new PageResult<>(info.getTotal(),info.getPages(),list);
+        log.info("非调度员，不能查看结算单列表");
+        return null;
     }
 
     /***
@@ -69,20 +97,20 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
      * @param user
      * @return
      */
-    private String isRole(LoginUser user){
-        if(isAdmin(user)){
+    private String isRole(LoginUser user) {
+        if (isAdmin(user)) {
             return "admin";
         }
         List<SysRole> roleList = user.getUser().getRoles();
-        for(SysRole data : roleList ){
+        for (SysRole data : roleList) {
             /**调度员（区分内部调度，外部调度）*/
-            if("dispatcher".equals(data.getRoleKey())){
+            if ("dispatcher".equals(data.getRoleKey())) {
                 List<String> list = carGroupInfoMapper.selectIsDispatcher(user.getUser().getUserId());
-                for(String str :list){
-                    if("C000".equals(str)){
+                for (String str : list) {
+                    if ("C000".equals(str)) {
                         return "C000";
                     }
-                    if("C111".equals(str)){
+                    if ("C111".equals(str)) {
                         return "C111";
                     }
                 }
@@ -97,10 +125,26 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
      * @param user
      * @return
      */
-    private boolean  isAdmin(LoginUser user){
+    private boolean isAdmin(LoginUser user) {
         List<SysRole> roleList = user.getUser().getRoles();
-        for(SysRole data : roleList ) {
-            if("admin".equals(data.getRoleKey()) || "sub_admin".equals(data.getRoleKey())){
+        for (SysRole data : roleList) {
+            if ("admin".equals(data.getRoleKey()) || "sub_admin".equals(data.getRoleKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 当前登录用户是否是调度员，不区分内外调度员
+     * @param user
+     * @return
+     */
+    private boolean isDispatcher(LoginUser user) {
+        List<SysRole> roleList = user.getUser().getRoles();
+        for (SysRole data : roleList) {
+            /**调度员（不区分内部调度/外部调度）*/
+            if ("dispatcher".equals(data.getRoleKey())) {
                 return true;
             }
         }

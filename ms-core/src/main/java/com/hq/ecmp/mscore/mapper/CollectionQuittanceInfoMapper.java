@@ -24,6 +24,12 @@ public interface CollectionQuittanceInfoMapper {
      */
     List<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data);
 
+    /**
+     * 调度员查看结算单列表
+     * @param data
+     * @return
+     */
+    List<LeaseSettlementDto> getOrdinaryListForDispatcher(LeaseSettlementDto data);
 
     /***
      * 根据主键id获取结算单

@@ -49,48 +49,91 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where collection_number = #{collectionNumber}
     </update>
 
-    <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
-       select
-            cqi.collection_id collectionId,
-            cqi.company_id companyId,
-            cqi.collection_number collectionNumber,
-            cqi.collection_end_time collectionEndTime,
-            eo.dept_name deptName,
-            cgi.car_group_name carGroupName,
-            cgi.car_group_id carGroupId,
-            cqi.begin_date beginDate,
-            cqi.end_date endDate,
-		    cqi.state state,
-            eu.nick_name verifierName,
-            cqi.service_org serviceOrg,
-            cqi.create_time createTime
-       from collection_quittance_info cqi
+    <select id="getOrdinaryUserList" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto"
+            resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+        select
+        cqi.collection_id collectionId,
+        cqi.company_id companyId,
+        cqi.collection_number collectionNumber,
+        cqi.collection_end_time collectionEndTime,
+        eo.dept_name deptName,
+        cgi.car_group_name carGroupName,
+        cgi.car_group_id carGroupId,
+        cqi.begin_date beginDate,
+        cqi.end_date endDate,
+        cqi.state state,
+        eu.nick_name verifierName,
+        cqi.service_org serviceOrg,
+        cqi.create_time createTime
+        from collection_quittance_info cqi
         left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
         left join ecmp_user eu on eu.user_id = cqi.verifier
         left join ecmp_org eo on eo.dept_id = cqi.service_org
         where 1=1
-        <if test="companyId!=null and companyId!=''" >
+        <if test="companyId!=null and companyId!=''">
             and cqi.company_id=#{companyId}
         </if>
-        <if test="deptName!=null and deptName!=''" >
-            and  eo.dept_name  like concat('%',#{deptName},'%')
+        <if test="deptName!=null and deptName!=''">
+            and eo.dept_name like concat('%',#{deptName},'%')
         </if>
-        <if test="carGroupName!=null and carGroupName!=''" >
-            and  cgi.car_group_name  like concat('%',#{carGroupName},'%')
+        <if test="carGroupName!=null and carGroupName!=''">
+            and cgi.car_group_name like concat('%',#{carGroupName},'%')
         </if>
-        <if test="collectionNumber!=null and collectionNumber!=''" >
-            and  cqi.collection_number like concat('%',#{collectionNumber},'%')
+        <if test="collectionNumber!=null and collectionNumber!=''">
+            and cqi.collection_number like concat('%',#{collectionNumber},'%')
         </if>
-        <if test="state!=null and state!=''" >
-            and  cqi.state =#{state}
+        <if test="state!=null and state!=''">
+            and cqi.state =#{state}
         </if>
-        <if test="createBy!=null and createBy!=''" >
-            and  cqi.create_by =#{createBy}
+        <if test="createBy!=null and createBy!=''">
+            and cqi.create_by =#{createBy}
         </if>
-        <if test="serviceOrg!=null and serviceOrg!=''" >
-            and  cqi.service_org =#{serviceOrg}
+        <if test="serviceOrg!=null and serviceOrg!=''">
+            and cqi.service_org =#{serviceOrg}
         </if>
     </select>
+    <!--新逻辑，调度员查看自己车队的-->
+    <select id="getOrdinaryListForDispatcher" parameterType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto"
+            resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
+        select
+        cqi.collection_id collectionId,
+        cqi.company_id companyId,
+        cqi.collection_number collectionNumber,
+        cqi.collection_end_time collectionEndTime,
+        eo.dept_name deptName,
+        cgi.car_group_name carGroupName,
+        cgi.car_group_id carGroupId,
+        cqi.begin_date beginDate,
+        cqi.end_date endDate,
+        cqi.state state,
+        eu.nick_name verifierName,
+        cqi.service_org serviceOrg,
+        cqi.create_time createTime
+        from collection_quittance_info cqi
+        left join car_group_info cgi on cgi.car_group_id = cqi.car_group_id
+        left join ecmp_user eu on eu.user_id = cqi.verifier
+        left join ecmp_org eo on eo.dept_id = cqi.service_org
+        where 1=1
+        <if test="companyId != null and companyId != ''">
+            and cqi.company_id = #{companyId}
+        </if>
+        <if test="deptName != null and deptName != ''">
+            and eo.dept_name like concat('%',#{deptName},'%')
+        </if>
+        <if test="carGroupId != null and carGroupId != ''">
+            and cgi.car_group_id = #{carGroupId}
+        </if>
+        <if test="carGroupName != null and carGroupName != ''">
+            and cgi.car_group_name like concat('%', #{carGroupName},'%')
+        </if>
+        <if test="collectionNumber != null and collectionNumber != ''">
+            and cqi.collection_number like concat('%', #{collectionNumber},'%')
+        </if>
+        <if test="state != null and state != ''">
+            and cqi.state =#{state}
+        </if>
+    </select>
+
     <select id="getOrdinaryUserById" parameterType="java.lang.Long" resultType="com.hq.ecmp.mscore.dto.lease.LeaseSettlementDto">
         select
         cqi.collection_id collectionId,
