@@ -1396,10 +1396,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public void updatePickupCarState() {
         //获取已取车的所有订单
         List<PiclUpCarOrderVO> orderList=orderStateTraceInfoMapper.selectOrderListByState(OrderStateTrace.PICKUPCAR.getState());
-        if (CollectionUtils.isEmpty(orderList)){
+        if (!CollectionUtils.isEmpty(orderList)){
             for (PiclUpCarOrderVO vo:orderList){
                 int i = DateFormatUtils.compareDayAndTime(vo.getUseCarTime(), new Date());
-                if (i==0){
+                if (i>=0){
                     ((OrderInfoTwoServiceImpl) AopContext.currentProxy()).updateOrderState(vo);
                 }
             }

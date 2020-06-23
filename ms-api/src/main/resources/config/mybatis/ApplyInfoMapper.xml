@@ -221,7 +221,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         euOne.phonenumber innerPhonenumber,
                         euTwo.phonenumber outerPhonenumber,
                         di.mobile driverMobile,
-                        cgi.telephone telephone,
                         oi.order_number orderNumber
                     FROM
                         apply_info ai
@@ -235,9 +234,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                         LEFT JOIN ecmp_user euTwo ON oddi.outer_dispatcher = euTwo.user_id
                         LEFT JOIN driver_info di ON di.driver_id = oi.driver_id
                         LEFT JOIN enterprise_car_type_info ecti ON ecti.car_type_id = ai.car_type_id
-                        LEFT JOIN car_group_info cgi ON cgi.company_id = ai.company_id and cgi.it_is_inner='C000'
                     WHERE
-                            ai.apply_id = #{applyId} and  cgi.state ='Y000'
+                            ai.apply_id = #{applyId}
 
     </select>
 

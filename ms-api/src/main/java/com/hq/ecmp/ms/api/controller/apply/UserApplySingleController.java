@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.apply;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
@@ -18,6 +19,7 @@ import com.hq.ecmp.mscore.dto.cost.CarGroupInfoVo;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +31,7 @@ import java.util.Map;
 /**
  * 用车申请
  */
+@Slf4j
 @RestController
 @RequestMapping("/useApply")
 public class UserApplySingleController {
@@ -166,6 +169,7 @@ public class UserApplySingleController {
     @PostMapping("/submitApplySingle")
     public ApiResponse submitApplySingle(@RequestBody ApplySingleVO applySingleVO) {
         try {
+            log.info("预约用车提交申请单请求参数={}", JSON.toJSONString(applySingleVO));
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             SysUser user = loginUser.getUser();
