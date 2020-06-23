@@ -115,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join ecmp_org eo on eo.dept_id = cqi.service_org
         where 1=1
         <if test="companyId != null and companyId != ''">
-            and cqi.company_id = #{companyId}
+            and cqi.service_org = #{companyId}
         </if>
         <if test="deptName != null and deptName != ''">
             and eo.dept_name like concat('%',#{deptName},'%')
