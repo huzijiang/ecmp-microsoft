@@ -1,7 +1,10 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.ms.api.MsApiApplication;
+import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
@@ -32,7 +35,7 @@ public class DispatchServiceImplTest {
 
 
     @Test
-    public void companyDepartment() throws Exception {
+    public void seletDriver() throws Exception {
 
         System.out.println("companyDepartment");
 //  .param("orderNo", "325")
@@ -41,13 +44,34 @@ public class DispatchServiceImplTest {
 //                .param("itIsSelfDriver", "N111"))
         DispatchSelectDriverDto dispatchSelectDriverDto
                 = new DispatchSelectDriverDto ();
-        dispatchSelectDriverDto.setOrderNo("379");
-        dispatchSelectDriverDto.setDispatcherId("eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjdkN2VjY2UzLWRmOTEtNDNiZS1hMDAyLWVkYTVhNmI5ZjRhNSJ9.G_a6uIV-S0USi-zaa8I00K5OuomR-c0wLHK6KMkgvwWyNp-69khFdG9TM4RXfzjtOas7J28dZO3GpAMTRP4btA");
+        dispatchSelectDriverDto.setOrderNo("427");
+        dispatchSelectDriverDto.setDispatcherId("eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjhiZDZhMDY1LTkxZDAtNGEyMS1hZWY2LTcxOWFmYjRiNTNhNSJ9.QcawnYChO5snT7ntWoXiHem9vdQLIRNgGWP1KKJfXfVrvdRUOUKzO9xuiTLDW98i4L6DzHKmAmTEUK8hjc-GBg");
         dispatchSelectDriverDto.setCarGroupServiceMode("CA00");
         dispatchSelectDriverDto.setCarGroupSource("C000");
         dispatchSelectDriverDto.setItIsSelfDriver("N111");
         ApiResponse<DispatchResultVo>  result = dispatchService.getWaitSelectedDrivers(dispatchSelectDriverDto);
 
         log.info("result={}",result.getData());
+    }
+
+
+    @Test
+    public void selectCar() throws Exception {
+//
+//        dispatcherId=eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjhhNWQzYTAxLWExYzItNDcwYi1hMDRhLTJiZTFmMGNhYjA1MyJ9.K8BMwrlL-QYfEen0fR
+//        F2SKjn2hSJ7Qukd8Nhrw_ElTAP8MhOH3wG6gmSCrpxmP8iUiibjguk256WXXPNMxycGA, orderNo=429, carModelLevelType=null, plateLicence=N, driverId=null, car
+//        TypeInfo=null, carGroupServiceMode=CA00, carGroupSource=C000, itIsSelfDriver=N111
+        System.out.println("---------------selectCar-----------------");
+        DispatchSelectCarDto dispatchSelectDriverDto
+                = new DispatchSelectCarDto ();
+        dispatchSelectDriverDto.setOrderNo("429");
+//        dispatchSelectDriverDto.setPlateLicence("N");
+        dispatchSelectDriverDto.setDispatcherId("eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjhhNWQzYTAxLWExYzItNDcwYi1hMDRhLTJiZTFmMGNhYjA1MyJ9.K8BMwrlL-QYfEen0fRF2SKjn2hSJ7Qukd8Nhrw_ElTAP8MhOH3wG6gmSCrpxmP8iUiibjguk256WXXPNMxycGA");
+        dispatchSelectDriverDto.setCarGroupServiceMode("CA00");
+        dispatchSelectDriverDto.setCarGroupSource("C000");
+        dispatchSelectDriverDto.setItIsSelfDriver("N111");
+        ApiResponse<DispatchResultVo>  result = dispatchService.getWaitSelectedCars(dispatchSelectDriverDto);
+
+        log.info("result={}", JSON.toJSONString( result ));
     }
 }

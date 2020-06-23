@@ -1070,7 +1070,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getSetOutClashTask" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
         SELECT
-           ord.*
+           ord.order_id as orderId,
+           ord.journey_id as journeyId,
+           ord.node_id as nodeId,
+           ord.state
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
@@ -1078,12 +1081,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
+        AND  jpp.planned_arrival_time>now()
         ORDER BY  ord.order_id DESC
     </select>
 
     <select id="getArrivalClashTask" parameterType="com.hq.ecmp.mscore.bo.OrderTaskClashBo" resultType="com.hq.ecmp.mscore.domain.OrderInfo">
         SELECT
-            ord.*
+        ord.order_id as orderId,
+        ord.journey_id as journeyId,
+        ord.node_id as nodeId,
+        ord.state
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
@@ -1091,6 +1098,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
+        AND  jpp.planned_arrival_time>now()
         ORDER BY  ord.order_id DESC
     </select>
 

@@ -210,6 +210,7 @@ public class DispatchServiceImpl implements IDispatchService {
         }
 
         ApiResponse<List<WaitSelectedCarBo>> cars = selectCars(selectCarConditionBo, orderInfo);
+        log.info("select.car....!cars.isSuccess()={}", !cars.isSuccess());
         if (!cars.isSuccess()) {
             return ApiResponse.error(cars.getMsg());
         }
@@ -217,7 +218,7 @@ public class DispatchServiceImpl implements IDispatchService {
         //优先级操作 识别 和 查询司机
         DispatchResultVo dispatchResultVo = new DispatchResultVo();
         dispatchResultVo.setCarList(cars.getData());
-
+        log.info("select.car....dispatchResultVo={}", dispatchResultVo);
         return ApiResponse.success(dispatchResultVo);
     }
 
@@ -836,19 +837,45 @@ public class DispatchServiceImpl implements IDispatchService {
     }
 
 
-    Predicate<String> clashOrder = state -> {
-        return !OrderState.endServerStates().contains(state);
+
+    Predicate<OrderInfo> clashOrder = order -> {
+        log.info("OrderState.clash.endServerStates()={},order.getState()={},orderId={}",OrderState.endServerStates(),order.getState(),order.getOrderId());
+
+        boolean clash = !OrderState.endServerStates().contains(order.getState());
+        log.info("OrderState.clash={}",clash);
+        return clash;
+//                || !waitingServiceExpired(order);
     };
+
+    /**
+     *   如果过了时间一直是待服务的话，车辆可以被再派单，也就是列表默认应该查出来
+     * @param order
+     * @return
+     */
+//    private boolean waitingServiceExpired(OrderInfo order) {
+//        if(OrderState.waitingServiceExpired().contains(order.getState())){
+//
+//            journeyPlanPriceInfoMapper.
+//            JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(order.getJourneyId());
+//            journeyInfo.get
+//
+//        }
+//
+//        return false;
+//    }
+
 
     private List<OrderInfo> getArrivalClashTask(OrderTaskClashBo orderTaskClashBo) {
         List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getArrivalClashTask(orderTaskClashBo);
-        return orderInfosArrivalClash.stream().filter(o->clashOrder.test(  o.getState()))
+        log.info("OrderState.clash.orderInfosArrivalClash={}",orderInfosArrivalClash);
+        return orderInfosArrivalClash.stream().filter(o->clashOrder.test(  o ))
                 .collect(Collectors.toList());
     }
 
     private List<OrderInfo> getSetOutClashTask(OrderTaskClashBo orderTaskClashBo) {
         List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-        return orderInfosSetOutClash.stream().filter(o->clashOrder.test(  o.getState()))
+        log.info("OrderState.clash.orderInfosSetOutClash={}",orderInfosSetOutClash);
+        return orderInfosSetOutClash.stream().filter(o->clashOrder.test(  o ))
                 .collect(Collectors.toList());
     }
 
