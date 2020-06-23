@@ -301,5 +301,19 @@ public interface EcmpOrgMapper {
     /** 查询所有公司名称 - id */
     List<Map> selectIdAndName(@Param("userId") Long userId);
 
+    /**
+     * 获取当前调度员所在的车队服务过的所有机构ids
+     * @param userId
+     * @return
+     */
+    List<Integer> selectServiceOrgIds(@Param("userId") Long userId);
+
+    /**
+     * 获取当前调度员所在的车队的id
+     * @param userId
+     * @return
+     */
+    Integer selectCarGroupIdOfDispatcher(@Param("userId") Long userId);
+
     List<Map> getEcmpNameAll();
 }

@@ -360,7 +360,7 @@ public class ScheduledTask {
 	 * 自驾包车定时任务去更新状态
 	 * add by liuzb
 	 */
-	@Scheduled(cron = "0 0/5 0 * * ?")
+	@Scheduled(cron = "0 */5 * * * ?")
 	public void  updatePickupCarState(){
 		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		try {

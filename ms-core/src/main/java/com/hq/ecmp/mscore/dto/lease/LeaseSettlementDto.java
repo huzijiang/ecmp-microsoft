@@ -4,6 +4,7 @@ import com.hq.ecmp.mscore.dto.Page;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class LeaseSettlementDto extends Page {

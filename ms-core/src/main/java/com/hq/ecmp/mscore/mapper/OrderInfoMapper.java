@@ -90,6 +90,16 @@ public interface OrderInfoMapper {
     public List<OrderListInfo> getOrderList(@Param("deptId") Long deptId,@Param("isConfirmState") int isConfirmState);
 
 
+    /**
+     * 订单列表外部车队只能看到自己外部车队的订单
+     *
+     * @param userId
+     * @param isConfirmState
+     * @return
+     */
+    public List<OrderListInfo> getOrderOutList(@Param("deptId") Long deptId,@Param("isConfirmState") int isConfirmState);
+
+
     public List<DispatchOrderInfo> queryOrderRelateInfo(OrderInfo orderInfo);
 
     /**
@@ -255,9 +265,9 @@ public interface OrderInfoMapper {
      */
     OrderInfo selectOrderStateById(@Param("orderId")Long orderId);
 
-    Long getCountForDispatched(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+    Long getCountForDispatched(ApplyDispatch query);
 
-    Long getCountForReassigned(@Param("orgId")Long orgId,@Param("users")List<Long> users);
+    Long getCountForReassigned(ApplyDispatch query);
 
     /*
      * @author ghb
@@ -459,7 +469,7 @@ public interface OrderInfoMapper {
      * 查询订单司机的所属车队和车队性质，用于首页统计
      * @return
      */
-    List<Map> selectOrderCarGroup(@Param("companyId")Long companyId);
+    List<Map<String,String>> selectOrderCarGroup(@Param("companyId")Long companyId);
 
     /**
      * 查询用车开始时间段之内的订单
@@ -490,9 +500,10 @@ public interface OrderInfoMapper {
 
     /**
      * 获取调度工作台订单的统计数量信息
+     * @param state
      * @return
      */
-    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount();
+    List<DisOrderStateCount> getDispatchOrderListWorkBenchCount(@Param("state") String state);
 
     PayeeInfoDto getPayeeInfo(ReckoningDto param);
 

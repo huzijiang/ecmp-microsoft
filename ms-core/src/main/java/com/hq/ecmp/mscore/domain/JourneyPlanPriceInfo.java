@@ -95,14 +95,14 @@ public class JourneyPlanPriceInfo extends BaseEntity
 		this.powerId = powerId;
 	}
 
-	@Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("priceId", getPriceId())
-            .append("journeyId", getJourneyId())
-            .append("nodeId", getNodeId())
-            .append("carTypeId", getCarTypeId())
-            .append("price", getPrice())
-            .toString();
-    }
+//	@Override
+//    public String toString() {
+//        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+//            .append("priceId", getPriceId())
+//            .append("journeyId", getJourneyId())
+//            .append("nodeId", getNodeId())
+//            .append("carTypeId", getCarTypeId())
+//            .append("price", getPrice())
+//            .toString();
+//    }
 }

@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -132,6 +133,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         }
         /** 返回没有 收款 的月份集合 */
         List<String> dateList = carGroupInfoMapper.reckoningDetail(param);
+
         List<Map<String,Object>> carTypeMapList = new ArrayList<>();//根据车类型统计用车天数 费用
         if(null != moneyList && moneyList.size() > 0){
             Map dateMap = null;
@@ -139,7 +141,7 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                 MoneyListDto money = moneyList.get(i);
 
                 /** 用车费用 */
-                double amountDetai = 0.00;//用车费用
+                BigDecimal amountDetai = BigDecimal.ZERO;//用车费用
                 String amountDetaiList = money.getAmountDetai();//用车费用
                 JSONObject objects = JSONObject.parseObject(amountDetaiList);
                 if(null != objects){
@@ -147,15 +149,15 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                     if(null != otherCostList && otherCostList.size() > 0){
                         for (int j = 0; j < otherCostList.size(); j++) {
                             JSONObject jsonObject = otherCostList.getJSONObject(j);
-                            Double cost = jsonObject.getDouble("cost");
-                            amountDetai += cost;
+                            BigDecimal cost = jsonObject.getBigDecimal("cost");
+                            amountDetai = amountDetai.add(cost);
                         }
                     }
                 }
                 money.setCarTotalMoney(amountDetai);
 
                 /** 其他总费用 */
-                double outPrice = 0.00;//其他总费用
+                BigDecimal outPrice = BigDecimal.ZERO;//其他总费用
                 String outPriceList = money.getOutPrice();//其他总费用
                 JSONObject outPriceJson = JSONObject.parseObject(outPriceList);
                 if(null != outPriceJson){
@@ -163,13 +165,13 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                     if(null != otherCostList && otherCostList.size() > 0){
                         for (int j = 0; j < otherCostList.size(); j++) {
                             JSONObject jsonObject = otherCostList.getJSONObject(j);
-                            Double cost = jsonObject.getDouble("cost");
-                            outPrice += cost;
+                            BigDecimal cost = jsonObject.getBigDecimal("cost");
+                            outPrice = outPrice.add(cost);
                         }
                     }
                 }
                 money.setOtherTotalMoney(outPrice);
-                money.setAmount(money.getCarTotalMoney() + money.getOtherTotalMoney());
+                money.setAmount(money.getCarTotalMoney().add(money.getOtherTotalMoney()));
 
                 if(null == carTypeMapList || carTypeMapList.size() == 0){
                     Map<String,Object> map = new HashMap();
@@ -186,15 +188,15 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                         String carLevel = String.valueOf(carTypeMap.get("carLevel"));
                         if(carLevel.equals(money.getCarLevel())){
                             dateMap = (Map) carTypeMap.get("data");
-                            Double day = dateMap.get("dayNum") == null? 0.00: Double.parseDouble((dateMap.get("dayNum").toString()));
-                            Double moneyNum = dateMap.get("moneyNum")== null? 0.00: Double.parseDouble((dateMap.get("moneyNum").toString()));
+                            Double day = dateMap.get("dayNum") == null ? 0.00: Double.parseDouble((dateMap.get("dayNum").toString()));
+                            BigDecimal moneyNum = dateMap.get("moneyNum")== null ? BigDecimal.ZERO : new BigDecimal(dateMap.get("moneyNum").toString());
                             if(null != money.getUseTime() && !StringUtils.isEmpty(money.getUseTime())){
                                 Double day1 = Double.valueOf(money.getUseTime());
                                 dateMap.put("dayNum",day+day1);
                             }
                             if(null != money.getAmount()){
-                                Double moneyNum1 = money.getAmount();
-                                dateMap.put("moneyNum",moneyNum + moneyNum1);
+                                BigDecimal moneyNum1 = money.getAmount();
+                                dateMap.put("moneyNum",moneyNum.add(moneyNum1));
                             }
                             continue;
                         }
@@ -211,13 +213,18 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
             }
             //carTypeMapList.add(dateMap);//根绝车辆类型分组
             Double dayAll = 0.0;
-            Double moneyAll = 0.00;
+            BigDecimal moneyAll = BigDecimal.ZERO;
             if(null != carTypeMapList && carTypeMapList.size() > 0){
                 for(Map<String,Object>  countMap: carTypeMapList){
                     Map data = (Map)countMap.get("data");
                     if(null != data){
                         dayAll += Double.parseDouble(data.get("dayNum").toString());
-                        moneyAll += ((Double)data.get("moneyNum"));
+                        Object moneyNum = data.get("moneyNum");
+                        BigDecimal moneyNumBigDecimal = BigDecimal.ZERO;
+                        if (null != moneyNum) {
+                            moneyNumBigDecimal = (BigDecimal)moneyNum;
+                        }
+                        moneyAll = moneyAll.add(moneyNumBigDecimal);
                     }
                 }
             }

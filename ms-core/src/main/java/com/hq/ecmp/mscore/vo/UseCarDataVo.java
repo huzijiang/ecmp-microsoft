@@ -24,4 +24,9 @@ public class UseCarDataVo {
     BigDecimal totalFee;
     @ApiModelProperty(value = "累计用车天数")
     private String totalDays;
+
+    @ApiModelProperty(value = "车队id")
+    private Long carGroupId;
+    @ApiModelProperty(value = "该车队的订单id集合")
+    private String orderIds;
 }

@@ -596,17 +596,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectIdAndName" resultType="java.util.Map" parameterType="java.lang.Long">
-        select
-        DISTINCT g.dept_id as deptId,
-        g.dept_name as deptName
-        from
-        car_group_serve_org_relation o
-        left join ecmp_org g on o.dept_id = g.dept_id and del_flag = 0
-        left join car_group_dispatcher_info c on  c.car_group_id = o.car_group_id
-        where 1 = 1
+        SELECT
+            DISTINCT g.dept_id AS deptId,
+            g.dept_name AS deptName
+        FROM
+            car_group_serve_org_relation o
+            LEFT JOIN ecmp_org g ON o.dept_id = g.dept_id AND g.del_flag = 0
+            LEFT JOIN car_group_dispatcher_info c ON c.car_group_id = o.car_group_id
+        WHERE
+            1 = 1
         <if test="userId != null ">
-            and c.user_id = #{userId}
+            AND c.user_id = #{userId}
         </if>
+        AND g.dept_id IS NOT NULL
+    </select>
+
+    <select id="selectServiceOrgIds" resultType="java.util.List" parameterType="java.lang.Long">
+        SELECT
+            DISTINCT o.dept_id
+        FROM
+            car_group_serve_org_relation o
+            LEFT JOIN ecmp_org g ON o.dept_id = g.dept_id
+            LEFT JOIN car_group_dispatcher_info c ON c.car_group_id = o.car_group_id
+        WHERE
+        1 = 1
+        <if test="userId != null ">
+            AND c.user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="selectCarGroupIdOfDispatcher" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT
+        c.car_group_id
+        FROM
+        car_group_dispatcher_info c
+        WHERE
+        1 = 1
+        <if test="userId != null ">
+            AND c.user_id = #{userId}
+        </if>
+        LIMIT 1
     </select>
 
     <select id="getEcmpNameAll" resultType="java.util.Map" parameterType="java.lang.Long">

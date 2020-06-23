@@ -225,7 +225,7 @@ public class DispatchController {
             Map<String,Object> list = orderInfoTwoService.queryDispatchList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+           log.error("获取申请调度列表失败Exception",e);
             return ApiResponse.error("获取申请调度列表失败");
         }
     }

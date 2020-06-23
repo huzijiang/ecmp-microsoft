@@ -122,4 +122,17 @@ public enum OrderState {
     public static String endServerStates() {
         return STOPSERVICE.getState()+","+ORDERCLOSE.getState()+","+DISSENT.getState();
     }
+
+    /**
+     *   车辆的那个问题，如果过了时间一直是待服务的话，车辆可以被再派单，也就是列表默认应该查出来
+     */
+    public static List<String> waitingServiceExpired(){
+
+        return Arrays.asList(ALREADYSENDING.getState(),
+                REASSIGNMENT.getState(),
+                READYSERVICE.getState(),
+                INSERVICE.getState(),
+                DRIVER_CONTINUED_SERVICE.getState(),
+                SERVICE_SUSPEND.getState());
+    }
 }
