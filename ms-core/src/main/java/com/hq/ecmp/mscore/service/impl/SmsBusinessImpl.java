@@ -1125,11 +1125,9 @@ public class SmsBusinessImpl implements IsmsBusiness {
         UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
         String drivingTime = DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN, undoSMSTemplate.getStartDate());
         String vehicleUser = undoSMSTemplate.getNickName() + " " + undoSMSTemplate.getPhonenumber();
-        String telephone = undoSMSTemplate.getTelephone();
         Map<String, String> map = Maps.newHashMap();
         map.put("drivingTime", drivingTime); // 用车时间
         map.put("vehicleUser", vehicleUser);//业务员信息
-        map.put("telephone", telephone);//内部车队电话
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, map, undoSMSTemplate.getVehicleUserMobile());
         /**预约用车给申请人也发短信**/
         if (!undoSMSTemplate.getPhonenumber().equals(undoSMSTemplate.getVehicleUserMobile())) {
