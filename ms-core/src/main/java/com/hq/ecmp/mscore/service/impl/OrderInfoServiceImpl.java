@@ -15,16 +15,135 @@ import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.security.LoginUser;
-import com.hq.ecmp.constant.*;
+import com.hq.ecmp.constant.CarConstant;
+import com.hq.ecmp.constant.CarModeEnum;
+import com.hq.ecmp.constant.CarPowerEnum;
+import com.hq.ecmp.constant.CharterTypeEnum;
+import com.hq.ecmp.constant.CommonConstant;
+import com.hq.ecmp.constant.ConfigTypeEnum;
+import com.hq.ecmp.constant.HintEnum;
+import com.hq.ecmp.constant.ItIsSupplementEnum;
+import com.hq.ecmp.constant.JourneyConstant;
+import com.hq.ecmp.constant.OrderConstant;
+import com.hq.ecmp.constant.OrderPayConstant;
+import com.hq.ecmp.constant.OrderServiceType;
+import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.OrderStateTrace;
+import com.hq.ecmp.constant.ResignOrderTraceState;
+import com.hq.ecmp.constant.ServiceTypeConstant;
 import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
-import com.hq.ecmp.mscore.domain.*;
-import com.hq.ecmp.mscore.dto.*;
+import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
+import com.hq.ecmp.mscore.domain.ApplyInfo;
+import com.hq.ecmp.mscore.domain.ApplyUseCarType;
+import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
+import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.domain.CarInfo;
+import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
+import com.hq.ecmp.mscore.domain.DispatchOptRecord;
+import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
+import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
+import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
+import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.mscore.domain.DriverServiceAppraiseeInfo;
+import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
+import com.hq.ecmp.mscore.domain.JourneyInfo;
+import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
+import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo;
+import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import com.hq.ecmp.mscore.domain.OrderAccountInfo;
+import com.hq.ecmp.mscore.domain.OrderAddressInfo;
+import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.domain.OrderInfoMessage;
+import com.hq.ecmp.mscore.domain.OrderListInfo;
+import com.hq.ecmp.mscore.domain.OrderPayInfo;
+import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
+import com.hq.ecmp.mscore.domain.OrderServiceImagesInfo;
+import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
+import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
+import com.hq.ecmp.mscore.domain.OrderViaInfo;
+import com.hq.ecmp.mscore.domain.RegimeInfo;
+import com.hq.ecmp.mscore.domain.SceneInfo;
+import com.hq.ecmp.mscore.domain.SendCarInfo;
+import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
+import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
+import com.hq.ecmp.mscore.dto.DirectionDto;
+import com.hq.ecmp.mscore.dto.DriverCloudDto;
+import com.hq.ecmp.mscore.dto.EcmpUserDto;
+import com.hq.ecmp.mscore.dto.EcmpUserInfoDto;
+import com.hq.ecmp.mscore.dto.MoneyListDto;
+import com.hq.ecmp.mscore.dto.OrderDetailBackDto;
+import com.hq.ecmp.mscore.dto.OrderHistoryTraceDto;
+import com.hq.ecmp.mscore.dto.OrderInfoFSDto;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
+import com.hq.ecmp.mscore.dto.OrderTraceDto;
+import com.hq.ecmp.mscore.dto.PathDto;
+import com.hq.ecmp.mscore.dto.PayeeInfoDto;
+import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.*;
-import com.hq.ecmp.util.*;
+import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
+import com.hq.ecmp.mscore.mapper.ApplyUseCarTypeMapper;
+import com.hq.ecmp.mscore.mapper.CarGroupDispatcherInfoMapper;
+import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
+import com.hq.ecmp.mscore.mapper.CarInfoMapper;
+import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
+import com.hq.ecmp.mscore.mapper.DriverHeartbeatInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
+import com.hq.ecmp.mscore.mapper.DriverServiceAppraiseeInfoMapper;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
+import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyNodeInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyPlanPriceInfoMapper;
+import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
+import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderDispatcheDetailInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderPayInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderServiceImagesInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
+import com.hq.ecmp.mscore.mapper.OrderViaInfoMapper;
+import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
+import com.hq.ecmp.mscore.mapper.SceneInfoMapper;
+import com.hq.ecmp.mscore.mapper.UserEmergencyContactInfoMapper;
+import com.hq.ecmp.mscore.service.IDispatchService;
+import com.hq.ecmp.mscore.service.IEcmpConfigService;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
+import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
+import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
+import com.hq.ecmp.mscore.service.IRegimeInfoService;
+import com.hq.ecmp.mscore.service.IsmsBusiness;
+import com.hq.ecmp.mscore.service.ThirdService;
+import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
+import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
+import com.hq.ecmp.mscore.vo.CarLevelAndPriceReVo;
+import com.hq.ecmp.mscore.vo.CityInfo;
+import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
+import com.hq.ecmp.mscore.vo.FlightInfoVo;
+import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
+import com.hq.ecmp.mscore.vo.OrderCostDetailVO;
+import com.hq.ecmp.mscore.vo.OrderFeeDetailVO;
+import com.hq.ecmp.mscore.vo.OrderStateVO;
+import com.hq.ecmp.mscore.vo.OrderVO;
+import com.hq.ecmp.mscore.vo.OtherCostBean;
+import com.hq.ecmp.mscore.vo.OtherCostVO;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.ThridCarTypeVo;
+import com.hq.ecmp.util.CommonUtils;
+import com.hq.ecmp.util.DateFormatUtils;
+import com.hq.ecmp.util.MacTools;
+import com.hq.ecmp.util.OrderUtils;
+import com.hq.ecmp.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -36,11 +155,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -57,6 +183,7 @@ import static com.hq.ecmp.constant.CommonConstant.ZERO;
 @Service
 @Slf4j
 public class OrderInfoServiceImpl implements IOrderInfoService {
+    private static final String NO_DRIVER="无";
     @Autowired
     private OrderInfoMapper orderInfoMapper;
     @Resource
@@ -3009,7 +3136,18 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
      */
     @Override
     public Map downloadOrderData(Long orderId) throws Exception {
-        return orderInfoMapper.downloadOrderData(orderId);
+        Map<String, String> result = orderInfoMapper.downloadOrderData(orderId);
+        result.put("getKeyTime", DateUtils.formatDate(DateUtils.parseDate(result.get("actionBeginTime")), "yyyy年MM月dd日 HH时mm分ss秒"));
+
+
+        if (NO_DRIVER.equals(result.get("driverName"))) {
+            //自驾
+            OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.PICKUPCAR.getState());
+            if(orderStateTraceInfo!=null&&orderStateTraceInfo.getCreateTime()!=null){
+                result.put("getKeyTime", DateUtils.formatDate( orderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
+            }
+        }
+       return result;
     }
 
     /***

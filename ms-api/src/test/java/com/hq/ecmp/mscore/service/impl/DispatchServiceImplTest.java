@@ -7,6 +7,7 @@ import com.hq.ecmp.ms.api.MsApiApplication;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
+import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -14,9 +15,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.annotation.Resource;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,6 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DispatchServiceImplTest {
     @Autowired
     private IDispatchService dispatchService;
+
+
+    @Autowired
+    private IOrderInfoService iOrderInfoService;
 
 
     @Test
@@ -73,5 +83,13 @@ public class DispatchServiceImplTest {
         ApiResponse<DispatchResultVo>  result = dispatchService.getWaitSelectedCars(dispatchSelectDriverDto);
 
         log.info("result={}", JSON.toJSONString( result ));
+    }
+
+    @Test
+    public void downloadOrder() throws Exception {
+        Map<String,String> orderInfo=   iOrderInfoService.downloadOrderData(443L);
+
+        log.info("result={}",   orderInfo   );
+        log.info("result_json={}", JSON.toJSONString( orderInfo ));
     }
 }

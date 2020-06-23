@@ -3101,6 +3101,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         group by t.state
 
     </select>
+    <!--
+        对于自驾订单：
+        取钥匙时间(即取车时间)=调度员操作“取车”按钮的时间
+        实际用车时间 = 申请单选的用车开始时间
+        实际返回时间 = 还钥匙时间 = 调度员操作“还车”按钮的时间
+
+        对非于自驾订单：
+        取钥匙时间 = 实际用车时间 = 实际开始时间
+        实际返回时间 =还钥匙时间 = 实际结束时间
+    -->
     <select id="downloadOrderData" parameterType="java.lang.Long" resultType="java.util.Map">
        select
        -- 订单编号
