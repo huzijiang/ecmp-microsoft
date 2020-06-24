@@ -183,6 +183,15 @@ public class CarInfoServiceImpl implements ICarInfoService
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveCar(CarSaveDTO carSaveDTO, Long userId) throws Exception {
+
+        //查询车牌号是否存在，如果已经存在
+        CarInfo carInfoSelect=new CarInfo();
+        carInfoSelect.setCarLicense(carSaveDTO.getCarLicense());
+        List<CarInfo> carInfoList=carInfoMapper.selectCarInfoList(carInfoSelect);
+        if(CollectionUtils.isNotEmpty(carInfoList)){
+            throw new Exception("车牌号已存在，新增车辆失败");
+        }
+
         CarInfo carInfo = setCarInfo(carSaveDTO);
         carInfo.setCreateBy(String.valueOf(userId));
         carInfo.setCreateTime(new Date());
