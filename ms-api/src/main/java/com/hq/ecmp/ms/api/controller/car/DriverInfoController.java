@@ -66,6 +66,11 @@ public class DriverInfoController {
 	@ApiOperation(value = "driverList", notes = "驾驶员列表", httpMethod = "POST")
 	@PostMapping("/driverList")
 	public ApiResponse<PageResult<DriverQueryResult>> driverList(@RequestBody DriverQuery driverQuery) {
+		/**
+		 * The bug was fixed by Suruman on 06/28/2020.
+		 * Return drivers that are valid.
+		 */
+		driverQuery.setState("V000");
 		List<DriverQueryResult> list = driverInfoService.queryDriverList(driverQuery);
 		Integer totalNum = driverInfoService.queryDriverListCount(driverQuery);
 		PageResult<DriverQueryResult> pageResult = new PageResult<DriverQueryResult>(Long.valueOf(totalNum), list);

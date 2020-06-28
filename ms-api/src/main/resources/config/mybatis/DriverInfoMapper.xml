@@ -464,7 +464,8 @@ WHERE
     <delete id="deleteDriver" parameterType="Long">
         delete from driver_info where driver_id = #{driverId}
     </delete>
-    <update id="updateDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo">
+
+    <update id="updateDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" >
         update driver_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="driverName != null  and driverName != ''">driver_name = #{driverName},</if>
