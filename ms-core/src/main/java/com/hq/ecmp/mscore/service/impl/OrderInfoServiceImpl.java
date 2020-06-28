@@ -3164,13 +3164,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     public Map downloadOrderData(Long orderId) throws Exception {
         Map<String, String> result = orderInfoMapper.downloadOrderData(orderId);
         result.put("getKeyTime", DateUtils.formatDate(DateUtils.parseDate(result.get("actionBeginTime")), "yyyy年MM月dd日 HH时mm分ss秒"));
-
-
         if (NO_DRIVER.equals(result.get("driverName"))) {
             //自驾
             OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.PICKUPCAR.getState());
+            OrderStateTraceInfo giveUpOrderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.GIVE_UP_CAR.getState());
             if(orderStateTraceInfo!=null&&orderStateTraceInfo.getCreateTime()!=null){
                 result.put("getKeyTime", DateUtils.formatDate( orderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
+            }
+            if(giveUpOrderStateTraceInfo != null && giveUpOrderStateTraceInfo.getCreateTime() != null) {
+                result.put("actionEndTime", DateUtils.formatDate( giveUpOrderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
             }
         }
        return result;

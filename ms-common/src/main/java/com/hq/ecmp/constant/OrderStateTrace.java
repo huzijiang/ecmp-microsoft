@@ -18,6 +18,8 @@ public enum OrderStateTrace {
     DRIVER_CONTINUED_SERVICE("S639","司机继续服务"),
     SERVICE_SUSPEND("S635","订单服务中止"),
 
+    GIVE_UP_CAR("S680","还车"),
+
     SERVICEOVER("S699","服务结束"),
     ORDERCLOSE("S900","订单关闭"),
     OBJECTION("S901","订单异议"),
