@@ -1499,6 +1499,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getDispatchOrderApplyInfos(DispatchVo dispatchVo){
         DispatchVo dispatchApplyInfoByJourneyId = applyInfoMapper.getDispatchApplyInfoByJourneyId(dispatchVo.getJourneyId());
+        log.info("获取订单的社会租赁车队数据，journeyId:{},dispatchVo:{}",dispatchVo.getJourneyId(),JSONObject.toJSONString(dispatchApplyInfoByJourneyId));
         JourneyAddressInfo journeyAddressInfo = new JourneyAddressInfo();
         journeyAddressInfo.setJourneyId(dispatchVo.getJourneyId());
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
