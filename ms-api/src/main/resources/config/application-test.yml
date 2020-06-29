@@ -164,3 +164,5 @@ ali:
 cloud:
   service:
     url: http://10.117.1.231:51002
+
+management.security.enabled=false
