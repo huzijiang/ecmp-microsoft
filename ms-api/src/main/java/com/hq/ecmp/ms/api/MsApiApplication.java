@@ -38,9 +38,9 @@ public class MsApiApplication<author> implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TraceLogInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.NGINX);
-        registry.addInterceptor(new HeaderInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.NGINX);
-        registry.addInterceptor(new RequestInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.NGINX);
+        registry.addInterceptor(new TraceLogInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.EXCLUDE_HEADER);
+        registry.addInterceptor(new HeaderInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.EXCLUDE_HEADER);
+        registry.addInterceptor(new RequestInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.EXCLUDE_HEADER);
     }
 
 }
