@@ -89,7 +89,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("handleStatus异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
