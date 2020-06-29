@@ -669,16 +669,15 @@ public class DispatchServiceImpl implements IDispatchService {
 
         log.info("select.car..waitSelectedCarBoList={}", waitSelectedCarBoList);
 
-        //车牌信息为空时，不展示冲突的车辆
-        if (StringUtils.isEmpty(selectCarConditionBo.getCarLicense())) {
-            Iterator<WaitSelectedCarBo> iterator = waitSelectedCarBoList.iterator();
-            while (iterator.hasNext()) {
-                WaitSelectedCarBo waitSelectedCarBo = iterator.next();
-                if (!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedCarBo.getTaskConflict())) {
-                    iterator.remove();
-                }
+        //始终进行冲突检查
+        Iterator<WaitSelectedCarBo> iterator = waitSelectedCarBoList.iterator();
+        while (iterator.hasNext()) {
+            WaitSelectedCarBo waitSelectedCarBo = iterator.next();
+            if (!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedCarBo.getTaskConflict())) {
+                iterator.remove();
             }
         }
+
         log.info("select.car..不展示冲突的车辆 waitSelectedCarBoList={}", waitSelectedCarBoList);
 
 
@@ -815,14 +814,13 @@ public class DispatchServiceImpl implements IDispatchService {
         });
 
         log.info("selectDrivers.......waitSelectedDriverBoList={}", waitSelectedDriverBoList);
-        //姓名或手机 信息为空时，不展示 冲突的司机
-        if (StringUtils.isEmpty(selectDriverConditionBo.getDriverNameOrPhone())) {
-            Iterator<WaitSelectedDriverBo> iterator = waitSelectedDriverBoList.iterator();
-            while (iterator.hasNext()) {
-                WaitSelectedDriverBo waitSelectedDriverBo = iterator.next();
-                if (!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedDriverBo.getTaskConflict())) {
-                    iterator.remove();
-                }
+
+        //始终进行冲突检查
+        Iterator<WaitSelectedDriverBo> iterator = waitSelectedDriverBoList.iterator();
+        while (iterator.hasNext()) {
+            WaitSelectedDriverBo waitSelectedDriverBo = iterator.next();
+            if (!TaskConflictEnum.CONFLICT_FREE.equals(waitSelectedDriverBo.getTaskConflict())) {
+                iterator.remove();
             }
         }
 

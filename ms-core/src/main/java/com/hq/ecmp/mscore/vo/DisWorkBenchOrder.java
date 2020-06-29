@@ -33,6 +33,9 @@ public class DisWorkBenchOrder {
     @ApiModelProperty(value = "目的地")
     private String endSite;
 
+    @ApiModelProperty(value = "下单时间")
+    private String createTime;
+
     @ApiModelProperty(value = "用车时间")
     private String useCarDate;
 
