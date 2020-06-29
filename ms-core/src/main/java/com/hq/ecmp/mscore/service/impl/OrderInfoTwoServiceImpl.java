@@ -1231,8 +1231,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setCreateTime(new Date());
         stateTraceInfo.setState(OrderStateTrace.GIVE_UP_CAR.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        OrderStateTraceInfo ost = new OrderStateTraceInfo();
+        BeanUtils.copyProperties(stateTraceInfo, ost);
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
-        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        log.info("还车插入订单状态S900");
+        int result = orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        if(result < 1) {
+            log.warn("插入订单状态s900失败 orderId={}", orderId);
+        }
         /**计算自驾的费用*/
         CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo.getCarId());
         if (carInfo==null){
