@@ -73,7 +73,7 @@ public class CarGroupController {
             CarGroupDetailVO carGroupDetailVO = carGroupInfoService.getCarGroupDetail(carGroupDTO.getCarGroupId());
             return ApiResponse.success(carGroupDetailVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询车队详情失败");
         }
     }
@@ -94,7 +94,7 @@ public class CarGroupController {
             carGroupInfoService.updateCarGroup(carGroupDTO,userId);
             return ApiResponse.success("修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("修改车队失败");
         }
     }
@@ -115,7 +115,7 @@ public class CarGroupController {
             String rtnMsg = carGroupInfoService.deleteCarGroup(carGroupDTO.getCarGroupId(),userId);
             return ApiResponse.success(rtnMsg);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -136,7 +136,7 @@ public class CarGroupController {
             carGroupInfoService.disableCarGroup(carGroupId,userId);
             return ApiResponse.success("禁用车队成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -157,7 +157,7 @@ public class CarGroupController {
             carGroupInfoService.startUpCarGroup(carGroupId,userId);
             return ApiResponse.success("启用车队成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("启用车队失败");
         }
     }
@@ -180,7 +180,7 @@ public class CarGroupController {
                     pageRequest.getState(),pageRequest.getDeptId(),pageRequest.getCarGroupId(),companyId,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询车队列表失败");
         }
     }
@@ -197,7 +197,7 @@ public class CarGroupController {
             List<CarGroupListVO> list = carGroupInfoService.selectSubCarGroupInfoList(subGroupListDTO.getDeptId());
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
             return ApiResponse.error("查询下级车队列表失败");
         }
     }*/
@@ -219,7 +219,7 @@ public class CarGroupController {
             }
             list = carGroupInfoService.getCarGroupPhone(carGroupPhoneDTO.getCityCode());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         return ApiResponse.success(list);
     }*/
@@ -237,7 +237,7 @@ public class CarGroupController {
         try {
             carGroupPhoneVO = carGroupInfoService.getOwnerCarGroupPhone();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
             return ApiResponse.error("查询失败");
         }
         return ApiResponse.success(carGroupPhoneVO);
@@ -257,7 +257,7 @@ public class CarGroupController {
         try {
              vo = carGroupInfoService.getDispatcherAndFixedLine(dispatcherAndFixedLineDTO.getOrderId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         return ApiResponse.success(vo);
     }*/
@@ -278,7 +278,7 @@ public class CarGroupController {
             }
             list = carGroupInfoService.cantactCarGroup(carGroupPhoneDTO.getOrderId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return ApiResponse.success(list);
     }
@@ -303,7 +303,7 @@ public class CarGroupController {
         try {
             list = ecmpOrgService.selectCompanyCarGroupTree(companyId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         return ApiResponse.success(list);
     }*/
@@ -326,7 +326,7 @@ public class CarGroupController {
         try {
             list = ecmpOrgService.selectNewCompanyCarGroupTree(loginUser.getUser().getOwnerCompany(),null,loginUser);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             log.error("车队树查询失败,公司id:{}",ecmpOrgDto.getDeptId());
             return ApiResponse.error("车队树查询失败");
         }
@@ -348,7 +348,7 @@ public class CarGroupController {
         try {
             list = ecmpOrgService.getCompanyTree(ecmpOrgDto.getDeptId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         return ApiResponse.success(list);
     }*/
@@ -368,7 +368,7 @@ public class CarGroupController {
         try {
             list = carGroupInfoService.selectCarGroupTree(ecmpOrgDto.getDeptId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         return ApiResponse.success(list);
     }*/
@@ -390,7 +390,7 @@ public class CarGroupController {
             carGroupCountVO = ecmpOrgService.selectCarGroupCount(carGroupCountDto.getDeptId(),carGroupCountDto.getCarGroupId());
             return ApiResponse.success(carGroupCountVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -412,7 +412,7 @@ public class CarGroupController {
            boolean exist = carGroupInfoService.judgeCarGroupCode(carGroupDTO.getCarGroupCode(),ownerCompany);
            return ApiResponse.success(exist);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("判断失败");
         }
     }
@@ -431,7 +431,7 @@ public class CarGroupController {
             CarGroupDTO result = carGroupInfoService.getCarGroupInfoFeedBack(carGroupDTO.getCarGroupId());
             return ApiResponse.success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("回显失败");
         }
     }
@@ -451,7 +451,7 @@ public class CarGroupController {
             Boolean exist = carGroupInfoService.judgeCarGroupName(carGroupDTO.getCarGroupName(),carGroupDTO.getOwneCompany());
             return ApiResponse.success(exist);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("车队名校验失败");
         }
     }
@@ -472,7 +472,7 @@ public class CarGroupController {
             ApiResponse apiResponse = carGroupInfoService.obtainDispatcherCity(userId);
             return apiResponse;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("补单获取调度员所管理车队的服务城市失败");
         }
     }

@@ -24,6 +24,7 @@ import jxl.format.Colour;
 import jxl.format.VerticalAlignment;
 import jxl.format.*;
 import jxl.write.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -45,6 +46,7 @@ import java.util.List;
  */
  @RestController
  @RequestMapping("/account")
+ @Slf4j
 public class AccountInfoController {
 
     @Autowired
@@ -190,7 +192,7 @@ public class AccountInfoController {
             is.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return null;

@@ -1,22 +1,6 @@
 package com.hq.ecmp.ms.api.controller.threeparty;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import com.hq.ecmp.mscore.vo.CityInfo;
-import com.hq.ecmp.mscore.service.*;
-import com.hq.ecmp.mscore.vo.AirportVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.*;
-
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.OkHttpUtil;
 import com.hq.ecmp.ms.api.dto.threeparty.LocationDto;
@@ -24,12 +8,24 @@ import com.hq.ecmp.ms.api.vo.threeparty.LocationInfoVo;
 import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
 import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
 import com.hq.ecmp.mscore.domain.OrderInfo;
+import com.hq.ecmp.mscore.service.*;
+import com.hq.ecmp.mscore.vo.AirportVo;
+import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.util.MacTools;
-
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/location")
+@Slf4j
 public class LocationController {
 
 	@Value("${thirdService.enterpriseId}") // 企业编号
@@ -82,15 +78,9 @@ public class LocationController {
              List<LocationInfoVo> list = JSONObject.parseArray(object.toString(), LocationInfoVo.class);
              return ApiResponse.success(list);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("地址反查失败!");
 		}
-	}
-
-	public static void main(String[] args) throws Exception {
-		List<String> macList = MacTools.getMacList();
-		String macAdd = macList.get(0);
-		System.out.println(macAdd);
 	}
 
 	@ApiOperation(value = "queryAddress", notes = "司机获取乘客/司机位置信息 ", httpMethod = "POST")
@@ -114,7 +104,7 @@ public class LocationController {
 						nodeInfo.getPlanBeginAddress(), latitude, longitude));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("获取审批详情异常");
 		}
 	}
@@ -138,7 +128,7 @@ public class LocationController {
 			List<AirportVo> list = JSONObject.parseArray(data, AirportVo.class);
 			return ApiResponse.success(list);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("获取机场列表异常");
 		}
 	}
@@ -150,7 +140,7 @@ public class LocationController {
 			String customerPhone = thirdService.getCustomerPhone();
 			return ApiResponse.success("获取客服成功",customerPhone);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("获取客服超时");
 		}
 	}

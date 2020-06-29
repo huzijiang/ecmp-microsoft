@@ -1,6 +1,5 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -9,25 +8,32 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.ProjectDto;
 import com.hq.ecmp.ms.api.dto.base.ProjectUserDto;
-import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.ProjectInfo;
 import com.hq.ecmp.mscore.domain.ProjectUserRelationInfo;
-import com.hq.ecmp.mscore.dto.*;
-import com.hq.ecmp.mscore.mapper.EcmpOrgMapper;
+import com.hq.ecmp.mscore.dto.PageRequest;
+import com.hq.ecmp.mscore.dto.ProjectInfoDTO;
+import com.hq.ecmp.mscore.dto.ProjectUserDTO;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.service.IProjectInfoService;
 import com.hq.ecmp.mscore.service.IProjectUserRelationInfoService;
-import com.hq.ecmp.mscore.vo.*;
+import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.ProjectInfoVO;
+import com.hq.ecmp.mscore.vo.ProjectUserVO;
 import com.hq.ecmp.util.RedisUtil;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -37,7 +43,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hq.common.enums.ErrorCodeEnum.SUCCESS;
-import static com.hq.ecmp.constant.CommonConstant.*;
+import static com.hq.ecmp.constant.CommonConstant.ZERO;
 
 /**
  * @Author: zj.hu
@@ -46,6 +52,8 @@ import static com.hq.ecmp.constant.CommonConstant.*;
 @RestController
 @RequestMapping("/project")
 public class ProjectController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private IProjectInfoService iProjectInfoService;
@@ -363,7 +371,7 @@ public class ProjectController {
             int count=iProjectInfoService.deleteProject(projectUserDTO);
 //            redisUtil.delKey(String.format(PROJECT_USER_TREE, projectUserDTO.getProjectId()));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("删除项目失败");
         }
         return ApiResponse.success();

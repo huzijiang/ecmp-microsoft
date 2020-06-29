@@ -1103,7 +1103,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
             }.getType();
             GsonUtils.jsonToBean(resultJSON, type);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -1142,7 +1142,7 @@ public class EcmpOrgServiceImpl implements IEcmpOrgService {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("业务处理异常", e);
             }
         });
     }

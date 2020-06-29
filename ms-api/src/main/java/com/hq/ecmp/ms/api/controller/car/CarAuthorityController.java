@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.hq.ecmp.constant.JourneyUserCarPowerConstant;
 import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,9 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/car/authority")
 public class CarAuthorityController {
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	private IJourneyInfoService journeyInfoService;
 	@Autowired
@@ -82,7 +87,7 @@ public class CarAuthorityController {
 				return  ApiResponse.error("用车权限读取状态变更失败");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("业务处理异常", e);
 			return  ApiResponse.error("用车权限读取状态变更失败");
 		}
 		return ApiResponse.success("用车权限读取状态变更成功");

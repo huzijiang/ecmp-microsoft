@@ -1,22 +1,19 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import com.hq.api.system.domain.SysDriver;
 import com.hq.common.core.api.ApiResponse;
-import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.ecmp.constant.*;
-import com.hq.ecmp.mscore.domain.DriverInfo;
+import com.hq.ecmp.constant.MsgConstant;
+import com.hq.ecmp.constant.MsgStatusConstant;
 import com.hq.ecmp.mscore.domain.EcmpMessage;
-import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.EcmpMessageVO;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/message")
+@Slf4j
 public class MessageController {
 	@Autowired
 	private ISceneInfoService sceneInfoService;
@@ -69,7 +67,7 @@ public class MessageController {
 			list=ecmpMessageService.getMessagesForPassenger(loginUser.getUser());
 			return ApiResponse.success(list);
 		}catch (Exception e){
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 
@@ -95,7 +93,7 @@ public class MessageController {
 //			}
 			return ApiResponse.success();
 		}catch (Exception e){
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 
@@ -119,7 +117,7 @@ public class MessageController {
 			//当前是司机(新任务/派车/改派通知)
 			return ApiResponse.success(list);
 		}catch (Exception e){
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 	}

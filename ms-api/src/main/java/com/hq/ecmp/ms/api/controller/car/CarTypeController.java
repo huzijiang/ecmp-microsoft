@@ -20,6 +20,8 @@ import com.hq.ecmp.mscore.vo.CarTypeVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneListVO;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +35,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/carType")
 public class CarTypeController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private TokenService tokenService;
@@ -56,7 +60,7 @@ public class CarTypeController {
         try {
             enterpriseCarTypeInfoService.saveCarType(carTypeDto,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("新增成功");
@@ -98,7 +102,7 @@ public class CarTypeController {
         try {
             enterpriseCarTypeInfoService.updateCarType(carTypeDto,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("修改失败");
         }
         return ApiResponse.success("修改成功");
@@ -116,7 +120,7 @@ public class CarTypeController {
         try {
             enterpriseCarTypeInfoService.deleteEnterpriseCarTypeInfoById(carTypeId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("删除车型成功");
@@ -136,7 +140,7 @@ public class CarTypeController {
             List<CarTypeVO> result = enterpriseCarTypeInfoService.getCarTypeList(companyId);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询车型列表失败");
         }
     }
@@ -156,7 +160,7 @@ public class CarTypeController {
             );
             return ApiResponse.success("车型排序成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("车型排序失败");
         }
     }

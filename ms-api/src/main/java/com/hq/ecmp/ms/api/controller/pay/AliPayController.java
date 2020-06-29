@@ -119,9 +119,7 @@ public class AliPayController {
             //orderString 可以直接给客户端请求，无需再做处理。
             orderString = response.getBody();
         } catch (AlipayApiException e) {
-            e.printStackTrace();
-            log.info("支付宝下单失败，错误原因为："+e);
-            log.info("支付宝下单失败，错误原因为："+e.getMessage());
+            log.error("支付宝下单失败，错误原因为："+e.getMessage(), e);
         }
         return orderString;
     }
@@ -184,9 +182,7 @@ public class AliPayController {
                     log.info("该订单已支付");
                 }
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("支付宝回调失败，错误原因为："+e);
-            log.info("支付宝回调失败，错误原因为："+e.getMessage());
+            log.error("支付宝回调失败，错误原因为："+e.getMessage(), e);
         }
         return "success";
     }
@@ -232,7 +228,7 @@ public class AliPayController {
                 return OrderPayConstant.ALI_RETURN_CODE_ERROR;
             }
         } catch (AlipayApiException e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return OrderPayConstant.ALI_RETURN_CODE_OK;
     }
