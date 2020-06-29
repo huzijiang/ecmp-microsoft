@@ -1233,6 +1233,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
         OrderStateTraceInfo ost = new OrderStateTraceInfo();
         BeanUtils.copyProperties(stateTraceInfo, ost);
+        ost.setTraceId(null);
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
         log.info("还车插入订单状态S900");
         int result = orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
