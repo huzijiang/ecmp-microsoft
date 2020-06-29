@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.service.IDriverHeartbeatInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.DriverDutyPlanVO;
 import com.hq.ecmp.mscore.vo.DriverDutySummaryVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping("/driver")
+@Slf4j
 public class DriverController {
 
     @Autowired
@@ -153,7 +155,7 @@ public class DriverController {
             DriverDutyPlanVO result = driverWorkInfoService.selectDriverScheduleByMonth(scheduleDate,driverId);
             return ApiResponse.success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("加载司机当月排班日期对应的出勤情况列表失败");
         }
     }
@@ -180,7 +182,7 @@ public class DriverController {
             DriverDutySummaryVO dutySummary = driverWorkInfoService.selectDriverDutySummary(scheduleDate,driverId);
             return ApiResponse.success(dutySummary);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("加载司机出勤信息失败");
         }
     }
@@ -211,7 +213,7 @@ public class DriverController {
                 return ApiResponse.error("记录司机心跳失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("记录司机心跳失败");
         }
     }

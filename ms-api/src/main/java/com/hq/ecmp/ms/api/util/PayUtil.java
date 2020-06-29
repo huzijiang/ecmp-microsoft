@@ -43,7 +43,7 @@ public class PayUtil {
                 sb.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         } finally {
             if (br != null) {
                 try {

@@ -1,5 +1,8 @@
 package com.hq.ecmp.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -19,6 +22,8 @@ import java.util.regex.Pattern;
  *         2011-1-6
  */
 public class IpUtil {
+    private final static Logger LOGGER = LoggerFactory.getLogger(IpUtil.class);
+
     /**
      * 取客户端的真实ip，考虑了反向代理等因素的干扰
      */
@@ -53,8 +58,9 @@ public class IpUtil {
         String[] ss = xff.split(",");
         for (String ip : ss) {
             ip = ip.trim();
-            if (isValidIP(ip))
+            if (isValidIP(ip)) {
                 return ip;
+            }
         }
         return null;
     }
@@ -131,7 +137,7 @@ public class IpUtil {
                 }
             }
         } catch (SocketException e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
         }
         return "";
     }
@@ -170,7 +176,7 @@ public class IpUtil {
             return addresses;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
         }
         return null;
     }

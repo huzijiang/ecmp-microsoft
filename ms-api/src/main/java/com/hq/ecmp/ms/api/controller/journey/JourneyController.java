@@ -86,7 +86,7 @@ public class JourneyController {
                 return ApiResponse.error("撤销申请失败，请重试");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("撤销申请失败，请重试");
         }
     }
@@ -134,7 +134,7 @@ public class JourneyController {
             JourneyDetailVO  orderVO = journeyInfoService.getItineraryDetail(powerDTO.getPowerId());
             return ApiResponse.success(orderVO);
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return  ApiResponse.error(e.getMessage());
         }
     }
@@ -253,7 +253,7 @@ public class JourneyController {
             }
             return ApiResponse.success("无待确认的行程","0");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
 

@@ -60,14 +60,14 @@ public class MailUtils  {
         try {
             File file = new File(fileName);
             if (!file.exists()) {
-                boolean newFile = file.createNewFile();
+                file.createNewFile();
             }
             FileOutputStream fops = new FileOutputStream(file);
             fops.write(img);
             fops.flush();
             fops.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
         }
     }
 

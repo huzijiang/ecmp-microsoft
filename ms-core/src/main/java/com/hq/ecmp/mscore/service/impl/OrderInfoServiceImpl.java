@@ -1300,13 +1300,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
 
                 }
             } catch (SocketTimeoutException e) {
-                e.printStackTrace();
+                log.error("业务处理异常", e);
                 throw new Exception("网约车下单超时");
             }
-            log.info("订单{}下单参数，{}", orderId, paramMap);
-            log.info("订单{}下单结果，{}", orderId, result);
+            log.info("订单{}下单参数，paramMap:[{}] result:[{}]", orderId, paramMap, result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             throw new Exception("网约车下单异常");
         }
     }

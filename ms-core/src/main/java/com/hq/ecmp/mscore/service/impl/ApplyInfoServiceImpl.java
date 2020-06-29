@@ -1617,7 +1617,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         try {
             iSmsTemplateInfoService.sendSms(template,map,userPhone);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -2038,7 +2038,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             }
             log.info(DateUtils.getMonthAndToday()+"申请单已过期的单号:"+applyIds);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             log.info("定时任务:checkApplyExpired 异常");
         }
     }

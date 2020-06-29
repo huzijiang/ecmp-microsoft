@@ -292,7 +292,7 @@ public class OkHttpUtil {
             os.close();
             ins.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 

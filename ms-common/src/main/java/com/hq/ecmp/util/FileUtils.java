@@ -57,8 +57,8 @@ public class FileUtils {
             return parmPath+ File.separator+fileName;
         } catch (Exception e) {
             throw new BaseException("文件上传失败");
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (Throwable e) {
+            logger.error("业务处理异常", e);
             throw new BaseException("文件上传失败");
         }
     }
@@ -81,13 +81,13 @@ public class FileUtils {
             out = new FileOutputStream(file);
             out.write(input);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
         }finally {
             if(out != null){
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error("业务处理异常", e);
                 }
             }
         }

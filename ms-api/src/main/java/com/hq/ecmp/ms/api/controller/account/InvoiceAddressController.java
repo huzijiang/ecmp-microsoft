@@ -15,6 +15,7 @@ import com.hq.ecmp.mscore.service.IInvoiceAddressService;
 import com.hq.ecmp.mscore.vo.InvoiceAddVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ import java.util.List;
  *
  */
  @RestController
+ @Slf4j
  @RequestMapping("/invoiceAdd")
 public class InvoiceAddressController {
 
@@ -71,7 +73,7 @@ public class InvoiceAddressController {
         try {
              invoiceAddressService.insertInvoiceAddress(invoiceAddressDTO);
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("新增失败");
          }
          return ApiResponse.success("新增成功");
@@ -90,7 +92,7 @@ public class InvoiceAddressController {
          try {
              invoiceAddressService.updateInvoiceAddress(invoiceAddUpdateDTO);
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("修改失败");
          }
          return ApiResponse.success("修改成功");
@@ -107,7 +109,7 @@ public class InvoiceAddressController {
          try {
              invoiceAddressService.deleteInvoiceAddressById(invoiceAddUpdateDTO.getAddressId());
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("删除失败");
          }
          return ApiResponse.success("删除成功");

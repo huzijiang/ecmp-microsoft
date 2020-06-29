@@ -66,7 +66,7 @@ public class ScTest {
         try {
             iOrderInfoService.officialOrder(officialOrderReVo,200349l);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
     }
 
@@ -104,7 +104,7 @@ public class ScTest {
 //        try {
 ////            iOrderInfoService.platCallTaxiParamValid(99L, "1", "null");
 //        } catch (Exception e) {
-//            e.printStackTrace();
+//            log.error("业务处理异常", e)();
 //        }
     }
 

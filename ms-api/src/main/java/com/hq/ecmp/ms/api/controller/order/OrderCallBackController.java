@@ -5,6 +5,8 @@ import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +26,8 @@ import javax.annotation.Resource;
 @Api(value = "后台管理-订单模块")
 public class OrderCallBackController {
 
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Resource
     @Lazy
     private OrderInfoTwoService iOrderInfoService;
@@ -38,7 +42,7 @@ public class OrderCallBackController {
             iOrderInfoService.callBackOrderState(json);
             return ApiResponse.success("订单状态回调成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }

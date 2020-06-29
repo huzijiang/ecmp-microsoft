@@ -62,7 +62,7 @@ public class ReckoningController {
             collectionService.addReckoning(reckoningInfo);
             return ApiResponse.success("添加成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             ApiResponse.error("分页查询公告列表失败");
             return ApiResponse.error("添加收款信息异常");
         }
@@ -97,7 +97,7 @@ public class ReckoningController {
             Map<String, Object> map = collectionService.downloadReckoning(reckoningInfo);
             return ApiResponse.success(map);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("下载收款异常");
         }
     }
@@ -123,7 +123,7 @@ public class ReckoningController {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("改变收款状态异常");
         }
 
@@ -147,7 +147,7 @@ public class ReckoningController {
                return ApiResponse.error("收款详情异常");
            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("收款详情异常");
         }
 
@@ -169,7 +169,7 @@ public class ReckoningController {
             collectionService.findReckoning(param);
             return ApiResponse.success("条件查询收款成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             ApiResponse.error("分页查询公告列表失败");
             return ApiResponse.error("添加收款信息异常");
         }
