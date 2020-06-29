@@ -1201,7 +1201,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderId));
         if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
-            log.error("订单:"+orderId+"的调度详情不存在!");
+            log.warn("订单:"+orderId+"的调度详情不存在!");
             throw new BaseException("订单异常");
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
@@ -1229,6 +1229,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setContent("用车人已还车");
         stateTraceInfo.setCreateBy(String.valueOf(userId));
         stateTraceInfo.setCreateTime(new Date());
+        stateTraceInfo.setState(OrderStateTrace.GIVE_UP_CAR.getState());
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
         stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
         /**计算自驾的费用*/
