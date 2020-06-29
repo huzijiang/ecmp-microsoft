@@ -17,9 +17,16 @@
 
 	<properties>
 		<java.version>1.8</java.version>
+        <perf4j.version>0.9.16</perf4j.version>
 	</properties>
 
 	<dependencies>
+        <!-- perf4j -->
+        <dependency>
+            <groupId>org.perf4j</groupId>
+            <artifactId>perf4j</artifactId>
+            <version>${perf4j.version}</version>
+        </dependency>
         <!-- 红旗车辆管理系统后台基础框架包 -->
         <dependency>
             <groupId>com.hq.ecmp</groupId>
