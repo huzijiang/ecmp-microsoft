@@ -100,9 +100,7 @@ public class WxPayController {
             result = wxPayService.createOrder(orderRequest);
             log.info("微信下单后返回结果为："+result);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("下单失败，错误信息为："+e);
-            log.info("下单失败，错误信息为："+e.getMessage());
+            log.error("下单失败，错误信息为", e);
         }
         return result;
     }
@@ -184,9 +182,7 @@ public class WxPayController {
 
             return WxPayNotifyResponse.success("处理成功!");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.info("微信支付失败----------------错误信息为："+e);
-            log.info("微信支付失败----------------错误信息为："+e.getMessage());
+            log.error("微信支付失败----------------错误信息为："+e.getMessage(), e);
             return WxPayNotifyResponse.fail(e.getMessage());
         }
     }
@@ -213,13 +209,14 @@ public class WxPayController {
         refundRequest.setNotifyUrl(WechatPayConfig.refund_notify_url);
         try {
             WxPayRefundResult result = wxPayService.refund(refundRequest);
+            log.info("退款结果:[{}]", result);
             if (OrderPayConstant.WX_RETURN_CODE_OK.equals(result.getReturnCode()) && OrderPayConstant.WX_RETURN_CODE_OK.equals(result.getResultCode())) {
                 // 退款成功
             } else {
                 // 退款失败
             }
         } catch (WxPayException e) {
-            e.printStackTrace();
+            log.error("退款异常", e);
         }
         return OrderPayConstant.WX_RETURN_CODE_OK;
     }

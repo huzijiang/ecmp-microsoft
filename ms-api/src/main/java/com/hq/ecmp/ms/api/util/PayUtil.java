@@ -49,9 +49,7 @@ public class PayUtil {
                 try {
                     br.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.info("xml 转换 String报错，原因为："+e);
-                    log.info("xml 转换 String报错，原因为："+e.getMessage());
+                    log.error("xml 转换 String报错，原因为："+e.getMessage(), e);
                 }
             }
         }

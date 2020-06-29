@@ -84,15 +84,17 @@ public class DriverNewsController {
         return ApiResponse.error("失效驾驶员数量为0");
 
     }
+
     /**
-     *已失效驾驶员进行删除
+     * 已失效驾驶员进行删除
+     *
      * @param driverDTO
      * @return
      */
-    @Log(title = "驾驶员管理模块",content = "删除驾驶员", businessType = BusinessType.DELETE)
-    @ApiOperation(value="getDriverDelete" ,notes="删除驾驶员", httpMethod = "POST")
+    @Log(title = "驾驶员管理模块", content = "删除驾驶员", businessType = BusinessType.DELETE)
+    @ApiOperation(value = "getDriverDelete", notes = "删除驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverDelete")
-    public ApiResponse  getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
+    public ApiResponse getDriverDelete(@RequestBody DriverNewDTO driverDTO) throws Exception {
         try {
             return iDriverInfoService.deleteDriver(driverDTO.getDriverId());
         } catch (Exception e) {
