@@ -263,7 +263,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	a.mobile as mobile,
 	a.state AS state,
 	a.it_is_full_time AS itIsFullTime,
-	c.car_group_name AS carGroupName
+	c.car_group_name AS carGroupName,
+	a.dimission_time AS dimissionTime
 	FROM
 	driver_info a
 	LEFT JOIN car_group_driver_relation b ON a.driver_id = b.driver_id
