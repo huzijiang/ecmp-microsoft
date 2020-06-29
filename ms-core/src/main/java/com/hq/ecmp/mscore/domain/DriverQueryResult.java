@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.domain;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hq.ecmp.mscore.vo.CarListVO;
 import lombok.Data;
 
@@ -58,5 +59,7 @@ public class DriverQueryResult {
 	Date hireEndTime;  //外聘结束时间
 	Date borrowBeginTime; //借调开始时间
 	Date borrowEndTime;  //借调结束时间
-	  
+
+	//@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+	Date dimissionTime; //离职日期
 }
