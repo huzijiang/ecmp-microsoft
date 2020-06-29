@@ -1,5 +1,8 @@
 package com.hq.ecmp.ms.api.controller.driver;
 
+import com.alibaba.fastjson.JSONArray;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
@@ -16,6 +19,7 @@ import com.hq.ecmp.mscore.service.IDriverInfoService;
 import com.hq.ecmp.mscore.service.IDriverWorkInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,7 @@ import java.util.List;
  * @author :shixin
  * @Date： 2020-3-20
  */
+@Slf4j
 @RestController
 @RequestMapping("/driverNews")
 public class DriverNewsController {
@@ -108,29 +113,33 @@ public class DriverNewsController {
     }
 
     /**
-     *修改驾驶员
+     * 修改驾驶员
+     *
      * @param driverCreateInfo
      * @return
      */
-    @Log(title = "驾驶员管理模块:修改驾驶员",content = "修改驾驶员", businessType = BusinessType.UPDATE)
-    @ApiOperation(value="getDriverUpdate" ,notes="修改驾驶员", httpMethod = "POST")
+    @Log(title = "驾驶员管理模块:修改驾驶员", content = "修改驾驶员", businessType = BusinessType.UPDATE)
+    @ApiOperation(value = "getDriverUpdate", notes = "修改驾驶员", httpMethod = "POST")
     @PostMapping("/getDriverUpdate")
-    public ApiResponse  getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo){
-
-           try{
-               HttpServletRequest request = ServletUtils.getRequest();
-               LoginUser loginUser = tokenService.getLoginUser(request);
-               driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
-               boolean createDriver = driverInfoService.updateDriver(driverCreateInfo);
-               if(createDriver){
-                   return ApiResponse.success();
-               }else{
-                   return ApiResponse.error();
-               }
-           }catch (Exception e){
-               logger.error("业务处理异常", e);
-               return ApiResponse.error("修改驾驶员信息失败");
-           }
+    public ApiResponse getDriverUpdate(@RequestBody DriverCreateInfo driverCreateInfo) {
+        /**
+         * This bug was fixed by Gandaif on 06/29/2020.
+         */
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        log.info("修改驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(), loginUser.getUser().getPhonenumber());
+        try {
+            driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
+            boolean createDriver = driverInfoService.updateDriver(driverCreateInfo);
+            if (createDriver) {
+                return ApiResponse.success();
+            } else {
+                return ApiResponse.error();
+            }
+        } catch (Exception e) {
+            log.error("修改驾驶员失败：{}，操作人：{}", e.getMessage(), loginUser.getUser().getPhonenumber());
+            return ApiResponse.error("修改驾驶员信息失败");
+        }
     }
 
     /**

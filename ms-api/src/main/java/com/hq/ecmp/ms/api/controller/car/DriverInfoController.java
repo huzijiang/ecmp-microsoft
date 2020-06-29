@@ -44,20 +44,23 @@ public class DriverInfoController {
 	@ApiOperation(value = "create", notes = "新增驾驶员", httpMethod = "POST")
 	@PostMapping("/create")
 	public ApiResponse create(@RequestBody DriverCreateInfo driverCreateInfo) {
+		/**
+		 * This bug was fixed by Gandaif on 06/29/2020.
+		 */
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
+		log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(), loginUser.getUser().getPhonenumber());
 		try {
-			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber());
 			driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
 			driverCreateInfo.setCompanyId(loginUser.getUser().getOwnerCompany());
 			boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
-			if(createDriver){
+			if (createDriver) {
 				return ApiResponse.success();
-			}else{
+			} else {
 				return ApiResponse.error();
 			}
 		} catch (Exception e) {
-			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber(),e);
+			log.error("新增驾驶员失败：{}，操作人：{}", e.getMessage(), loginUser.getUser().getPhonenumber());
 			return ApiResponse.error("新增驾驶员失败");
 		}
 	}
