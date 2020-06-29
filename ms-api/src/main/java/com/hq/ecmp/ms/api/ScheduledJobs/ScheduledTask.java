@@ -12,9 +12,9 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.RedisUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,9 +23,12 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
+import static com.hq.ecmp.constant.TraceConstant.NG_TRACE_ID;
+import static com.hq.ecmp.constant.TraceConstant.TRACE_KEY;
 
 @Component
-@Slf4j
 public class ScheduledTask {
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTask.class);
@@ -64,28 +67,29 @@ public class ScheduledTask {
 	@Autowired
 	private IDriverWorkInfoService driverWorkInfoService;
 
-	@Scheduled(cron = "5 * * * * ?")
-	public void testJob(){
-		System.out.println("定时任务:testJob"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
-	}
-
 	//每天0点5分校验项目是否失效
 	@Scheduled(cron = "0 5 0 * * ?")
 	public void checkProject(){
-		System.out.println("定时任务:checkProject:校验项目是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:checkProject:校验项目是否过期");
 		iProjectInfoService.checkProject();
 	}
 
 	//每天0点0分校验员工是否已离职
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void checkDimissionEcmpUser(){
-		System.out.println("定时任务:checkDimissionEcmpUser:校验员工是否离职"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:checkDimissionEcmpUser:校验员工是否离职");
 		ecmpUserService.checkDimissionEcmpUser();
 	}
 	//每10分钟校验申请单是否过期
 	@Scheduled(cron = "0 */10 * * * ?")
 	public void checkApplyExpired(){
-		System.out.println("定时任务:checkApplyExpired:校验申请单是否过期"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:checkApplyExpired:校验申请单是否过期");
 		applyInfoService.checkApplyExpired();
 	}
 
@@ -94,14 +98,15 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0/5 * * * ? ")
 	public void checkOrderIsExpired(){
-		log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:checkOrderIsExpired:校验订单是否过期开始");
 		try {
 			orderInfoTwoService.checkOrderIsExpired();
 		} catch (Exception e) {
-			log.error("校验订单是否过期定时任务执行异常");
-			e.printStackTrace();
+			log.error("校验订单是否过期定时任务执行异常", e);
 		}
-		log.info("定时任务:checkOrderIsExpired:校验订单是否过期结束,{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:checkOrderIsExpired:校验订单是否过期结束");
 	}
 
 	/**
@@ -109,9 +114,11 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 10 0 * * ? ")
 	public void checkRegimenExpired(){
-		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期开始"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:checkRegimenExpired:校验制度是否过期开始");
 		regimeInfoService.checkRegimenExpired();
-		System.out.println("定时任务:checkRegimenExpired:校验制度是否过期结束"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:checkRegimenExpired:校验制度是否过期结束");
 	}
 
 	/**
@@ -119,16 +126,17 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 15 0 * * ? ")
 	public void checkCarState(){
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
 		log.info("定时任务:checkCarState:校验车辆状态开始,{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
 		long start = System.currentTimeMillis();
 		try {
 			carInfoService.checkCarState();
 		} catch (Exception e) {
-			log.error("校验车辆状态异常");
-			e.printStackTrace();
+			log.error("校验车辆状态异常", e);
 		}
 		long end = System.currentTimeMillis();
-		log.info("定时任务:checkCarState:校验车辆状态结束,{}，耗时：{}",DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()),end-start);
+		log.info("定时任务:checkCarState:校验车辆状态结束,耗时：{}ms",end-start);
 	}
 
 
@@ -139,6 +147,8 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 */5 * * * ?")
 	public void autoDispatch() {
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
 		log.info("定时任务:autoDispatch:自动调度" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
 
 		EcmpConfig ecmpConfig = new EcmpConfig(ConfigTypeEnum.DISPATCH_INFO.getConfigKey(),null);
@@ -224,10 +234,9 @@ public class ScheduledTask {
 								}
 
 							} catch (Exception e) {
-								log.error("订单【" + orderId + "】自动派单异常:" + JSONObject.toJSONString(e));
+								log.error("订单【" + orderId + "】自动派单异常:", e);
 								//释放自动派单锁
 								redisUtil.delKey(redisLockKey);
-								e.printStackTrace();
 							}
 						}
 					}
@@ -241,26 +250,30 @@ public class ScheduledTask {
 	//后台公告管理通过发布时间与结束时间做状态修改
 	@Scheduled(cron = "0 0/1 * * * ? ")
 	public void  announcementManagementTimingTask (){
-		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:");
 		try {
 			iEcmpNoticeService.announcementTask();
 		}catch (Exception e) {
-			e.printStackTrace();
+			log.error("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改StartTime:", e);
 		}
-		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:announcementManagementTimingTask:通过发布时间与结束时间做状态修改EndTime:");
 	}
 
 	//从云端获取一年的节假日修改本地数据的cloud_work_date_info表
 	//@Scheduled(cron = "0 0/3 * * * ? ")
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void  SchedulingTimingTask (){
-		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:");
 		try {
 			driverWorkInfoService.SchedulingTimingTask();
 		}catch (Exception e) {
-			e.printStackTrace();
+			log.error("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期StartTime:", e);
 		}
-		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期EndTime:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:SchedulingTimingTask:通过云端获取的时间修改本地cloud_work_date_info假期EndTime:");
 	}
 
 	/**
@@ -268,26 +281,29 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0/20 * * * ? ")
 	public void confirmOrderJourneyAuto(){
-		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程开始,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程开始,时间{}");
 		try {
 			orderInfoService.confirmOrderJourneyAuto(timeout);
 		} catch (Exception e) {
-			log.error("自动确认行程定时任务执行异常");
-			e.printStackTrace();
+			log.error("自动确认行程定时任务执行异常", e);
 		}
-		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程结束,时间{}", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:confirmOrderJourneyAuto:自动确认行程结束,时间");
 	}
 
 	//定时任务独立审核
 	@Scheduled(cron = "0 0/1 * * * ? ")
 	public void  SchedulingIndependentTask (){
-		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:");
 		try {
 			ecmpOrgService.selectIndependentCompanyApplyState();
 		}catch (Exception e) {
-			e.printStackTrace();
+			log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果异常:", e);
 		}
-		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:SchedulingIndependentTask:定时查询独立审核结果:");
 	}
 
 	/**
@@ -295,23 +311,23 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0/10 * * * ? ")
 	public void unlockCarOrDriver() {
-		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:");
 		try {
 			carInfoService.unlockCars();
 		} catch (Exception e) {
-			log.error("车辆自动解锁失败");
-			e.printStackTrace();
+			log.error("车辆自动解锁失败", e);
 		}
-		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		log.info("定时任务:SchedulingIndependentTask:车辆自动解锁:");
 
-		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:");
 		try {
 			iDriverInfoService.unlockDrivers();
 		} catch (Exception e) {
-			log.error("司机自动解锁失败");
-			e.printStackTrace();
+			log.error("司机自动解锁失败", e);
 		}
-		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:" + DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, new Date()));
+		log.info("定时任务:SchedulingIndependentTask:司机自动解锁:");
 	}
 	/***
 	 *定时更新外聘驾驶员，借调驾驶员状态
@@ -319,13 +335,15 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void  scheduUpdateDriverStaeTask (){
-		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态开始:");
 		try {
 			iDriverInfoService.updateDriverStatusService();
 		}catch (Exception e) {
 			log.error("scheduUpdateDriverStaeTask error",e);
 		}
-		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态结果:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:scheduUpdateDriverStaeTask:定时更新外聘驾驶员，借调驾驶员状态结果:");
 	}
 	/***
 	 * 定时更新驾驶员失效
@@ -333,13 +351,15 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void  scheduUpdateDriverInvalidTask (){
-		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果开始:");
 		try {
 			iDriverInfoService.updateDriverInvalid();
 		}catch (Exception e) {
 			log.error("scheduUpdateDriverInvalidTask error",e);
 		}
-		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果结束："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:scheduUpdateDriverInvalidTask:定时更新离职失效驾驶员状态结果结束：");
 	}
 	/***
 	 * 定时更新离职失效驾驶员接绑驾驶员的车队
@@ -347,13 +367,15 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 0 0 * * ?")
 	public void  scheduUpdateDepartureDriverTask (){
-		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果开始:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果开始:");
 		try {
 			iDriverInfoService.updateDepartureDriver();
 		}catch (Exception e) {
 			log.error("scheduUpdateDepartureDriverTask error",e);
 		}
-		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果结束："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:scheduUpdateDepartureDriverTask:定时更新解绑驾驶员状态结果结束：");
 	}
 
 	/***
@@ -362,13 +384,15 @@ public class ScheduledTask {
 	 */
 	@Scheduled(cron = "0 */5 * * * ?")
 	public void  updatePickupCarState(){
-		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态:"+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
+		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
+		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态:");
 		try {
 			orderInfoTwoService.updatePickupCarState();
 		}catch (Exception e) {
 			log.error("updatePickupCarState error",e);
 		}
-		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态结束结果："+ DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,new Date()));
+		log.info("定时任务:updatePickupCarState:自驾包车定时任务去更新状态结束结果：");
 	}
 
 }
