@@ -4,6 +4,7 @@ import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrap
 import com.hq.core.config.DruidConfig;
 import com.hq.core.config.properties.DruidProperties;
 import com.hq.ecmp.constant.InterceptorConstant;
+import com.hq.ecmp.interceptor.HeaderInterceptor;
 import com.hq.ecmp.interceptor.RequestInterceptor;
 import com.hq.ecmp.interceptor.TraceLogInterceptor;
 import io.swagger.annotations.SwaggerDefinition;
