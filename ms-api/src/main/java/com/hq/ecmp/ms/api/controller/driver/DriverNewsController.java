@@ -1,14 +1,15 @@
 package com.hq.ecmp.ms.api.controller.driver;
+
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
-import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.mscore.domain.DriverCreateInfo;
 import com.hq.ecmp.mscore.domain.DriverInfo;
@@ -20,8 +21,11 @@ import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -34,6 +38,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/driverNews")
 public class DriverNewsController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private IDriverInfoService iDriverInfoService;
     @Autowired
@@ -101,7 +107,7 @@ public class DriverNewsController {
         try {
             return iDriverInfoService.deleteDriver(driverDTO.getDriverId());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -179,7 +185,7 @@ public class DriverNewsController {
         try {
             driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getDriverId());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("解绑成功");
@@ -200,7 +206,7 @@ public class DriverNewsController {
         try {
             iDriverInfoService.bindDriverCars(driverCarDTO,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("新增车辆成功");
@@ -223,7 +229,7 @@ public class DriverNewsController {
             }
             driverWorkInfoMonthList = driverWorkInfoService.getDriverWorkInfoMonthList(driverId, month);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(driverWorkInfoMonthList);
@@ -244,7 +250,7 @@ public class DriverNewsController {
             Long userId = loginUser.getUser().getUserId();
             driverWorkInfoService.updateDriverWorkDetailMonth(driverWorkInfoDetailVo,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("司机排班变更失败");
         }
             return ApiResponse.success("司机排班变更成功");
@@ -268,7 +274,7 @@ public class DriverNewsController {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(workInfoMonthList);
@@ -289,7 +295,7 @@ public class DriverNewsController {
             Long userId = loginUser.getUser().getUserId();
             driverWorkInfoService.updateWorkDetailMonth(workInfoDetailVo,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("排班变更失败");
         }
         return ApiResponse.success("排班变更成功");

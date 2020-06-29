@@ -87,7 +87,7 @@ public class DriverInfoController {
 		try {
 			return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("查询驾驶员详情失败");
 		}
 	}
@@ -127,7 +127,7 @@ public class DriverInfoController {
 			driverInfoService.checkjobNumber(driverUserJobNumber);
 			return ApiResponse.success();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 	}

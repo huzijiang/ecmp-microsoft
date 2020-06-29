@@ -10,6 +10,7 @@ import com.hq.ecmp.mscore.dto.OrderEvaluationDto;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackImageService;
 import com.hq.ecmp.mscore.service.IEcmpUserFeedbackInfoService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import java.util.List;
  * @Date: 2020-3-7
  */
 @RestController
+@Slf4j
 @RequestMapping("/evaluation")
 public class EvaluationController {
 
@@ -61,7 +63,7 @@ public class EvaluationController {
             Long feedId=feedbackInfoService.saveOrderEvaluation(evaluationDto,loginUser.getUser().getUserId());
             return ApiResponse.success(feedId);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("保存行程异议异常!");
         }
     }
@@ -97,7 +99,7 @@ public class EvaluationController {
            }
            return ApiResponse.success(evaluationDto);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("获取行程异议异常!");
         }
     }

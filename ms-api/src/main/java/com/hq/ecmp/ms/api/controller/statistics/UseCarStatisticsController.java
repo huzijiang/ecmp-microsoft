@@ -63,7 +63,7 @@ public class UseCarStatisticsController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             carGroupInfos = orderInfoTwoService.userDeptCarGroupList(loginUser.getUser().getDeptId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取用户车队列表失败");
         }
         return  ApiResponse.success(carGroupInfos);
@@ -79,7 +79,7 @@ public class UseCarStatisticsController {
             UseCarDataVo useCarDataVo =  orderStateTraceInfoService.selectDeptUseCarData(useCarDataDto,loginUser);
             return ApiResponse.success("查询成功",useCarDataVo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("微服务查询用户部门用车统计数据失败");
         }
     }
@@ -95,7 +95,7 @@ public class UseCarStatisticsController {
             PageResult<UseCarDataVo> result =  orderStateTraceInfoService.userDeptUseCarDataByCarGroup(useCarDataByGroupDto,loginUser);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("微服务查询用户部门用车统计数据失败");
         }
     }
@@ -111,7 +111,7 @@ public class UseCarStatisticsController {
             PageResult<StatisticsForAdminDetailVo> result =  orderStateTraceInfoService.userDeptUseCarDetail(userDeptUseCarDetailDto,loginUser);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("微服务查询用户部门用车详情数据失败");
         }
     }

@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Date的parse()与format(), 采用Apache Common Lang中线程安全, 性能更佳的FastDateFormat
@@ -28,6 +30,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * @see FastDateFormat#format(long)
  */
 public class DateFormatUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateFormatUtils.class);
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -81,11 +85,11 @@ public class DateFormatUtils {
             try {
                 dateTime = simpleDateFormat.parse(dateString);
             } catch (ParseException e) {
-                e.printStackTrace();
+                LOGGER.error("业务处理异常", e);
             }
             return dateTime;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
         }
         return null;
     }
@@ -126,7 +130,7 @@ public class DateFormatUtils {
                 return 0;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
 
             return 0;
         }
@@ -153,7 +157,7 @@ public class DateFormatUtils {
                 return 0;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
 
             return 0;
         }
@@ -182,7 +186,7 @@ public class DateFormatUtils {
                 return 0;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
 
             return 0;
         }
@@ -209,7 +213,7 @@ public class DateFormatUtils {
                 return 0;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
             return 0;
         }
     }
@@ -429,7 +433,7 @@ public class DateFormatUtils {
                 sc.add(dt, 1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("业务处理异常", e);
         }
         return rs;
     }
@@ -489,27 +493,6 @@ public class DateFormatUtils {
         Date today = calendar.getTime();
         return today;
     }
-
-
-     public  static void main(String[] args){
-//         Date date = parseDate(DATE_TIME_FORMAT, "2020-04-10 22:22:22");
-//         System.out.println(date);
-//         System.out.println(date.getTime());
-         String date1="2020-04-30";
-         System.out.println("当前时间"+date1);
-         System.out.println("加的日期"+addDay(date1, 1));
-         System.out.println("减的日期"+addDay(date1, -1));
-
-//         int i=compareTime("2020-05-06 19:30:50","2020-05-07 19:30:50");
-//         if (i==-1){
-//             System.out.println("大于当前时间");
-//         }else if (i==0){
-//             System.out.println("相等");
-//         }else{
-//             System.out.println("小于当前时候");
-//         }
-
-     }
 }
 
 

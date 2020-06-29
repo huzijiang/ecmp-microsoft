@@ -24,6 +24,7 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.SceneDetailVO;
 import com.hq.ecmp.mscore.vo.SceneListVO;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ObjectUtils;
@@ -41,6 +42,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/scene")
+@Slf4j
 public class SceneController {
 
     @Autowired
@@ -94,7 +96,7 @@ public class SceneController {
         try {
             sceneInfoService.saveScene(sceneDTO, userId, ownerCompany);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.success("保存失败");
         }
         return ApiResponse.success("保存用车场景成功");
@@ -119,7 +121,7 @@ public class SceneController {
                 return ApiResponse.error("请先删除该用车场景下的所有制度");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.success("删除失败");
         }
     }
@@ -140,7 +142,7 @@ public class SceneController {
         try {
             sceneInfoService.updateScene(sceneDTO, userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.success("修改场景失败");
         }
         return ApiResponse.success("修改用车场景成功");
@@ -166,7 +168,7 @@ public class SceneController {
                 return ApiResponse.success(sceneDetailVO);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询场景详情失败");
         }
     }
@@ -189,7 +191,7 @@ public class SceneController {
                 ownerCompany);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询场景列列表信息失败");
         }
     }
@@ -210,7 +212,7 @@ public class SceneController {
         try {
             sceneInfoService.sortScene(sceneSortDTO, userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("修改场景顺序失败");
         }
         return ApiResponse.success("修改场景顺序成功");
@@ -234,7 +236,7 @@ public class SceneController {
             List<SceneInfo> selectSceneInfoList = sceneInfoService.selectSceneInfoList(sceneInfo);
             return ApiResponse.success(selectSceneInfoList);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询所有可用用车场景失败");
         }
     }
@@ -353,7 +355,7 @@ public class SceneController {
             List<?> list = JSONObject.parseArray(object.toString());
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("调用云端接口获取平台车型级别：公务级，行政级 =等失败");
         }
     }

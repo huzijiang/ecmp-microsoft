@@ -48,7 +48,7 @@ public class HttpClientUtil {
             response = httpClient.execute(httpGet);
             resultString = dealResponse(response);
         } catch (IOException | URISyntaxException e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
         return resultString;
     }
@@ -71,7 +71,7 @@ public class HttpClientUtil {
             response = httpClient.execute(httpPost);
             resultString = dealResponse(response);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
         return resultString;
     }
@@ -91,7 +91,7 @@ public class HttpClientUtil {
             response = httpClient.execute(httpPost);
             resultString = dealResponse(response);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
         return resultString;
     }
@@ -128,7 +128,7 @@ public class HttpClientUtil {
             httpResponse = closeableHttpClient.execute(httpPost);
             resultString = dealResponse(httpResponse);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
         return resultString;
     }
@@ -162,7 +162,7 @@ public class HttpClientUtil {
             httpResponse = closeableHttpClient.execute(httpPost);
             resultString = dealResponse(httpResponse);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
         return resultString;
     }
@@ -189,7 +189,7 @@ public class HttpClientUtil {
             httpResponse = closeableHttpClient.execute(httpPost);
             resultString = dealResponse(httpResponse);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return resultString;
     }
@@ -214,7 +214,7 @@ public class HttpClientUtil {
             httpResponse = closeableHttpClient.execute(httpPost);
             resultString = dealResponse(httpResponse);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return resultString;
     }
@@ -243,21 +243,10 @@ public class HttpClientUtil {
                 try {
                     response.close();
                 } catch (IOException e) {
-                    log.error(e.getMessage());
+                    log.error(e.getMessage(), e);
                 }
             }
         }
         return resultString;
     }
-
-    /**
-    public static void main(String[] args) {
-        File file = new File("/Users/xueyong/Pictures/other/v2-7f8effed163f082ca8b78b16493e3e94_b.jpg");
-        String s = postFileToImage("http://10.117.1.232:4869/upload", file);
-        ZimgResult zimgResult = JSONObject.parseObject(s, ZimgResult.class);
-        System.out.println(s);
-        log.info("result:{}", zimgResult);
-    }
-     */
-
 }
