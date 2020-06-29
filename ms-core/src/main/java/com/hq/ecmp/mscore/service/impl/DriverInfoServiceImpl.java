@@ -80,7 +80,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 	private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
 
 
-    /**
+	/**
      * 查询【请填写功能名称】
      *
      * @param driverId 【请填写功能名称】ID
@@ -548,23 +548,35 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      * 已失效驾驶员进行删除
      */
     @Override
-    public ApiResponse deleteDriver(Long driverId)throws Exception {
+	public ApiResponse deleteDriver(Long driverId) throws Exception {
 		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
 		driverCarRelationInfo.setDriverId(driverId);
 		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
 		int size = driverCarRelationInfos.size();
-		if(size != 0){
+		if (size != 0) {
 			return ApiResponse.error("请先删除该驾驶员下的所有车辆，再尝试删除");
 		}
-		int i=driverInfoMapper.deleteDriver(driverId);
-		if(i!=0){
+		/**
+		 * The bug was fixed by Suruman on 06/28/2020.
+		 * Delete the driver by changing the status.
+		 */
+		//int i = driverInfoMapper.deleteDriver(driverId);
+		//1.修改驾驶员
+		DriverCreateInfo driverCreateInfo = new DriverCreateInfo();
+		driverCreateInfo.setUpdateTime(DateUtils.getNowDate());
+		driverCreateInfo.setState("S444");
+		driverCreateInfo.setDriverId(driverId);
+		driverInfoMapper.updateDriver(driverCreateInfo);
+		//2.查询是否修改成功
+		DriverInfo driverInfo = driverInfoMapper.selectDriverInfoById(driverId);
+		if (null != driverInfo && "S444".equals(driverInfo.getState())) {
 			driverCarRelationInfoService.deleteCarByDriverId(driverId);
 			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
-		}else {
+		} else {
 			throw new Exception("删除失败");
 		}
 		return ApiResponse.success("删除成功");
-    }
+	}
 
 
     /**

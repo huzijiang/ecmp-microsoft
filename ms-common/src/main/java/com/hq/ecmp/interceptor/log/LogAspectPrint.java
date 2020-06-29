@@ -93,7 +93,7 @@ public class LogAspectPrint {
             sb.append(lineSeparator).append("发生错误: ").append(e.getMessage());
             sb.append(lineSeparator).append("<====================================");
             // ExceptionHandler会打印一次错误堆栈，所以这里不需要打印
-            log.error(sb.toString());
+            log.error(sb.toString(), e);
             throw e;
         }
     }
