@@ -1,7 +1,5 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -10,9 +8,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.mscore.domain.EcmpOrg;
-import com.hq.ecmp.mscore.domain.RegimeVo;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
-import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
@@ -21,6 +17,8 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +36,8 @@ import java.util.List;
 @RequestMapping("/org")
 @Api(description="分/子公司 操作处理")
 public class OrgController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private IEcmpUserService ecmpUserService;
@@ -219,7 +219,7 @@ public class OrgController {
             int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加分/子公司成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -239,7 +239,7 @@ public class OrgController {
             int i = orgService.updateEcmpOrg(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("修改分/子公司成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }

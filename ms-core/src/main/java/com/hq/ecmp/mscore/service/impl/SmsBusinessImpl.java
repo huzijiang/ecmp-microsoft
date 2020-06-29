@@ -103,7 +103,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},约车超时", orderId);
     }
@@ -180,7 +180,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_DRIVER, driverMap, driverMobile);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},约车成功", orderId);
     }
@@ -220,7 +220,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_APPLICANT, paramsMapApplicant, applyMobile);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},取消", orderId);
     }
@@ -259,7 +259,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.CANCEL_ORDER_HAVEFEE_APPLICANT, paramsMap, applyMobile);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},取消-收费", orderId);
 
@@ -309,7 +309,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         log.info("短信结束-订单{},自有车司机到达", orderId);
     }*/
@@ -359,7 +359,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NETCAR_SUCC_RIDER_ENTER,paramsMap,riderMobile );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e)();
         }
         log.info("短信结束-订单{},自有车司机到达", orderId);
     }*/
@@ -382,7 +382,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
@@ -408,7 +408,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.DRIVER_BEGINSERVICE_APPLICANT, paramsMap, applyMobile);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
@@ -436,7 +436,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             }
             ecmpMessageMapper.updateByCategoryId(orderId, MsgStatusConstant.MESSAGE_STATUS_T001.getType(), null);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机服务结束", orderId);
     }
@@ -661,7 +661,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -689,7 +689,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             }
             ecmpMessageMapper.updateByCategoryId(orderId, MsgStatusConstant.MESSAGE_STATUS_T001.getType(), null);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机服务结束", orderId);
     }
@@ -724,7 +724,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -759,7 +759,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -806,7 +806,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                         orderId, createId, MsgConstant.MESSAGE_T011.getDesc(), applyId);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -1427,7 +1427,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机开始服务", orderId);
     }
@@ -1478,7 +1478,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         log.info("短信结束-订单{},司机结束服务", orderId);
     }

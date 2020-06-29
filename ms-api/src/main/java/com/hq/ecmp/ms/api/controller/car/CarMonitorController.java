@@ -17,6 +17,7 @@ import com.hq.ecmp.mscore.service.IEnterpriseCarTypeInfoService;
 import com.hq.ecmp.mscore.vo.CarLocationVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +38,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/carMonitor")
 @Api(value = "后管车辆监控",tags = "车辆监控")
+@Slf4j
 public class CarMonitorController {
 
     @Resource
@@ -60,7 +62,7 @@ public class CarMonitorController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             carLocationVos = iCarInfoService.locationCars(carLocationDto,loginUser);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(carLocationVos);
@@ -81,7 +83,7 @@ public class CarMonitorController {
             List<EnterpriseCarTypeInfo> enterpriseCarTypeInfos = iEnterpriseCarTypeInfoService.selectEnterpriseCarTypeInfoList(enterpriseCarTypeInfo);
             return ApiResponse.success(enterpriseCarTypeInfos);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("车型获取失败");
         }
     }

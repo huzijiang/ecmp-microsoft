@@ -5,6 +5,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.MacTools;
 import com.hq.common.utils.OkHttpUtil;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/brand")
+@Slf4j
 public class BrandController {
 
     @Value("${thirdService.enterpriseId}") // 企业编号
@@ -63,7 +65,7 @@ public class BrandController {
             List<?> list = JSONObject.parseArray(object.toString());
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("调用云端接口获取云端平台车辆品牌信息失败");
         }
     }

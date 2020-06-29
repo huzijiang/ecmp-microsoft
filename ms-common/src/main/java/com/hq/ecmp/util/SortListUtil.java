@@ -1,5 +1,8 @@
 package com.hq.ecmp.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +20,9 @@ import java.util.List;
  */
 @SuppressWarnings("all")
 public class SortListUtil {
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(SortListUtil.class);
+
 	public static final String DESC = "desc";
 	public static final String ASC = "asc";
 
@@ -65,14 +71,8 @@ public class SortListUtil {
 						ret = String.valueOf(f.get(a)).compareTo(String.valueOf(f.get(b)));
 					}
 
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
+				} catch (Throwable e) {
+					LOGGER.error("业务处理异常", e);
 				}
 				if (sort != null && sort.toLowerCase().equals(DESC)) {
 					return -ret;
@@ -127,14 +127,8 @@ public class SortListUtil {
 								ret = String.valueOf(f.get(a)).compareTo(String.valueOf(f.get(b)));
 							}
 
-						} catch (SecurityException e) {
-							e.printStackTrace();
-						} catch (NoSuchFieldException e) {
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
+						} catch (Throwable e) {
+							LOGGER.error("业务处理异常", e);
 						}
 
 						if (sort != null && sort.toLowerCase().equals(DESC)) {
@@ -191,12 +185,8 @@ public class SortListUtil {
 						ret = String.valueOf(m.invoke(a, null)).compareTo(String.valueOf(m.invoke(b, null)));
 					}
 
-				} catch (NoSuchMethodException ne) {
-					System.out.println(ne);
-				} catch (IllegalAccessException ie) {
-					System.out.println(ie);
-				} catch (InvocationTargetException it) {
-					System.out.println(it);
+				} catch (Throwable e) {
+					LOGGER.error("业务处理异常", e);
 				}
 
 				if (sort != null && sort.toLowerCase().equals(DESC)) {

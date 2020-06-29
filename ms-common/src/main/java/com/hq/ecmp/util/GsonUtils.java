@@ -2,6 +2,8 @@ package com.hq.ecmp.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -12,6 +14,9 @@ import java.util.*;
  * @author xueyong
  */
 public class GsonUtils {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(GsonUtils.class);
+
     private static Gson gson;
     /**
      * 忽略掉含有注解  {@link com.google.gson.annotations.Expose}
@@ -194,7 +199,7 @@ public class GsonUtils {
                 try {
                     return format.parse(dateStr);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    LOGGER.error("业务处理异常", e);
                 }
                 return null;
             }

@@ -75,7 +75,7 @@ public class RegimeController {
             }
             return ApiResponse.success(regimeInfoList);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -197,7 +197,7 @@ public class RegimeController {
             RegimeVo regimeVo = regimeInfoService.selectRegimeDetailById(regimeDto.getRegimenId());
             return ApiResponse.success(regimeVo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
 
@@ -210,7 +210,7 @@ public class RegimeController {
         try {
             return ApiResponse.success(regimeInfoService.queryRegimeCityLimit(regimeId));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询公务制度可用城市or不可用城市失败");
         }
 

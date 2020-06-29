@@ -65,7 +65,6 @@ public class CarController {
     @ApiOperation(value = "getDispatcheableCar",notes = "获取可调度的车辆信息",httpMethod ="POST")
     @PostMapping("/getDispatchableCar")
     public ApiResponse<List<CarInfo>> getDispatchableCar(OrderDto orderDto){
-
         return null;
     }
 
@@ -134,7 +133,7 @@ public class CarController {
         try {
             list = enterpriseCarTypeInfoService.selectEffectiveCarTypes(userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
         if(CollectionUtils.isEmpty(list)){
@@ -183,8 +182,7 @@ public class CarController {
         try {
              carInfoService.updateCar(carSaveDTO, userId);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("编辑车辆失败，请求参数：{}，操作人：{}",carSaveDTO,loginUser.getUser().getPhonenumber(),e);
+            log.error("业务处理异常loginUser:[{}]", loginUser, e);
             return ApiResponse.error("修改信息失败");
         }
         return ApiResponse.success("修改车辆信息成功");
@@ -206,7 +204,7 @@ public class CarController {
         try {
             carInfoService.deleteCarInfoById(carDto.getCarId(),userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("删除车辆成功");
@@ -226,7 +224,7 @@ public class CarController {
             CarDetailVO carDetailVO =  carInfoService.selectCarDetail(carDto.getCarId());
             return ApiResponse.success(carDetailVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询车辆详情失败");
         }
 
@@ -254,7 +252,7 @@ public class CarController {
                 return ApiResponse.error("已过期，不可更改状态");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("启用成功");
@@ -279,7 +277,7 @@ public class CarController {
                 return ApiResponse.error("车辆在使用中，无法禁用");
             }*/
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("禁用成功");
@@ -301,7 +299,7 @@ public class CarController {
         try {
             carInfoService.maintainCar(carDto.getCarId(),userId,carDto.getContent());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("修改维保状态失败");
         }
         return ApiResponse.success("维保成功");
@@ -323,7 +321,7 @@ public class CarController {
         try {
             driverCarRelationInfoService.bindCarDrivers(carDriverDTO,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("新增驾驶员成功");
@@ -341,7 +339,7 @@ public class CarController {
         try {
             driverCarRelationInfoService.removeCarDriver(carDto.getCarId(),carDto.getDriverId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("解绑成功");
@@ -361,7 +359,7 @@ public class CarController {
             pageResult = driverCarRelationInfoService.selectCarDriversByPage(pageRequest.getPageNum(),
                     pageRequest.getPageSize(), pageRequest.getCarId(),pageRequest.getWorkState(),pageRequest.getItIsFullTime(),pageRequest.getBusinessFlag());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询驾驶员列表信息失败");
         }
         return ApiResponse.success(pageResult);
@@ -380,7 +378,7 @@ public class CarController {
            PageResult<CarListVO> list = carInfoService.selectCarListByGroup(pageRequest);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -423,7 +421,7 @@ public class CarController {
             List<CarInfo> list = carInfoService.supplementObtainCar(carInfo);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -441,7 +439,7 @@ public class CarController {
             String logInfo = carInfoService.getCarLogInfo(carDto.getCarId(),carDto.getLogType());
             return ApiResponse.success("查询车辆日志信息成功",logInfo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询车辆日志信息失败");
         }
 

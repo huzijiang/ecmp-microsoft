@@ -693,8 +693,7 @@ public class RegimeInfoServiceImpl implements IRegimeInfoService {
 			}
 			log.info(DateUtils.getMonthAndToday()+"已过期的制度id集合：{}",regimeIds);
 		} catch (Exception e) {
-			e.printStackTrace();
-			log.info(DateUtils.getMonthAndToday()+"定时任务：checkRegimenExpired 校验过期制度异常");
+			log.error("业务处理异常", e);
 		}
 	}
 

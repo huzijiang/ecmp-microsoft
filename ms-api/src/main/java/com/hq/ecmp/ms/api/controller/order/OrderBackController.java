@@ -71,7 +71,7 @@ public class OrderBackController {
             PageResult<OrderListBackDto> orderListBackDtos  = iOrderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
             return ApiResponse.success(orderListBackDtos);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
     }
@@ -107,7 +107,7 @@ public class OrderBackController {
         try {
             orderListDetail = iOrderInfoService.getOrderListDetail(orderNo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(orderListDetail);
@@ -124,7 +124,7 @@ public class OrderBackController {
         try {
             orderHistoryTraceDtos = iOrderInfoService.getOrderHistoryTrace(Long.parseLong(orderId));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("获取轨迹失败");
         }
         return ApiResponse.success(orderHistoryTraceDtos);
@@ -144,7 +144,7 @@ public class OrderBackController {
             PageResult<EcmpUserFeedbackInfoVo> result  = iEcmpUserFeedbackInfoService.getObjectionOrderList(ecmpUserFeedbackInfo);
             return ApiResponse.success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
     }
@@ -163,7 +163,7 @@ public class OrderBackController {
                return ApiResponse.success();
            }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success();
@@ -182,7 +182,7 @@ public class OrderBackController {
             ApiResponse  apiResponse=  iEcmpUserFeedbackInfoService.supplementSubmit(orderInfoDTO);
             return apiResponse;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
     }

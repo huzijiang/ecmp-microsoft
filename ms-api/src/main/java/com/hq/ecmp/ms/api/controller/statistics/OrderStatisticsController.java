@@ -6,6 +6,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.StatisticsOrderService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/statistics/order")
+@Slf4j
 public class OrderStatisticsController {
 
     @Autowired
@@ -29,7 +31,7 @@ public class OrderStatisticsController {
         try {
             return statisticsOrderService.orderEndOfCarModelOfServiceType(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -39,7 +41,7 @@ public class OrderStatisticsController {
         try {
             return statisticsOrderService.orderEndOfTimeInterval(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -49,7 +51,7 @@ public class OrderStatisticsController {
         try {
             return statisticsOrderService.orderEndOfScene(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -59,7 +61,7 @@ public class OrderStatisticsController {
         try {
             return statisticsOrderService.orderEndOfCity(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -72,7 +74,7 @@ public class OrderStatisticsController {
             statisticsParam.setDeptIds(longs);
             return statisticsOrderService.orderEndOfDept(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
