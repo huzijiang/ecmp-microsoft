@@ -88,7 +88,7 @@ token:
   # 令牌秘钥
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
-  expireTime: 30
+  expireTime: 43200
 
 thirdService:
   enterpriseId: 100000
