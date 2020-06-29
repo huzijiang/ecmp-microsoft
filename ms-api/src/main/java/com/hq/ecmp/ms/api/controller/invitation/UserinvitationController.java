@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.invitation;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.aspectj.lang.annotation.Log;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.security.LoginUser;
@@ -15,6 +16,7 @@ import com.hq.ecmp.mscore.service.EcmpEnterpriseRegisterInfoService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
  * @Author: ShiXin
  * @Date: 2020-3-16 12:00
  */
+@Slf4j
 @RestController
 @RequestMapping("/invitationUser")
 public class UserinvitationController {
@@ -44,20 +47,28 @@ public class UserinvitationController {
      * @param userInvitationDTO
      * @return
      */
-    @Log(title = "邀请员工模块",content = "生成邀请链接", businessType = BusinessType.OTHER)
-    @ApiOperation(value = "interInvitationUserCommit",notes = "生成邀请",httpMethod = "POST")
+    @Log(title = "邀请员工模块", content = "生成邀请链接", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "interInvitationUserCommit", notes = "生成邀请", httpMethod = "POST")
     @PostMapping("/interInvitationUserCommit")
-    public ApiResponse<InvitationUrlVO> interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO){
+    public ApiResponse<InvitationUrlVO> interInvitationUserCommit(@RequestBody UserInvitationDTO userInvitationDTO) {
         try {
-            String urlApi=userInvitationDTO.getApiUrl();
+            /**
+             * This bug was fixed by Gandaif on 06/24/2020.
+             */
+            String urlApi = userInvitationDTO.getApiUrl();
+            if(StringUtils.isNotEmpty(urlApi)) {
+                if (!urlApi.endsWith("/")) {
+                    urlApi = urlApi + "/";
+                }
+            }
             //String urlApi="http://10.241.9.4:28080";
             ecmpEnterpriseInvitationInfoService.insertUserInvitation(userInvitationDTO);
             Long invitationId = userInvitationDTO.getInvitationId();
-            System.out.println("新增邀请链接返回ID："+ invitationId);
+            log.info("新增邀请链接返回的invitationId={}" + invitationId);
             InvitationUrlVO invitationUrlVO = new InvitationUrlVO();
-            String url=urlApi+"invitePage/"+invitationId;
-            invitationUrlVO.setUrl(urlApi+"invitePage/"+invitationId);
-            UserInvitationUrlDTO userUrl= new UserInvitationUrlDTO();
+            String url = urlApi + "invitePage/" + invitationId;
+            invitationUrlVO.setUrl(urlApi + "invitePage/" + invitationId);
+            UserInvitationUrlDTO userUrl = new UserInvitationUrlDTO();
             userUrl.setUrl(url);
             userUrl.setInvitationId(invitationId);
             ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);

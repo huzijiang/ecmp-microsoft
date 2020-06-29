@@ -2936,6 +2936,32 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
      */
     @Override
     public int updateTheOrder(Long userId, OrderServiceCostDetailRecordInfo data) throws Exception {
+        // 修改订单真实出发地址
+        OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
+        orderAddressInfo.setUpdateBy(String.valueOf(userId));
+        orderAddressInfo.setUpdateTime(new Date());
+        if (data.getStartTime() != null) {
+            orderAddressInfo.setOrderId(data.getOrderId());
+            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_SETOUT);
+            orderAddressInfo.setActionTime(data.getStartTime());
+            orderAddressInfo.setAddress(data.getStartAddress());
+            orderAddressInfo.setLatitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
+            orderAddressInfo.setAddressLong(data.getStartLongitudeAddress());
+            orderAddressInfo.setLongitude(data.getStartLongitude() != null ? data.getStartLongitude().doubleValue() : null);
+            orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
+        }
+        // 修改订单真实到达地址
+        if (data.getEndTime() != null) {
+            orderAddressInfo.setOrderId(data.getOrderId());
+            orderAddressInfo.setType(OrderConstant.ORDER_ADDRESS_ACTUAL_ARRIVE);
+            orderAddressInfo.setActionTime(data.getEndTime());
+            orderAddressInfo.setAddress(data.getEndAddress());
+            orderAddressInfo.setLatitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
+            orderAddressInfo.setAddressLong(data.getEndLongitudeAddress());
+            orderAddressInfo.setLongitude(data.getEndLongitude() != null ? data.getEndLongitude().doubleValue() : null);
+            orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
+        }
+        // 修改费用明细
         data.setUpdateBy(userId);
         data.setUpdateTime(new Date());
         return orderServiceCostDetailRecordInfoMapper.update(data);
@@ -3138,13 +3164,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     public Map downloadOrderData(Long orderId) throws Exception {
         Map<String, String> result = orderInfoMapper.downloadOrderData(orderId);
         result.put("getKeyTime", DateUtils.formatDate(DateUtils.parseDate(result.get("actionBeginTime")), "yyyy年MM月dd日 HH时mm分ss秒"));
-
-
         if (NO_DRIVER.equals(result.get("driverName"))) {
             //自驾
             OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.PICKUPCAR.getState());
+            OrderStateTraceInfo giveUpOrderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.GIVE_UP_CAR.getState());
             if(orderStateTraceInfo!=null&&orderStateTraceInfo.getCreateTime()!=null){
                 result.put("getKeyTime", DateUtils.formatDate( orderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
+            }
+            if(giveUpOrderStateTraceInfo != null && giveUpOrderStateTraceInfo.getCreateTime() != null) {
+                result.put("actionEndTime", DateUtils.formatDate( giveUpOrderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
             }
         }
        return result;

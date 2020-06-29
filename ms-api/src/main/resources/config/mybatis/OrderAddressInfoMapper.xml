@@ -129,6 +129,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where order_address_id = #{orderAddressId}
     </update>
 
+    <update id="updateOrderAddressInfoByOrderId" parameterType="com.hq.ecmp.mscore.domain.OrderAddressInfo">
+        update order_address_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null and orderId != '' ">order_id = #{orderId},</if>
+            <if test="journeyId != null ">journey_id = #{journeyId},</if>
+            <if test="nodeId != null ">node_id = #{nodeId},</if>
+            <if test="powerId != null ">power_id = #{powerId},</if>
+            <if test="driverId != null ">driver_id = #{driverId},</if>
+            <if test="carId != null ">car_id = #{carId},</if>
+            <if test="userId != null  and userId != ''">user_id = #{userId},</if>
+            <if test="cityPostalCode != null  and cityPostalCode != ''">city_postal_code = #{cityPostalCode},</if>
+            <if test="actionTime != null ">action_time = #{actionTime},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="addressLong != null  and addressLong != ''">address_long = #{addressLong},</if>
+            <if test="longitude != null ">longitude = #{longitude},</if>
+            <if test="latitude != null ">latitude = #{latitude},</if>
+            <if test="icaoCode != null  and icaoCode != ''">icao_code = #{icaoCode},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="createBy != null ">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null ">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where order_id = #{orderId} and type = #{type}
+    </update>
+
     <delete id="deleteOrderAddressInfoById" parameterType="Long">
         delete from order_address_info where order_address_id = #{orderAddressId}
     </delete>
