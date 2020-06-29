@@ -1,31 +1,33 @@
 package com.hq.ecmp.ms.api.controller.base;
 
-import com.hq.api.system.domain.SysRole;
-import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.CommonConstant;
-import com.hq.ecmp.mscore.domain.EcmpConfig;
-import com.hq.ecmp.mscore.domain.EcmpUserRole;
 import com.hq.ecmp.mscore.domain.UserConsoleHomePageSortInfo;
 import com.hq.ecmp.mscore.dto.config.ConfigValueDTO;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IHomePageSortService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**后台首页排序
  * gaoweiwei
  */
 @RestController
 @RequestMapping("/home")
+@Slf4j
 public class HomePageSortController {
 
 
@@ -50,7 +52,7 @@ public class HomePageSortController {
 //            List<UserConsoleHomePageSortInfo> homeSort = homePageSortService.getHomeSort();
 //            return ApiResponse.success(homeSort);
 //        } catch (Exception e) {
-//            e.printStackTrace();
+//            log.error("业务处理异常", e)();
 //            return ApiResponse.error("获取首页排序数据");
 //        }
 //    }
@@ -108,7 +110,7 @@ public class HomePageSortController {
 //            }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("根据角色获取模块");
         }
     }
@@ -124,7 +126,7 @@ public class HomePageSortController {
             homePageSortService.updateHomeSorts(userConsoleHomePageSortInfo);
             return ApiResponse.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("修改首页排序数据失败");
         }
     }

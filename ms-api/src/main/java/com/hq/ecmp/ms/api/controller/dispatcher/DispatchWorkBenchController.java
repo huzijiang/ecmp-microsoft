@@ -7,6 +7,7 @@ import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.service.DispatchWorkBenchService;
 import com.hq.ecmp.mscore.vo.DisWorkBenchInfo;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,7 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/dispatch/workBench")
+@Slf4j
 public class DispatchWorkBenchController {
 
     @Resource
@@ -36,7 +38,7 @@ public class DispatchWorkBenchController {
             DisWorkBenchInfo dispatchInfoListWorkBench = dispatchWorkBenchService.getDispatchInfoListWorkBench(state, pageNum, pageSize);
             return ApiResponse.success(dispatchInfoListWorkBench);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取工作台列表数据失败");
         }
     }

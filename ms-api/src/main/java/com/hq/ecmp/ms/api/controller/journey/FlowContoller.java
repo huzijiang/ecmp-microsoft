@@ -1,6 +1,5 @@
 package com.hq.ecmp.ms.api.controller.journey;
 
-import com.github.pagehelper.PageInfo;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -16,6 +15,7 @@ import com.hq.ecmp.mscore.vo.ApprovaTemplateVO;
 import com.hq.ecmp.mscore.vo.ApprovalUserVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/flow")
+@Slf4j
 public class FlowContoller {
 
     @Autowired
@@ -50,7 +51,7 @@ public class FlowContoller {
             LoginUser loginUser = tokenService.getLoginUser(request);
             list = nodeInfoService.getApprovalList(regimenId,projectId,loginUser.getUser());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(list);
@@ -73,6 +74,7 @@ public class FlowContoller {
             Long ownerCompany = loginUser.getUser().getOwnerCompany();
             nodeInfoService.addFlowTemplate(addFolwDTO,loginUser.getUser().getUserId(),ownerCompany);
         }catch (Exception e){
+            log.error("业务处理失败", e);
             return ApiResponse.success();
         }
         return ApiResponse.success();
@@ -125,7 +127,7 @@ public class FlowContoller {
             LoginUser loginUser = tokenService.getLoginUser(request);
             nodeInfoService.editFlowTemplate(addFolwDTO,loginUser.getUser().getUserId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("编辑审批流失败");
         }
         return ApiResponse.success("编辑审批流成功"+addFolwDTO.getApproveTemplateId());
@@ -141,7 +143,7 @@ public class FlowContoller {
         try {
             templateInfoService.deleteFlow(templateIDTO.getApproveTemplateId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("删除模板失败");
         }
         return ApiResponse.success("删除模板成功:"+templateIDTO.getApproveTemplateId());

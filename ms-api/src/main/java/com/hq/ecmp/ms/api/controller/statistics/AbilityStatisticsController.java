@@ -4,6 +4,7 @@ import com.hq.common.core.api.ApiResponse;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.StatisticsAbilityService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author yinmq
  */
 @RestController
+@Slf4j
 @RequestMapping("/statistics/ability")
 public class AbilityStatisticsController {
 
@@ -26,7 +28,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.getCarGroupTreeByDeptIds(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -37,7 +39,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.driverSum(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -47,7 +49,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.driverSumByDate(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -58,7 +60,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.driverSumByDimension(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -68,7 +70,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.carSum(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -79,7 +81,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.carSumByDate(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -89,7 +91,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.carSumByByDimension(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -99,7 +101,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.dispatchSum(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -109,7 +111,7 @@ public class AbilityStatisticsController {
         try {
             return statisticsAbilityService.dispatchSumByDate(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }

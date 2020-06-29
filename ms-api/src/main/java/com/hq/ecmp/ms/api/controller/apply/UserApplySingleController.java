@@ -70,7 +70,7 @@ public class UserApplySingleController {
             PageResult<UserApplySingleVo> list = orderInfoTwoService.getUseApplySearchList(userApplySingleVo, loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("分页查询用车申请列表失败");
         }
     }
@@ -90,7 +90,7 @@ public class UserApplySingleController {
             List<Map<String, String>> vo = applyInfoService.getApplyStateCount(loginUser);
             return ApiResponse.success(vo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("分页查询用车申请列表失败");
         }
     }
@@ -111,7 +111,7 @@ public class UserApplySingleController {
             PageResult<UserApplySingleVo> list = orderInfoTwoService.getUseApplyList(userApplySingleVo, loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("首页查询用车申请列表失败");
         }
     }
@@ -134,7 +134,7 @@ public class UserApplySingleController {
             ApiResponse apiResponse = applyInfoService.updateApplyOrderState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY, ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(), userId);
             return apiResponse;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("撤销申请失败，请重试");
         }
     }
@@ -153,7 +153,7 @@ public class UserApplySingleController {
             List<CityInfo> result = cityService.queryCityByName(loginUser.getUser().getDept().getCompanyId());
             return ApiResponse.success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("申请单提交根据名称搜索城市失败");
         }
     }
@@ -178,7 +178,7 @@ public class UserApplySingleController {
             ApiResponse apiResponse = applyInfoService.submitApplySingle(loginUser, applySingleVO);
             return apiResponse;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("提交申请单失败，请重试");
         }
     }
@@ -197,7 +197,7 @@ public class UserApplySingleController {
             List<CarTypeVO> result = enterpriseCarTypeInfoService.queryCarTypeList(loginUser.getUser().getDept().getCompanyId());
             return ApiResponse.success("查询成功", result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询车型列表失败");
         }
     }
@@ -218,7 +218,7 @@ public class UserApplySingleController {
             PageResult<UserApplySingleVo> list = orderInfoTwoService.getToBeConfirmedOrder(userApplySingleVo, loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("分页查询公告列表失败");
         }
     }
@@ -243,7 +243,7 @@ public class UserApplySingleController {
                 return ApiResponse.error("待确认订单----去确认失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("待确认订单----去确认失败");
         }
     }
@@ -275,7 +275,7 @@ public class UserApplySingleController {
             List<UserApplySingleVo> expireCarList = orderInfoTwoService.getUseApplyCounts(userApplySingleVo, loginUser);
             jsonObject.put("expireCarCount", expireCarList.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             ApiResponse.error("分页查询员工订单动态失败");
         }
         return jsonObject;
@@ -297,7 +297,7 @@ public class UserApplySingleController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             carGroupInfos = orderInfoTwoService.applySingleCarGroupList(loginUser.getUser().getDeptId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取车队列表失败");
         }
         return ApiResponse.success(carGroupInfos);
@@ -319,7 +319,7 @@ public class UserApplySingleController {
             applyPriceDetail.setCompanyId(loginUser.getUser().getDept().getCompanyId());
             applyPriceDetails = costConfigInfoService.applySinglePriceDetails(applyPriceDetail, loginUser);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取价格计划详情失败");
         }
         return ApiResponse.success(applyPriceDetails);
@@ -338,7 +338,7 @@ public class UserApplySingleController {
             ApiResponse apiResponse = applyInfoService.updateApplySingle(loginUser, applySingleVO);
             return apiResponse;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("提交申请单失败，请重试");
         }
     }
@@ -353,7 +353,7 @@ public class UserApplySingleController {
             ApplySingleVO applySingleVO = applyInfoService.getApplyInfoDetail(applyId);
             return ApiResponse.success(applySingleVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }

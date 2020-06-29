@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonArray;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.MacTools;
 import com.hq.ecmp.mscore.domain.DriverWorkInfo;
@@ -21,6 +20,8 @@ import com.hq.ecmp.mscore.vo.DriverDutyWorkVO;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.OkHttpUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,8 @@ import org.springframework.stereotype.Service;
  * @date 2020-01-02
  */
 @Service
-public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
-{
+public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private DriverWorkInfoMapper driverWorkInfoMapper;
     @Autowired
@@ -271,10 +272,8 @@ public class DriverWorkInfoServiceImpl implements IDriverWorkInfoService
             }
             //定时任务没有操作用户所有默认为1
             Long userId = 1L;
-            //System.out.println(cloudWorkDateInfo);
-            //driverWorkInfoMapper.updateWorkDetailMonth(cloudWorkDateInfo,userId,DateUtils.getNowDate());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
         }
     }
 

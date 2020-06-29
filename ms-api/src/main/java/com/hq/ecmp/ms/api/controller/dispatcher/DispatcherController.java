@@ -24,6 +24,8 @@ import com.hq.ecmp.mscore.vo.DispatchVo;
 import com.hq.ecmp.mscore.vo.OrderDispatcherVO;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/dispatch/charterCar")
 public class DispatcherController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Resource
     private OrderInfoTwoService orderInfoTwoService;
@@ -73,7 +77,7 @@ public class DispatcherController {
 
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("获取申请调度列表失败");
         }
     }
@@ -89,7 +93,7 @@ public class DispatcherController {
             PageResult<DispatchVo> list = orderInfoTwoService.queryHomePageDispatchListCharterCar(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("获取申请调度列表失败");
         }
     }
@@ -108,7 +112,7 @@ public class DispatcherController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             carGroupInfos = orderInfoTwoService.dispatcherCarGroupList(orderId, loginUser,carGroupUserMode);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("获取车队列表失败");
         }
         return  ApiResponse.success(carGroupInfos);
@@ -156,7 +160,7 @@ public class DispatcherController {
         } catch (BaseException e){
             return ApiResponse.error(e.getMessage());
         }catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("派车失败");
         }
         return ApiResponse.success("派车成功");
@@ -173,7 +177,7 @@ public class DispatcherController {
             OrderDispatcherVO vo=dispatchOrderService.getOrderDispatcher(orderId,loginUser);
             return ApiResponse.success(vo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询失败!");
         }
     }
@@ -190,7 +194,7 @@ public class DispatcherController {
             orderInfoTwoService.dismissedDispatch(query,loginUser);
             return ApiResponse.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("调度驳回失败");
         }
     }
@@ -222,7 +226,7 @@ public class DispatcherController {
             List<DispatchVo> expireCarList = orderInfoTwoService.queryDispatchListCharterCars(applyDispatchQuery,loginUser);
             jsonObject.put("expireCarCount",expireCarList.size());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             ApiResponse.error("分页查询公告列表失败");
         }
         return jsonObject;
@@ -244,7 +248,7 @@ public class DispatcherController {
             Long companyId = loginUser.getUser().getOwnerCompany();
             useCarOrgList = orderInfoTwoService.getUseCarOrgList(companyId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             ApiResponse.error("获取用车单位列表失败");
         }
         return ApiResponse.success(useCarOrgList);

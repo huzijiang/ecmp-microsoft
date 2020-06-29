@@ -9,6 +9,7 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.mscore.dto.statistics.StatisticsParam;
 import com.hq.ecmp.mscore.service.StatisticsCostService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/statistics/cost")
+@Slf4j
 public class CostStatisticsController {
     @Autowired
     private StatisticsCostService statisticsCostService;
@@ -46,7 +48,7 @@ public class CostStatisticsController {
 
             return statisticsCostService.cost(statisticsParam);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }

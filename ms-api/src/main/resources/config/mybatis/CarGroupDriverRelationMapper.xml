@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
             <if test="carGroupId != null ">#{carGroupId},</if>
@@ -47,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateCarGroupDriverRelation" parameterType="com.hq.ecmp.mscore.domain.CarGroupDriverRelation">

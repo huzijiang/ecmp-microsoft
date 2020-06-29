@@ -25,6 +25,7 @@ import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/notice")
+@Slf4j
 public class NoticeController {
 
     @Autowired
@@ -74,7 +76,7 @@ public class NoticeController {
                     pageRequest.getPageSize(),companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("分页查询公告列表失败");
         }
     }
@@ -96,7 +98,7 @@ public class NoticeController {
                     pageRequest.getPageSize(),companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("首页公告展示列表失败");
         }
     }
@@ -113,7 +115,7 @@ public class NoticeController {
             EcmpNotice ecmpNotice = iEcmpNoticeService.getNoticeDetails(noticeId);
             return ApiResponse.success(ecmpNotice);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询公告列表详情失败");
         }
     }
@@ -412,7 +414,7 @@ public class NoticeController {
             iEcmpNoticeService.addObtainScheduling();
             return ApiResponse.success();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("排班日期落库数据库失败");
         }
     }

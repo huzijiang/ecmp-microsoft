@@ -77,7 +77,7 @@ public class ThirdServiceImpl implements ThirdService {
             }
            
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return flightInfoVo;
     }
@@ -141,10 +141,10 @@ public class ThirdServiceImpl implements ThirdService {
                 return result.getData();
             }
         }catch(SocketTimeoutException e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             throw new SocketTimeoutException("预估价格查询超时");
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             throw new Exception("预估价格查询失败");
         }
         return null;
@@ -176,7 +176,7 @@ public class ThirdServiceImpl implements ThirdService {
                 return result.getData();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return null;
     }
@@ -203,7 +203,7 @@ public class ThirdServiceImpl implements ThirdService {
 				  return result.getData();
 			  }
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			throw new Exception("天气城市查询失败");
 		}
 		return null;

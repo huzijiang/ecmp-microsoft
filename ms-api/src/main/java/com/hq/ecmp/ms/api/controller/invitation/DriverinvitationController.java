@@ -91,7 +91,7 @@ public class DriverinvitationController {
 
             return ApiResponse.success(invitationUrlVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("新增驾驶员邀请失败");
         }
 
@@ -153,7 +153,7 @@ public class DriverinvitationController {
             }
             ecmpEnterpriseRegisterInfoService.insertDriverRegister(driverRegisterDTO);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("驾驶员邀请注册失败");
         }
         return ApiResponse.success("驾驶员邀请注册成功");
@@ -172,7 +172,7 @@ public class DriverinvitationController {
             invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("邀请停用失败");
         }
         return ApiResponse.success("邀请停用成功");
@@ -190,7 +190,7 @@ public class DriverinvitationController {
             invitationDto.setState("Y000");//默认邀请状态为失效
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("邀请启用失败");
         }
         return ApiResponse.success("邀请启用成功");
@@ -282,7 +282,7 @@ public class DriverinvitationController {
         try {
             ecmpEnterpriseInvitationInfoService.invitationDel(invitationDto.getInvitationId());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("删除失败");
         }
         return ApiResponse.success("删除邮箱成功"+invitationDto.getInvitationId());
@@ -303,7 +303,7 @@ public class DriverinvitationController {
             Long companyId = loginUser.getUser().getOwnerCompany();
             int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(companyId,registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("审核通过");
@@ -322,7 +322,7 @@ public class DriverinvitationController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             int i=ecmpEnterpriseRegisterInfoService.updateRegisterDriverApprove(null,registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("申请拒绝失败");
         }
         return ApiResponse.success("申请拒绝成功");
