@@ -25,9 +25,9 @@ import java.util.Set;
  * @data 2018/5/10
  */
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionNewHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(GlobalExceptionNewHandler.class);
 
     /**
      * 处理业务异常
