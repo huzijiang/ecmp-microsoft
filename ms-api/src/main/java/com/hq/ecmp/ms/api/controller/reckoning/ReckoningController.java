@@ -59,11 +59,13 @@ public class ReckoningController {
             reckoningInfo.setEndDate(DateUtils.strToDate(param.getEndDate(),DateUtils.YYYY_MM_DD_HH_MM_SS));
             reckoningInfo.setCollectionEndTime(DateUtils.strToDate(param.getOffDate(),DateUtils.YYYY_MM_DD));
             reckoningInfo.setCollectionNumber(param.getCollectionNumber());
+            if( collectionService.existReckoning(reckoningInfo)){
+                return ApiResponse.error("收款信息已存在，不能重复添加。");
+            }
             collectionService.addReckoning(reckoningInfo);
             return ApiResponse.success("添加成功");
         } catch (Exception e) {
             log.error("业务处理异常", e);
-            ApiResponse.error("分页查询公告列表失败");
             return ApiResponse.error("添加收款信息异常");
         }
     }

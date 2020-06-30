@@ -480,6 +480,7 @@ WHERE
             <if test="licenseInitIssueDate != null ">license_init_issue_date = #{licenseInitIssueDate},</if>
             <if test="licenseNumber != null  and licenseNumber != ''">license_number = #{licenseNumber},</if>
             <if test="licenseExpireDate != null ">license_expire_date = #{licenseExpireDate},</if>
+            <if test="driverNature != null ">it_is_full_time = #{driverNature},</if>
             <if test="userId != null ">user_id= #{userId},</if>
             <if test="optUserId != null ">update_by= #{optUserId},</if>
             <if test="updateTime != null ">update_time= #{updateTime},</if>
