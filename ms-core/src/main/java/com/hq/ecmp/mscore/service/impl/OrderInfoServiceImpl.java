@@ -2935,6 +2935,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
      */
     @Override
     public int updateTheOrder(Long userId, OrderServiceCostDetailRecordInfo data) throws Exception {
+        log.info("updateTheOrder#OrderServiceCostDetailRecordInfo请求参数=[{}]", JSON.toJSONString(data));
         // 修改订单真实出发地址
         OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
         orderAddressInfo.setUpdateBy(String.valueOf(userId));
@@ -2947,6 +2948,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setLatitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
             orderAddressInfo.setAddressLong(data.getStartAddress());
             orderAddressInfo.setLongitude(data.getStartLongitude() != null ? data.getStartLongitude().doubleValue() : null);
+            log.info("orderAddressInfoStart={}", JSON.toJSONString(orderAddressInfo));
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改订单真实到达地址
@@ -2958,6 +2960,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setLatitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
             orderAddressInfo.setAddressLong(data.getEndAddress());
             orderAddressInfo.setLongitude(data.getEndLongitude() != null ? data.getEndLongitude().doubleValue() : null);
+            log.info("orderAddressInfoEnd={}", JSON.toJSONString(orderAddressInfo));
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改费用明细
