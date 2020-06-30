@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.util.StringUtil;
@@ -413,6 +414,13 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		//14.工号
 		//15.可用车辆
 
+		DriverInfo driverInfoDB = driverInfoMapper.selectDriverInfoById(driverCreateInfo.getDriverId());
+		if (null == driverInfoDB) {
+			return false;
+		}
+		logger.info("修改驾驶员，原信息：{}", JSONArray.toJSON(driverInfoDB).toString());
+		String driverNatureDB = driverInfoDB.getItIsFullTime();
+
     	//1.修改驾驶员
         driverCreateInfo.setUpdateTime(DateUtils.getNowDate());
         Integer createDriver = driverInfoMapper.updateDriver(driverCreateInfo);
@@ -444,24 +452,36 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 			driverCarRelationInfo.setCarIdList(carId);
 			driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
 		}
-		//4.修改车辆性质表信息  如果是外聘车或者借调车才可能更改此表
-		if (DriverNatureEnum.HIRED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())) {
-			//如果是外聘驾驶员
-			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
-			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
-			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
-			driverNatureInfo.setHireBeginTime(driverCreateInfo.getHireBeginTime());
-			driverNatureInfo.setHireEndTime(driverCreateInfo.getHireEndTime());
-			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
-		}
-		if (DriverNatureEnum.BORROWED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())) {
-			//如果是借调驾驶员
-			DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
-			driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
-			driverNatureInfo.setBorrowBeginTime(driverCreateInfo.getBorrowBeginTime());
-			driverNatureInfo.setBorrowEndTime(driverCreateInfo.getBorrowEndTime());
-			driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
-			driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+		if (DriverNatureEnum.OWNER_DRIVER.getKey().equals(driverNatureDB) &&
+				!DriverNatureEnum.OWNER_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())) {
+			logger.info("修改驾驶员，(自有-->外聘、借调)");
+			//1.删除
+			driverNatureInfoMapper.deleteDriverNatureInfoById(driverCreateInfo.getDriverId());
+			//2.新增
+			addDriverNatureInfo(driverId, driverCreateInfo.getDriverNature(), driverCreateInfo.getHireBeginTime(), driverCreateInfo.getHireEndTime(),
+					driverCreateInfo.getBorrowBeginTime(), driverCreateInfo.getBorrowEndTime(), driverCreateInfo.getOptUserId());
+		} else {
+			//4.修改车辆性质表信息  如果是外聘车或者借调车才可能更改此表
+			if (DriverNatureEnum.HIRED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())) {
+				logger.info("修改驾驶员，(外聘、借调-->外聘)");
+				//如果是外聘驾驶员
+				DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+				driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
+				driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
+				driverNatureInfo.setHireBeginTime(driverCreateInfo.getHireBeginTime());
+				driverNatureInfo.setHireEndTime(driverCreateInfo.getHireEndTime());
+				driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+			}
+			if (DriverNatureEnum.BORROWED_DRIVER.getKey().equals(driverCreateInfo.getDriverNature())) {
+				logger.info("修改驾驶员，(外聘、借调-->借调)");
+				//如果是借调驾驶员
+				DriverNatureInfo driverNatureInfo = new DriverNatureInfo();
+				driverNatureInfo.setDriverId(driverCreateInfo.getDriverId());
+				driverNatureInfo.setBorrowBeginTime(driverCreateInfo.getBorrowBeginTime());
+				driverNatureInfo.setBorrowEndTime(driverCreateInfo.getBorrowEndTime());
+				driverNatureInfo.setUpdateBy(String.valueOf(driverCreateInfo.getOptUserId()));
+				driverNatureInfoMapper.updateDriverNatureInfo(driverNatureInfo);
+			}
 		}
 		return true;
 	}
