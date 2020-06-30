@@ -2946,7 +2946,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setAddress(data.getStartAddress());
             orderAddressInfo.setLatitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
             orderAddressInfo.setAddressLong(data.getStartAddress());
-            orderAddressInfo.setLongitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
+            orderAddressInfo.setLongitude(data.getStartLongitude() != null ? data.getStartLongitude().doubleValue() : null);
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改订单真实到达地址
@@ -2957,7 +2957,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setAddress(data.getEndAddress());
             orderAddressInfo.setLatitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
             orderAddressInfo.setAddressLong(data.getEndAddress());
-            orderAddressInfo.setLongitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
+            orderAddressInfo.setLongitude(data.getEndLongitude() != null ? data.getEndLongitude().doubleValue() : null);
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改费用明细
