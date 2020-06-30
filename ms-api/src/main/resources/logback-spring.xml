@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- 日志存放路径 -->
-	<property name="log.path" value="/u01/ecmp-microservice/logs" />
     <!-- 日志输出格式 -->
 	<property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} [%M:%L] %X{traceId} %X{orderNo} %X{NG_TRACE_ID} %logSort - %msg%n" />
+    <springProperty scope="context" name="LOG_PATH" source="host.ip"/>
+
+    <!-- 日志存放路径 -->
+    <property name="log.path" value="/u01/ecmp-microservice/${LOG_PATH}/logs" />
+
     <conversionRule conversionWord="logSort" converterClass="com.hq.ecmp.interceptor.log.LogSort"/>
     <property name="MAX_HISTORY" value="3660"/>
 
