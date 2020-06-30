@@ -89,4 +89,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where invitation_id = #{invitationId}
     </update>
+
+    <delete id="deleteDriverNatureInfoById" parameterType="Long">
+        delete from driver_nature_info where driver_id = #{driverId}
+    </delete>
 </mapper>

@@ -3190,6 +3190,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         o.journey_id AS journeyId,
         jpi.name AS useCarName,
         ecti.`name` AS  carTypeName,
+        ai.create_time AS createTime,
         ji.use_time AS useTime,
         CASE
 

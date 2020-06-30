@@ -43,4 +43,6 @@ public interface DriverNatureInfoMapper {
     DriverNatureInfo selectDriverNatureInfoByIncitationId(Long invitationId);
 
     int updateDriverNatureInfoByInvatationId(DriverNatureInfo driverNatureInfo);
+
+    int deleteDriverNatureInfoById(Long driverId);
 }

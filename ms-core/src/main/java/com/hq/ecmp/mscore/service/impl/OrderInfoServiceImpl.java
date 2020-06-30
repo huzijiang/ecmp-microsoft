@@ -2945,8 +2945,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setActionTime(data.getStartTime());
             orderAddressInfo.setAddress(data.getStartAddress());
             orderAddressInfo.setLatitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
-            orderAddressInfo.setAddressLong(data.getStartLongitudeAddress());
-            orderAddressInfo.setLongitude(data.getStartLongitude() != null ? data.getStartLongitude().doubleValue() : null);
+            orderAddressInfo.setAddressLong(data.getStartAddress());
+            orderAddressInfo.setLongitude(data.getStartLatitude() != null ? data.getStartLatitude().doubleValue() : null);
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改订单真实到达地址
@@ -2956,8 +2956,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setActionTime(data.getEndTime());
             orderAddressInfo.setAddress(data.getEndAddress());
             orderAddressInfo.setLatitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
-            orderAddressInfo.setAddressLong(data.getEndLongitudeAddress());
-            orderAddressInfo.setLongitude(data.getEndLongitude() != null ? data.getEndLongitude().doubleValue() : null);
+            orderAddressInfo.setAddressLong(data.getEndAddress());
+            orderAddressInfo.setLongitude(data.getEndLatitude() != null ? data.getEndLatitude().doubleValue() : null);
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 修改费用明细
@@ -3163,6 +3163,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     public Map downloadOrderData(Long orderId) throws Exception {
         Map<String, String> result = orderInfoMapper.downloadOrderData(orderId);
         result.put("getKeyTime", DateUtils.formatDate(DateUtils.parseDate(result.get("actionBeginTime")), "yyyy年MM月dd日 HH时mm分ss秒"));
+        result.put("flag", "1");
         if (NO_DRIVER.equals(result.get("driverName"))) {
             //自驾
             OrderStateTraceInfo orderStateTraceInfo = orderStateTraceInfoMapper.queryLatestInfoByOrderIdAndState(orderId,OrderStateTrace.PICKUPCAR.getState());
@@ -3170,6 +3171,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             if(orderStateTraceInfo!=null&&orderStateTraceInfo.getCreateTime()!=null){
                 result.put("getKeyTime", DateUtils.formatDate( orderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
             }
+            result.put("flag", "1");
             if(giveUpOrderStateTraceInfo != null && giveUpOrderStateTraceInfo.getCreateTime() != null) {
                 result.put("actionEndTime", DateUtils.formatDate( giveUpOrderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
             }
