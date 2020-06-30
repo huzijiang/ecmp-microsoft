@@ -3185,7 +3185,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         o.order_id AS orderId,
         eo.dept_name AS deptName,
         eoc.dept_name AS companyName,
-        oaib.action_time AS useCarDate,
+        ji.use_car_time AS useCarDate,
         oaie.address AS endSite,
         o.journey_id AS journeyId,
         jpi.name AS useCarName,
