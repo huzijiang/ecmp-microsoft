@@ -61,13 +61,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userId}
         </foreach>
     </delete>
-    
+    <!--
+    This bug was fixed by Gandaif on 06/29/2020.
+    -->
     <insert id="batchDriverCarList" parameterType="com.hq.ecmp.mscore.domain.DriverCarRelationInfo">
-          insert into driver_car_relation_info  (user_id,driver_id,car_id)
-          values
-          <foreach collection="carIdList" item="item" separator=",">
-          (#{userId},#{driverId},#{item})
-          </foreach>
+        insert into driver_car_relation_info (user_id,driver_id,car_id)
+        values
+        <foreach collection="carIdList" item="item" separator=",">
+            (#{userId},#{driverId},#{item})
+        </foreach>
     </insert>
     <delete id="deleteCarByDriverId" parameterType="Long">
         delete from driver_car_relation_info where driver_id = #{driverId}

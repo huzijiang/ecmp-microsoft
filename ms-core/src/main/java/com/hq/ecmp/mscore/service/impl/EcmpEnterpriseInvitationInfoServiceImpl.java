@@ -165,8 +165,9 @@ public class EcmpEnterpriseInvitationInfoServiceImpl implements EcmpEnterpriseIn
         return ecmpEnterpriseInvitationInfoMapper.invitationDel(invitationId);
 
     }
-    public int  updateInvitationUrl(UserInvitationUrlDTO userInvitationUrlDTO ){
-        return ecmpEnterpriseInvitationInfoMapper.updateInvitationUrl(userInvitationUrlDTO.getInvitationId(),userInvitationUrlDTO.getUrl());
+
+    public int updateInvitationUrl(UserInvitationUrlDTO userInvitationUrlDTO) {
+        return ecmpEnterpriseInvitationInfoMapper.updateInvitationUrl(userInvitationUrlDTO.getInvitationId(), userInvitationUrlDTO.getUrl());
     }
 
 }

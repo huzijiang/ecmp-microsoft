@@ -40,7 +40,7 @@ public class StringFileUtil {
             bufferedReader.close();
             bufferedWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             flag = false;
             return flag;
         } finally {
@@ -48,7 +48,7 @@ public class StringFileUtil {
                 try {
                     bufferedReader.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("业务处理异常", e);
                 }
             }
         }
@@ -79,14 +79,14 @@ public class StringFileUtil {
                 writer.write(buffer, 0, n);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return null;
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("业务处理异常", e);
                 }
             }
         }
@@ -121,9 +121,7 @@ public class StringFileUtil {
             inStream.close();
             outStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
-            log.info("[ERROR] Download IOException : " + e.toString() + " [FROM] : " + path);
-            //e.printStackTrace();
+            log.error("业务处理异常", e);
         }
     }
 
@@ -141,9 +139,9 @@ public class StringFileUtil {
             bos.close();
             buffer = bos.toByteArray();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return buffer;
     }

@@ -48,6 +48,8 @@ public interface OrderAddressInfoMapper
      */
     public int updateOrderAddressInfo(OrderAddressInfo orderAddressInfo);
 
+    int updateOrderAddressInfoByOrderId(OrderAddressInfo orderAddressInfo);
+
     /**
      * 删除【请填写功能名称】
      *

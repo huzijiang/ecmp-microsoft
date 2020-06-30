@@ -113,5 +113,8 @@ public interface  EcmpEnterpriseInvitationInfoMapper {
 
     Long queryInvitationUserCount(String type);
 
-    int  updateInvitationUrl(@Param("invitationId") Long invitationId ,@Param("url") String url );
+    /**
+     * This bug was fixed by Gandaif on 06/24/2020.
+     */
+    int updateInvitationUrl(@Param("invitationId") Long invitationId, @Param("url") String url);
 }

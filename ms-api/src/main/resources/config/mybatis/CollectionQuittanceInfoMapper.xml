@@ -202,6 +202,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where collection_number = #{collectionNumber}
     </update>
 
+    <select id="existReckoning" resultType="java.lang.Long" parameterType="com.hq.ecmp.mscore.domain.ReckoningInfo">
+        select
+          count(*)
+        from
+          collection_quittance_info
+        where car_group_id = #{carGroupId}
+        and company_id = #{companyId}
+        and service_org = #{serviceOrg}
+        and state !='S444'
+        and <![CDATA[ begin_date >= #{beginDate} ]]>
+        and <![CDATA[ end_date <= #{endDate} ]]>
+
+    </select>
 
 
 </mapper>

@@ -49,7 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectCarGroupInfoById" parameterType="Long" resultMap="CarGroupInfoResult">
         <include refid="selectCarGroupInfoVo"/>
-        where car_group_id = #{carGroupId} and state != 'S444'
+        where car_group_id = #{carGroupId} and state != 'S444' order by create_time desc
     </select>
 
     <insert id="insertCarGroupInfo" parameterType="com.hq.ecmp.mscore.domain.CarGroupInfo">

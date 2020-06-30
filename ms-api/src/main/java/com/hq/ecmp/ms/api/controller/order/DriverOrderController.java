@@ -89,7 +89,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("handleStatus异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
@@ -113,7 +113,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             aContinue = iDriverOrderService.isContinue(orderNo,String.valueOf(userId));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(aContinue);
@@ -142,7 +142,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             traceId = iDriverOrderService.waitingOrder(orderNo,isFinish,currentPoint, String.valueOf(userId), waitingId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         JSONObject jsonObject = new JSONObject();
@@ -176,7 +176,7 @@ public class DriverOrderController {
             }
             contactorDto.setRoleName(CommonConstant.PASSENGER_ROLE);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(contactorDto);
@@ -195,7 +195,7 @@ public class DriverOrderController {
         try {
             infoWithCarGroup = iDriverOrderService.getInfoWithCarGroup(orderNo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(infoWithCarGroup);
@@ -213,7 +213,7 @@ public class DriverOrderController {
         try {
             orderViaInfos = iDriverOrderService.getOrderViaInfos(orderNo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(orderViaInfos);
@@ -235,7 +235,7 @@ public class DriverOrderController {
                return ApiResponse.error("司机端费用上报提交失败");
            }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();

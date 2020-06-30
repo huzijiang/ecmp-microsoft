@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- 日志存放路径 -->
-    <property name="log.path" value="/u01/ecmp-microservice/logs" />
-    <!-- 日志输出格式 -->
-    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} [%M:%L] %X{traceId} %X{orderNo} %X{NG_TRACE_ID} %logSort - %msg%n" />
-    <conversionRule conversionWord="logSort" converterClass="com.hq.ecmp.interceptor.log.LogSort"/>
-    <property name="MAX_HISTORY" value="3660"/>
-
+	<property name="log.path" value="/u01/ecmp-microservice/logs" />
     <!-- 日志输出格式 -->
 	<property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} [%M:%L] %X{traceId} %X{orderNo} %X{NG_TRACE_ID} %logSort - %msg%n" />
-    <springProperty scope="context" name="LOG_PATH" source="host.ip"/>
-
-    <!-- 日志存放路径 -->
-    <property name="log.path" value="/u01/ecmp-microservice/${LOG_PATH}/logs" />
-
     <conversionRule conversionWord="logSort" converterClass="com.hq.ecmp.interceptor.log.LogSort"/>
     <property name="MAX_HISTORY" value="3660"/>
 
@@ -41,11 +31,11 @@
 	</appender>
 	
 	<appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	    <file>${log.path}/ecmp-microservice.error.log</file>
+	    <file>${log.path}/ecmp-microservice-error.log</file>
         <!-- 循环政策：基于时间创建日志文件 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志文件名格式 -->
-            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.error.log.%d{yyyyMMdd}</fileNamePattern>
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice-error.log.%d{yyyyMMdd}</fileNamePattern>
 			<!-- 日志最大的历史 60天 -->
 			<maxHistory>${MAX_HISTORY}</maxHistory>
         </rollingPolicy>
@@ -56,19 +46,19 @@
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <!-- 过滤的级别 -->
             <level>ERROR</level>
-            <!-- 匹配时的操作：接收（记录） -->
+			<!-- 匹配时的操作：接收（记录） -->
             <onMatch>ACCEPT</onMatch>
-            <!-- 不匹配时的操作：拒绝（不记录） -->
+			<!-- 不匹配时的操作：拒绝（不记录） -->
             <onMismatch>DENY</onMismatch>
         </filter>
     </appender>
-
+	
 	<!-- 用户访问日志输出  -->
     <appender name="sys-user" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.path}/ecmp-microservice.user.log</file>
+		<file>${log.path}/ecmp-microservice-user.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 按天回滚 daily -->
-            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.user.log.%d{yyyyMMdd}</fileNamePattern>
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice-user.log.%d{yyyyMMdd}</fileNamePattern>
             <!-- 日志最大的历史 60天 -->
             <maxHistory>${MAX_HISTORY}</maxHistory>
         </rollingPolicy>
@@ -126,7 +116,7 @@
     <logger name="com.hq.ecmp.interceptor.log.ParamsLogger" level="INFO" additivity="false">
         <appender-ref ref="reqInterceptorFile"/>
     </logger>
-
+	
 	<!--系统操作日志-->
     <root level="info">
         <appender-ref ref="file_info" />

@@ -1201,7 +1201,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderId));
         if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
-            log.error("订单:"+orderId+"的调度详情不存在!");
+            log.warn("订单:"+orderId+"的调度详情不存在!");
             throw new BaseException("订单异常");
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
@@ -1229,8 +1229,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setContent("用车人已还车");
         stateTraceInfo.setCreateBy(String.valueOf(userId));
         stateTraceInfo.setCreateTime(new Date());
-        stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+        stateTraceInfo.setState(OrderStateTrace.GIVE_UP_CAR.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+        log.info("还车插入订单状态S900");
+        int result = orderStateTraceInfoMapper.insertOrderStateTrace(stateTraceInfo);
+        if(result < 1) {
+            log.warn("插入订单状态s900失败 orderId={}", orderId);
+        }
         /**计算自驾的费用*/
         CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo.getCarId());
         if (carInfo==null){
@@ -1499,6 +1505,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getDispatchOrderApplyInfos(DispatchVo dispatchVo){
         DispatchVo dispatchApplyInfoByJourneyId = applyInfoMapper.getDispatchApplyInfoByJourneyId(dispatchVo.getJourneyId());
+        log.info("获取订单的社会租赁车队数据，journeyId:{},dispatchVo:{}",dispatchVo.getJourneyId(),JSONObject.toJSONString(dispatchApplyInfoByJourneyId));
+        //查询外部车队，设置外部车队名称
+        String carGroupName= applyInfoMapper.getOutDispatchApplyNameByJourneyId(dispatchVo.getJourneyId());
+        if(StringUtils.isNotEmpty(carGroupName)){
+            dispatchApplyInfoByJourneyId.setCarGroupName(carGroupName);
+            log.info("获取订单的社会租赁车队数据，journeyId:{},carGroupName:{}",dispatchVo.getJourneyId(),carGroupName);
+        }
         JourneyAddressInfo journeyAddressInfo = new JourneyAddressInfo();
         journeyAddressInfo.setJourneyId(dispatchVo.getJourneyId());
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);

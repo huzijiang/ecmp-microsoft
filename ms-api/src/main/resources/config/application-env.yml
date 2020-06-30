@@ -166,3 +166,5 @@ ali:
 cloud:
   service:
     url: ${CLOUD_SERVICE_URL}
+host:
+  ip: ${HOST_IP}

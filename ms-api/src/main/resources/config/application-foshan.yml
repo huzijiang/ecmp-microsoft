@@ -88,7 +88,7 @@ token:
   # 令牌秘钥
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
-  expireTime: 1440
+  expireTime: 2880
 
 thirdService:
   enterpriseId: 200000
@@ -158,4 +158,5 @@ ali:
  format: "json"
  sign_type: "RSA2"
  refund_notify_url: "https://foshan-app-api.hqzhixing.com:60001/pay/ali/v2/callback"
+
  

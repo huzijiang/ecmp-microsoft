@@ -20,4 +20,3 @@ public class ParamsRequestLog {
     private String clientIp;
 
 }
-

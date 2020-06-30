@@ -120,6 +120,10 @@ public interface ApplyInfoMapper
      * @return
      */
     DispatchVo getDispatchApplyInfoByJourneyId(@Param("journeyId") Long journeyId);
+    /**
+     * 通过行程id查询申请外部车队名称
+     */
+    String getOutDispatchApplyNameByJourneyId(@Param("journeyId") Long journeyId);
 
     /**
      * 查询所需要的id

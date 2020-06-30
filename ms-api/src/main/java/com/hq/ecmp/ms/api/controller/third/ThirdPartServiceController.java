@@ -14,6 +14,7 @@ import com.hq.ecmp.mscore.vo.FlightInfoVo;
 import com.hq.ecmp.util.MyOkHttpUtil;
 import com.hq.ecmp.util.ObjectUtils;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +29,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/third")
+@Slf4j
 public class ThirdPartServiceController {
 
     @Autowired
@@ -51,7 +53,7 @@ public class ThirdPartServiceController {
             List<LocationVO> list = JSONObject.parseArray(data, LocationVO.class);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.success("搜索地址信息异常!");
         }
 
@@ -74,7 +76,7 @@ public class ThirdPartServiceController {
             List<CarCostVO> list = JSONObject.parseArray(data, CarCostVO.class);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.success("获取预付价格异常!");
         }
     }
@@ -100,7 +102,7 @@ public class ThirdPartServiceController {
             return ApiResponse.success(list);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("航班网络异常");
         }
     }
@@ -126,7 +128,7 @@ public class ThirdPartServiceController {
             HolidaysVO holidaysVO = JSONObject.parseObject(data, HolidaysVO.class);
             return ApiResponse.success(holidaysVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("加载法定节假日信息错误");
         }
     }
@@ -180,7 +182,7 @@ public class ThirdPartServiceController {
             }
             return ApiResponse.success("success", data);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取次数失败");
         }
     }

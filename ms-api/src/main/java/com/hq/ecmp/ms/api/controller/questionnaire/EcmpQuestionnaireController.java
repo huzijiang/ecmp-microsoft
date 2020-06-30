@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.service.IEcmpQuestionnaireService;
 import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.QuestionnaireVo;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/questionnaire")
+@Slf4j
 public class EcmpQuestionnaireController {
     @Autowired
     private IEcmpQuestionnaireService ecmpQuestionnaireService;
@@ -99,7 +101,7 @@ public class EcmpQuestionnaireController {
                 return ApiResponse.error("提交失败");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("系统错误");
         }
     }
@@ -113,7 +115,7 @@ public class EcmpQuestionnaireController {
             List<DriverQueryResult> drivers = ecmpQuestionnaireService.dispatcherDriverList(loginUser);
             return ApiResponse.success("查询成功",drivers);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -127,7 +129,7 @@ public class EcmpQuestionnaireController {
             List<CarInfo> cars = ecmpQuestionnaireService.dispatcherCarList(loginUser);
             return ApiResponse.success("查询成功",cars);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -142,7 +144,7 @@ public class EcmpQuestionnaireController {
             PageResult<QuestionnaireVo> result = ecmpQuestionnaireService.dispatcherDriverAppraiseList(loginUser,driverAppraiseDto);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }

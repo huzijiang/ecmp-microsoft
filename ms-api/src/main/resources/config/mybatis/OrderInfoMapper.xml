@@ -1081,7 +1081,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
-        AND  jpp.planned_arrival_time>now()
+
         ORDER BY  ord.order_id DESC
     </select>
 
@@ -1095,10 +1095,10 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
             <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
-            <if test="arrivalTime != null "> and #{arrivalTime} > jpp.planned_departure_time</if>
+            <if test="arrivalTime != null "> and jpp.planned_departure_time > #{arrivalTime} </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
-        AND  jpp.planned_arrival_time>now()
+
         ORDER BY  ord.order_id DESC
     </select>
 
@@ -3185,11 +3185,12 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         o.order_id AS orderId,
         eo.dept_name AS deptName,
         eoc.dept_name AS companyName,
-        oaib.action_time AS useCarDate,
+        ji.use_car_time AS useCarDate,
         oaie.address AS endSite,
         o.journey_id AS journeyId,
         jpi.name AS useCarName,
         ecti.`name` AS  carTypeName,
+        ai.create_time AS createTime,
         ji.use_time AS useTime,
         CASE
 

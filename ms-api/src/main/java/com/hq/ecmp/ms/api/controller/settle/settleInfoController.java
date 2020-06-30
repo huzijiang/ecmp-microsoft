@@ -7,6 +7,7 @@ import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
 import com.hq.ecmp.mscore.service.IInvoiceAddressService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import java.util.List;
  */
  @RestController
  @RequestMapping("/settle")
+ @Slf4j
 public class settleInfoController {
 
     @Autowired
@@ -39,17 +41,11 @@ public class settleInfoController {
          try {
              iOrderSettlingInfoService.insertOrderSettlingInfo(rderSettlingInfo);
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("新增失败");
          }
          return ApiResponse.success("新增成功");
 
      }
-    /**
-     *  网约车结算，从前端网约车查询云端接口获取
-     * @param invoiceAddress
-     * @return
-     */
-
 
 }

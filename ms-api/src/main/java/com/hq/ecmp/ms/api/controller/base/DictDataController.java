@@ -12,6 +12,8 @@ import com.hq.ecmp.mscore.domain.EcmpDictType;
 import com.hq.ecmp.mscore.service.IEcmpDictDataService;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +31,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/dict")
 public class DictDataController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private IEcmpDictDataService iEcmpDictDataService;
     /**
@@ -85,7 +90,7 @@ public class DictDataController {
         try {
             iEcmpDictDataService.insertEcmpDictData(ecmpDictData);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("新增失败");
         }
         return ApiResponse.success("新增成功");
@@ -102,7 +107,7 @@ public class DictDataController {
         try {
             iEcmpDictDataService.updateEcmpDictData(ecmpDictData);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("修改失败");
         }
         return ApiResponse.success("修改成功");
@@ -120,7 +125,7 @@ public class DictDataController {
         try {
             iEcmpDictDataService.deleteEcmpDictDataById(ecmpDictData.getDictCode());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("删除失败");
         }
         return ApiResponse.success("删除成功");

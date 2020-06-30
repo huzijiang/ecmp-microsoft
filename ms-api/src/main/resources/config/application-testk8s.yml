@@ -6,16 +6,22 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://10.117.1.221:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        #url: jdbc:mysql://10.117.1.221:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        url: jdbc:mysql://10.7.106.109:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        #username: root
+        #password: hqzc@2019
         username: root
-        password: hqzc@2019
+        password: DvNNixwqoh138AkE
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
-        enabled: false
-        url: jdbc:mysql://10.117.1.222:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        enabled: true
+        #url: jdbc:mysql://10.117.1.221:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        url: jdbc:mysql://10.7.106.109:3306/ecmp_foshan_test?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+        #username: root
+        #password: hqzc@2019
         username: root
-        password: hqzc@2019
+        password: DvNNixwqoh138AkE
       # 初始连接数
       initialSize: 5
       # 最小连接池数量
@@ -57,7 +63,8 @@ spring:
             multi-statement-allow: true
   redis:
     cluster:
-      nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+      #nodes: 10.117.1.223:6379,10.117.1.223:6380,10.117.1.224:6379,10.117.1.224:6380,10.117.1.225:6379,10.117.1.225:6380
+      nodes: 10.7.106.64:6379,10.7.106.64:6380,10.7.106.65:6379,10.7.106.65:6380,10.7.106.66:6379,10.7.106.66:6380
       max-redirects: 5
       timeout: 6000ms
     lettuce:
@@ -70,7 +77,7 @@ spring:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 8082
+  port: 8080
   servlet:
     # 应用的访问路径
     context-path: /
@@ -123,12 +130,15 @@ schedule:
 #/upload
 app:
   zimg:
-    server: http://10.117.1.232:4869
+    #server: http://10.117.1.232:4869
+    server: http://servcie-zimg-worker-foshantestenv:4869
     access:
-      #url: http://123.127.89.218:4869/
-      url: https://test-inside-service-image.hqzhixing.com/
-  welcome: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
-  background: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
+      #url: https://test-inside-service-image.hqzhixing.com/
+      url: http://public-zimg.worker-foshantestenv.10.7.106.230.nip.io/
+  #welcome: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
+  welcome: http://servcie-zimg-worker-foshantestenv:4869/7641d1dcf64d4d082e061d6e65f37a51
+  #background: http://10.117.1.232:4869/7641d1dcf64d4d082e061d6e65f37a51
+  background: http://1servcie-zimg-worker-foshantestenv:4869/7641d1dcf64d4d082e061d6e65f37a51
 
 wx:
   #应用ID
@@ -163,4 +173,5 @@ ali:
 
 cloud:
   service:
-    url: http://10.117.1.231:51002
+    #url: http://10.117.1.231:51002
+    url: http://cloud-open-service-for-qimiao.foshantestenv.10.7.106.230.nip.io
