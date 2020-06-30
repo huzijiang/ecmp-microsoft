@@ -31,11 +31,11 @@
 	</appender>
 	
 	<appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	    <file>${log.path}/ecmp-microservice-error.log</file>
+	    <file>${log.path}/ecmp-microservice.error.log</file>
         <!-- 循环政策：基于时间创建日志文件 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志文件名格式 -->
-            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice-error.log.%d{yyyyMMdd}</fileNamePattern>
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.error.log.%d{yyyyMMdd}</fileNamePattern>
 			<!-- 日志最大的历史 60天 -->
 			<maxHistory>${MAX_HISTORY}</maxHistory>
         </rollingPolicy>
@@ -55,10 +55,10 @@
 	
 	<!-- 用户访问日志输出  -->
     <appender name="sys-user" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${log.path}/ecmp-microservice-user.log</file>
+		<file>${log.path}/ecmp-microservice.user.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 按天回滚 daily -->
-            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice-user.log.%d{yyyyMMdd}</fileNamePattern>
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.user.log.%d{yyyyMMdd}</fileNamePattern>
             <!-- 日志最大的历史 60天 -->
             <maxHistory>${MAX_HISTORY}</maxHistory>
         </rollingPolicy>
