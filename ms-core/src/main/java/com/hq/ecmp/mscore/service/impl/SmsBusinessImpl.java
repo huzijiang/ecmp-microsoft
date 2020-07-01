@@ -5,6 +5,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.google.common.collect.Maps;
 import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.StringUtils;
+import com.hq.core.security.LoginUser;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -1050,12 +1051,11 @@ public class SmsBusinessImpl implements IsmsBusiness {
      * @throws Exception
      */
     @Override
-    public void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason) throws Exception {
+    public void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason, LoginUser loginUser) throws Exception {
         log.info("短信开始-订单{},外部调度员驳回成功", orderInfo.getOrderId());
         String useCarPeople = "";
         String carGroupPhone = "";
         String day = "";
-        String startDate = "";
         String content = "";
         String dispatcher = "";//调度员
         String salesman = "";//业务员
@@ -1079,11 +1079,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             return;
         }
         day = journeyInfo.getUseTime();
-        EcmpUser innerDispather = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
-        if (innerDispather == null) {
-            return;
-        }
-        dispatcher = innerDispather.getNickName() + " " + innerDispather.getPhonenumber();
+        dispatcher = loginUser.getUser().getNickName() + " " + loginUser.getUser().getPhonenumber();
         List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
         if (CollectionUtils.isEmpty(applyInfos)) {
             return;
@@ -1094,20 +1090,20 @@ public class SmsBusinessImpl implements IsmsBusiness {
             return;
         }
         salesman = ecmpUser.getNickName() + " " + ecmpUser.getPhonenumber();
-        content = applyInfo.getNotes();
         /**给业务员发短信*/
         Map<String, String> map = Maps.newHashMap();
-        map.put("useCarPeople", useCarPeople);
+        map.put("orderNumber",orderInfo.getOrderNumber());
+        map.put("useCarPeaple", useCarPeople);
         map.put("day", day);
-        map.put("startDate", startDate);
+        map.put("startDate", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getStartDate()));
         map.put("content", content);
         map.put("rejectReason", rejectReason);
-        map.put("carGroupPhone", carGroupPhone);
+        map.put("carGroupPhone", "13333333333");
         map.put("dispatcher", dispatcher);
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_SALESMAN, map, ecmpUser.getPhonenumber());
         /**给用车人发短信*/
         map.put("salesman", salesman);
-        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_USECARPEOPLE, map, journeyPassengerInfo.getMobile());
+//        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_USECARPEOPLE, map, journeyPassengerInfo.getMobile());
         log.info("驳回申请发送短信内容={}",JSON.toJSONString(map));
         log.info("驳回短信结束-订单{},内部调度员驳回成功", orderInfo.getOrderId(), JSON.toJSON(map));
     }

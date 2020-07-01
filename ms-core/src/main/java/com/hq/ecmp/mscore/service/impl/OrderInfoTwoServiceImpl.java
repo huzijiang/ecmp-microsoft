@@ -1134,7 +1134,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 applyInfo.setUpdateTime(DateUtils.getNowDate());
                 applyInfoMapper.updateApplyInfo(applyInfo);
             }
-            ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason());
+            ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason(),loginUser);
         } else {
             /**订单状态不变,给内部调度员发短信通知**/
             List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(query.getOrderId()));
