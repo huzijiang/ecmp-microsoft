@@ -1614,6 +1614,14 @@ public class SmsBusinessImpl implements IsmsBusiness {
         }
         String applyPeoPhone = applyPeo.getPhonenumber();
 
+        //兼容空值
+        if(StringUtils.isBlank(remark)){
+            remark="";
+        }
+        if(StringUtils.isBlank(rejectReason)){
+            rejectReason="";
+        }
+
         /**给业务员发短信*/
         Map<String, String> map = Maps.newHashMap();
         map.put("orderNumber", orderNumber);
