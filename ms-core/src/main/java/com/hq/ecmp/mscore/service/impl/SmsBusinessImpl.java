@@ -70,7 +70,6 @@ public class SmsBusinessImpl implements IsmsBusiness {
     @Resource
     private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
 
-
     /**
      * 网约车约车失败短信发送
      *
@@ -378,6 +377,26 @@ public class SmsBusinessImpl implements IsmsBusiness {
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            OrderDispatcheDetailInfo orderDispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
+            if(orderDispatcheDetailInfo != null) {
+                log.warn("外部车队订单orderId={}", orderId);
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
+                //车队名称
+                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                //车队电话
+                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                //car_group_dispatcher_info   ecmp_user
+                //调度员
+                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
+                if(carGroupDispatcherInfo == null) {
+                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
+                }else {
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                    //调度员电话
+                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
+                }
+            }
             //乘车人
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT, orderCommonInfoMap, applyMobile);
 
@@ -1422,8 +1441,27 @@ public class SmsBusinessImpl implements IsmsBusiness {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-
             Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            OrderDispatcheDetailInfo orderDispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
+            if(orderDispatcheDetailInfo != null) {
+                log.warn("外部车队订单orderId={}", orderId);
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
+                //车队名称
+                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                //车队电话
+                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                //car_group_dispatcher_info   ecmp_user
+                //调度员
+                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
+                if(carGroupDispatcherInfo == null) {
+                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
+                }else {
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                    //调度员电话
+                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
+                }
+            }
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
@@ -1475,6 +1513,26 @@ public class SmsBusinessImpl implements IsmsBusiness {
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
             log.info("短信已发送用车人电话：{}", applyMobile);
+            OrderDispatcheDetailInfo orderDispatcheDetailInfo = dispatcheDetailInfoMapper.selectDispatcheInfo(orderId);
+            if(orderDispatcheDetailInfo != null) {
+                log.warn("外部车队订单orderId={}", orderId);
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
+                //车队名称
+                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                //车队电话
+                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                //car_group_dispatcher_info   ecmp_user
+                //调度员
+                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
+                if(carGroupDispatcherInfo == null) {
+                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
+                }else {
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                    //调度员电话
+                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
+                }
+            }
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
