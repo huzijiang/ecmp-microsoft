@@ -1,5 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
+import com.hq.api.system.domain.SysUser;
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
 import com.hq.ecmp.mscore.dto.ApplyOfficialRequest;
@@ -116,7 +118,7 @@ public interface IsmsBusiness {
 
     void sendSmsDispatchReject(OrderInfo orderInfo,String rejectReason)throws Exception;
 
-    void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason)throws Exception;
+    void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason,LoginUser loginUser)throws Exception;
 
     /**
      * 用车申请---用车人短信
@@ -162,4 +164,14 @@ public interface IsmsBusiness {
      * @param undoSMSTemplate
      */
     void sendUpdateApplyInfoSms(UndoSMSTemplate undoSMSTemplate) throws Exception;
+
+
+    /**
+     * 外部调度员发短信
+     * @param orderInfo
+     * @param rejectReason
+     * @param user
+     * @throws Exception
+     */
+    void sendSmsOutDispatcherReject(OrderInfo orderInfo, String rejectReason, SysUser user)throws Exception;
 }

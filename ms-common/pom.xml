@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.hq.ecmp</groupId>
             <artifactId>ecmp-base</artifactId>
-            <version>1.0.0-foshan-SNAPSHOT</version>
+            <version>1.0.1-foshan-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
