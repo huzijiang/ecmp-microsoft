@@ -1075,20 +1075,14 @@ public class SmsBusinessImpl implements IsmsBusiness {
     public void sendSmsInnerDispatcherReject(OrderInfo orderInfo, String rejectReason, LoginUser loginUser) throws Exception {
         log.info("短信开始-订单{},外部调度员驳回成功", orderInfo.getOrderId());
         String useCarPeople = "";
-        String carGroupPhone = "";
         String day = "";
         String content = "";
         String dispatcher = "";//调度员
-        String salesman = "";//业务员
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderInfo.getOrderId()));
         if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)) {
             return;
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
-        CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-        if (carGroupInfo != null) {
-            carGroupPhone = carGroupInfo.getTelephone();
-        }
         List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(orderInfo.getJourneyId()));
         if (CollectionUtils.isEmpty(journeyPassengerInfos)) {
             return;
@@ -1110,22 +1104,25 @@ public class SmsBusinessImpl implements IsmsBusiness {
         if (ecmpUser == null) {
             return;
         }
-        salesman = ecmpUser.getNickName() + " " + ecmpUser.getPhonenumber();
-        /**给业务员发短信*/
+        /**获取车队电话**/
+        String carGroupPhone = carGroupDispatcherInfoMapper.selectCarGroupPhoneByUserId(loginUser.getUser().getUserId());
         Map<String, String> map = Maps.newHashMap();
-        map.put("orderNumber",orderInfo.getOrderNumber());
+        map.put("orderNumber", orderInfo.getOrderNumber());
         map.put("useCarPeaple", useCarPeople);
         map.put("day", day);
-        map.put("startDate", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT,journeyInfo.getStartDate()));
+        map.put("startDate", DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT, journeyInfo.getStartDate()));
         map.put("content", content);
         map.put("rejectReason", rejectReason);
-        map.put("carGroupPhone", "13333333333");
+        map.put("carGroupPhone", carGroupPhone);
         map.put("dispatcher", dispatcher);
+        /**给业务员发短信*/
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_SALESMAN, map, ecmpUser.getPhonenumber());
-        /**给用车人发短信*/
-        map.put("salesman", salesman);
-//        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_USECARPEOPLE, map, journeyPassengerInfo.getMobile());
-        log.info("驳回申请发送短信内容={}",JSON.toJSONString(map));
+        /**用车人、申请人电话相同只发一次**/
+        if (!ecmpUser.getPhonenumber().equals(journeyPassengerInfo.getMobile())) {
+            /**给用车人发短信*/
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_SALESMAN, map, journeyPassengerInfo.getMobile());
+            log.info("驳回申请给用车人发短信发送短信内容={}", JSON.toJSONString(map));
+        }
         log.info("驳回短信结束-订单{},内部调度员驳回成功", orderInfo.getOrderId(), JSON.toJSON(map));
     }
 
@@ -1559,6 +1556,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
 
     /**
      * 外部调度员驳回给申请人、乘车人发短信
+     *
      * @param orderInfo
      * @param rejectReason
      * @param user
@@ -1566,26 +1564,26 @@ public class SmsBusinessImpl implements IsmsBusiness {
      */
     @Override
     public void sendSmsOutDispatcherReject(OrderInfo orderInfo, String rejectReason, SysUser user) throws Exception {
-        String logHeader="#orderId="+orderInfo.getOrderId()+" 外部调度员驳回发短信==>";
-        String orderNumber=orderInfo.getOrderNumber();
+        String logHeader = "#orderId=" + orderInfo.getOrderId() + " 外部调度员驳回发短信==>";
+        String orderNumber = orderInfo.getOrderNumber();
         String useCarPeople = "";
-        String useDays="";
-        String useTime="";
-        String carType="";
-        String remark="";
-        String groupTelephone="";
-        String dispatcher =user.getNickName()+" "+user.getPhonenumber();
+        String useDays = "";
+        String useTime = "";
+        String carType = "";
+        String remark = "";
+        String groupTelephone = "";
+        String dispatcher = user.getNickName() + " " + user.getPhonenumber();
 
         List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(new JourneyPassengerInfo(orderInfo.getJourneyId()));
         if (CollectionUtils.isEmpty(journeyPassengerInfos)) {
             return;
         }
         JourneyPassengerInfo journeyPassengerInfo = journeyPassengerInfos.get(0);
-        log.info("{} journeyPassengerInfo:{}",logHeader,JSON.toJSONString(journeyPassengerInfo));
+        log.info("{} journeyPassengerInfo:{}", logHeader, JSON.toJSONString(journeyPassengerInfo));
         //乘车人
         useCarPeople = journeyPassengerInfo.getName() + " " + journeyPassengerInfo.getMobile();
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
-        log.info("{} journeyInfo:{}",logHeader,JSON.toJSONString(journeyInfo));
+        log.info("{} journeyInfo:{}", logHeader, JSON.toJSONString(journeyInfo));
         if (journeyInfo == null) {
             return;
         }
@@ -1593,28 +1591,28 @@ public class SmsBusinessImpl implements IsmsBusiness {
         //用车天数
         useDays = journeyInfo.getUseTime();
         //用车时间
-        if(null!=journeyInfo.getUseCarTime()){
-            useTime=DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN, journeyInfo.getUseCarTime());
+        if (null != journeyInfo.getUseCarTime()) {
+            useTime = DateFormatUtils.formatDate(DateFormatUtils.DATE_TIME_FORMAT_CN, journeyInfo.getUseCarTime());
         }
 
         //查询约定备注、车队信息、车型
-        DismissedOutDispatchDTO dismissedOutDispatchDTO=applyInfoMapper.selectApplyInfoForDismissedMsg(orderInfo.getJourneyId());
-        log.info("{} dismissedOutDispatchDTO:{}",logHeader,JSON.toJSONString(dismissedOutDispatchDTO));
+        DismissedOutDispatchDTO dismissedOutDispatchDTO = applyInfoMapper.selectApplyInfoForDismissedMsg(orderInfo.getJourneyId());
+        log.info("{} dismissedOutDispatchDTO:{}", logHeader, JSON.toJSONString(dismissedOutDispatchDTO));
 
         if (dismissedOutDispatchDTO == null) {
             return;
         }
 
-        carType=dismissedOutDispatchDTO.getCarTypeName();
-        remark=dismissedOutDispatchDTO.getNotes();
-        groupTelephone=dismissedOutDispatchDTO.getTelephone();
+        carType = dismissedOutDispatchDTO.getCarTypeName();
+        remark = dismissedOutDispatchDTO.getNotes();
+        groupTelephone = dismissedOutDispatchDTO.getTelephone();
 
         EcmpUser applyPeo = ecmpUserMapper.selectEcmpUserById(orderInfo.getUserId());
-        log.info("{} applyPeo:{}",logHeader,JSON.toJSONString(applyPeo));
-        if(applyPeo==null){
+        log.info("{} applyPeo:{}", logHeader, JSON.toJSONString(applyPeo));
+        if (applyPeo == null) {
             return;
         }
-        String applyPeoPhone=applyPeo.getPhonenumber();
+        String applyPeoPhone = applyPeo.getPhonenumber();
 
         /**给业务员发短信*/
         Map<String, String> map = Maps.newHashMap();
@@ -1633,7 +1631,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
 
         //给申请人发短信
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_DISMISS_MESSAGE, map, applyPeoPhone);
-        log.info("{} 外部车队驳回发送短信内容={},发送的乘车人={},发送的申请人:{}", logHeader, JSON.toJSONString(map),journeyPassengerInfo.getMobile(),applyPeoPhone);
+        log.info("{} 外部车队驳回发送短信内容={},发送的乘车人={},发送的申请人:{}", logHeader, JSON.toJSONString(map), journeyPassengerInfo.getMobile(), applyPeoPhone);
     }
 
 
