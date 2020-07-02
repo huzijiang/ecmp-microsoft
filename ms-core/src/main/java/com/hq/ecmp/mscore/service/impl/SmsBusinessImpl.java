@@ -390,15 +390,10 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
-                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
-                if(carGroupDispatcherInfo == null) {
-                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
-                }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
-                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
-                    //调度员电话
-                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
-                }
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+                orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                //调度员电话
+                orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
             }
             //乘车人
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_READY_APPLICANT, orderCommonInfoMap, applyMobile);
@@ -1448,15 +1443,10 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
-                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
-                if(carGroupDispatcherInfo == null) {
-                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
-                }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
-                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
-                    //调度员电话
-                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
-                }
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+                orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                //调度员电话
+                orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
             }
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_START_SERVICE, orderCommonInfoMap, applyMobile);
 
@@ -1519,15 +1509,10 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
-                CarGroupDispatcherInfo carGroupDispatcherInfo =  carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoById(orderDispatcheDetailInfo.getOuterDispatcher());
-                if(carGroupDispatcherInfo == null) {
-                    log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
-                }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
-                    orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
-                    //调度员电话
-                    orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
-                }
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+                orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
+                //调度员电话
+                orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
             }
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END, orderCommonInfoMap, applyMobile);
 
