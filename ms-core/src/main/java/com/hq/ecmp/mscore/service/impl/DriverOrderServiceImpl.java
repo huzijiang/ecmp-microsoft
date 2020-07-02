@@ -104,6 +104,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     private String apiUrl;
 
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime) throws Exception {
