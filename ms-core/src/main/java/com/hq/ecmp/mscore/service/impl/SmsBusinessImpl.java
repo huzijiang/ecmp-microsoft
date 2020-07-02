@@ -394,7 +394,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 if(carGroupDispatcherInfo == null) {
                     log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
                 }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
                     orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
                     //调度员电话
                     orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
@@ -1455,7 +1455,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 if(carGroupDispatcherInfo == null) {
                     log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
                 }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
                     orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
                     //调度员电话
                     orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
@@ -1526,7 +1526,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 if(carGroupDispatcherInfo == null) {
                     log.warn("外部调度员为空id={}", orderDispatcheDetailInfo.getOuterDispatcher());
                 }else {
-                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(carGroupDispatcherInfo.getUserId());
+                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
                     orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
                     //调度员电话
                     orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
