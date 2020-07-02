@@ -201,6 +201,23 @@ public class DispatcherController {
         }
     }
 
+    /**
+     * 外部车队调度员驳回
+     */
+    @PostMapping("/dismissedOutDispatch")
+    public ApiResponse  dismissedOutDispatch(@RequestBody ApplyDispatchQuery query){
+        logger.info("外部调度员驳回接口请求参数={}", JSON.toJSONString(query));
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            orderInfoTwoService.dismissedOutDispatch(query,loginUser);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            logger.error("业务处理异常", e);
+            return ApiResponse.error("调度驳回失败");
+        }
+    }
+
 
     /**
      * 获取当前调度员的待派车，已派车，已过期数量

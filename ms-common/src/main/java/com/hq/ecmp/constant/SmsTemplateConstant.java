@@ -118,5 +118,8 @@ public class SmsTemplateConstant {
     public static final String SMS_FOSHAN_REVOKE_VEHICLE_USER = "sms_foshan_revoke_vehicle_user";
     public static final String SMS_FOSHAN_REVOKE_DISPATCHER = "sms_foshan_revoke_dispatcher";
 
+    //外部调度员驳回短信模版
+    public static final String OUT_DISPATCH_DISMISS_MESSAGE="out_dispatch_dismiss_message";
+
 
 }
