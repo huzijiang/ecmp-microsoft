@@ -445,8 +445,10 @@ public abstract class TopDispatchService {
                 orderDispatcheDetailInfo1.setOrderId(dispatchSendCarDto.getOrderId());
                 List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = orderDispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(orderDispatcheDetailInfo1);
                 OrderDispatcheDetailInfo orderDispatcheDetailInfo2 = orderDispatcheDetailInfos.get(0);
-                Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
-                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
+                // Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
+                // EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
+                Long outerDispatcher = orderDispatcheDetailInfo2.getOuterDispatcher();
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
                 //内部调度员姓名和电话
                 String userName = ecmpUser.getNickName();
                 String phoneNumber = ecmpUser.getPhonenumber();
