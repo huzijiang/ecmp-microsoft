@@ -1121,8 +1121,8 @@ public class SmsBusinessImpl implements IsmsBusiness {
         if (!ecmpUser.getPhonenumber().equals(journeyPassengerInfo.getMobile())) {
             /**给用车人发短信*/
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.INNER_DISPATCH_REJECT_SALESMAN, map, journeyPassengerInfo.getMobile());
+            log.info("驳回申请给用车人发短信发送短信内容={}", JSON.toJSONString(map));
         }
-        log.info("驳回申请发送短信内容={}", JSON.toJSONString(map));
         log.info("驳回短信结束-订单{},内部调度员驳回成功", orderInfo.getOrderId(), JSON.toJSON(map));
     }
 
