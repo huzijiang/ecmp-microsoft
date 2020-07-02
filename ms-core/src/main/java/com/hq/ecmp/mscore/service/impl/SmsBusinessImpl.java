@@ -1599,6 +1599,14 @@ public class SmsBusinessImpl implements IsmsBusiness {
         }
         String applyPeoPhone = applyPeo.getPhonenumber();
 
+        //兼容空值
+        if(StringUtils.isBlank(remark)){
+            remark="";
+        }
+        if(StringUtils.isBlank(rejectReason)){
+            rejectReason="";
+        }
+
         /**给业务员发短信*/
         Map<String, String> map = Maps.newHashMap();
         map.put("orderNumber", orderNumber);
@@ -1610,12 +1618,15 @@ public class SmsBusinessImpl implements IsmsBusiness {
         map.put("rejectReason", rejectReason);
         map.put("groupTelephone", groupTelephone);
         map.put("dispatcher", dispatcher);
+        try {
+            //给乘车人发短信
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_DISMISS_MESSAGE, map, journeyPassengerInfo.getMobile());
 
-        //给乘车人发短信
-        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_DISMISS_MESSAGE, map, journeyPassengerInfo.getMobile());
-
-        //给申请人发短信
-        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_DISMISS_MESSAGE, map, applyPeoPhone);
+            //给申请人发短信
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.OUT_DISPATCH_DISMISS_MESSAGE, map, applyPeoPhone);
+        }catch (Exception e){
+            log.info("{} 发短信失败,e:{}", logHeader, e);
+        }
         log.info("{} 外部车队驳回发送短信内容={},发送的乘车人={},发送的申请人:{}", logHeader, JSON.toJSONString(map), journeyPassengerInfo.getMobile(), applyPeoPhone);
     }
 
