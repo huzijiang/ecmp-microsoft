@@ -16,8 +16,7 @@ import org.springframework.stereotype.Repository;
  * @date 2020-01-02
  */
 @Repository
-public interface CarGroupDispatcherInfoMapper
-{
+public interface CarGroupDispatcherInfoMapper {
     /**
      * 查询【请填写功能名称】
      *
@@ -68,17 +67,19 @@ public interface CarGroupDispatcherInfoMapper
 
     public List<Long> queryCarGroupIdList(Long userId);
 
-    public List<Long> queryUserByCarGroup(@Param("list")List<Long> list);
+    public List<Long> queryUserByCarGroup(@Param("list") List<Long> list);
 
     /**
      * 解绑车队调度员
+     *
      * @param carGroupId
      * @param dispatcherId
      */
-    int removeCarGroupDispatcher(@Param("carGroupId") Long carGroupId,@Param("dispatcherId") Integer dispatcherId);
+    int removeCarGroupDispatcher(@Param("carGroupId") Long carGroupId, @Param("dispatcherId") Integer dispatcherId);
 
     /**
      * 解绑车队所有调度员
+     *
      * @param carGroupId
      * @return
      */
@@ -88,12 +89,15 @@ public interface CarGroupDispatcherInfoMapper
 
     /**
      * 通过公司id查询公司下所有城市的所有车队的所有调度员
+     *
      * @param companyId 公司id
      * @return
      */
     List<Long> findDispatchersByCompanyId(Long companyId);
+
     /**
      * 补单获取调度员所管理车队的服务城市
+     *
      * @param userId
      * @return
      */
@@ -103,6 +107,7 @@ public interface CarGroupDispatcherInfoMapper
 
     /**
      * 发给内部车队所有调度员
+     *
      * @param officialCommitApply
      * @return
      */
@@ -110,6 +115,7 @@ public interface CarGroupDispatcherInfoMapper
 
     /**
      * 发给外部车队所有调度员
+     *
      * @param applyOfficialRequest
      * @return
      */
@@ -117,7 +123,16 @@ public interface CarGroupDispatcherInfoMapper
 
     /**
      * 查询所有的用户id通过调度员id
+     *
      * @return
      */
     List<Long> getAllUserIdByDispatchUserId(@Param("userId") Long dispatchUserId);
+
+    /**
+     * 根据用户ID查询车队ID
+     * @param userId
+     * @return
+     */
+    String selectCarGroupPhoneByUserId(@Param("userId") Long userId);
+
 }
