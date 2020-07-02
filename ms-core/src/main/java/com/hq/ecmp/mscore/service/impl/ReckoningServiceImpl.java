@@ -259,6 +259,25 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
         return stringObjectMap;
     }
 
+    @Override
+    public boolean existReckoning(ReckoningInfo param) {
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        Long userId = loginUser.getUser().getUserId();
+        param.setCreateBy(userId);
+        Long companyId = loginUser.getUser().getDept().getCompanyId();
+        param.setCompanyId(companyId);
+        Long carGroupId = icarGroupInfoService.findgroupIdByUserId(userId);
+        param.setCarGroupId(carGroupId);
+        param.setApplicant(userId);
+
+        Long count = collectionService.existReckoning(param);
+        if(count == 0){
+            return false;
+        }
+        return true;
+    }
+
 
     //年月日加四位随机数
     public String getRandomFileName(){

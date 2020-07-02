@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.UndoSMSTemplate;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
+import com.hq.ecmp.mscore.dto.DismissedOutDispatchDTO;
 import com.hq.ecmp.mscore.dto.JourneyAddressInfoDto;
 import com.hq.ecmp.mscore.dto.MessageDto;
 import com.hq.ecmp.mscore.vo.*;
@@ -120,6 +121,10 @@ public interface ApplyInfoMapper
      * @return
      */
     DispatchVo getDispatchApplyInfoByJourneyId(@Param("journeyId") Long journeyId);
+    /**
+     * 通过行程id查询申请外部车队名称
+     */
+    String getOutDispatchApplyNameByJourneyId(@Param("journeyId") Long journeyId);
 
     /**
      * 查询所需要的id
@@ -158,4 +163,12 @@ public interface ApplyInfoMapper
      * @return
      */
     UndoSMSTemplate getUndoSMSTemplate(@Param("applyId") Long applyId);
+
+
+    /**
+     * 查询申请信息为外部调度发短信使用
+     * @param journeyId
+     * @return
+     */
+    DismissedOutDispatchDTO selectApplyInfoForDismissedMsg(@Param("journeyId")Long journeyId);
 }

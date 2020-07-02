@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.dispatcher;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.exception.BaseException;
@@ -188,10 +189,28 @@ public class DispatcherController {
      */
     @PostMapping("/dismissedDispatch")
     public ApiResponse  dismissedDispatch(@RequestBody ApplyDispatchQuery query){
+        logger.info("调度员驳回接口请求参数={}", JSON.toJSONString(query));
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
         try {
             orderInfoTwoService.dismissedDispatch(query,loginUser);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            logger.error("业务处理异常", e);
+            return ApiResponse.error("调度驳回失败");
+        }
+    }
+
+    /**
+     * 外部车队调度员驳回
+     */
+    @PostMapping("/dismissedOutDispatch")
+    public ApiResponse  dismissedOutDispatch(@RequestBody ApplyDispatchQuery query){
+        logger.info("外部调度员驳回接口请求参数={}", JSON.toJSONString(query));
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        try {
+            orderInfoTwoService.dismissedOutDispatch(query,loginUser);
             return ApiResponse.success();
         } catch (Exception e) {
             logger.error("业务处理异常", e);

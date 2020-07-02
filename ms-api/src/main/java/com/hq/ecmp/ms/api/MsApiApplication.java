@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -42,5 +41,4 @@ public class MsApiApplication<author> implements WebMvcConfigurer {
         registry.addInterceptor(new HeaderInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.EXCLUDE_HEADER);
         registry.addInterceptor(new RequestInterceptor()).addPathPatterns("/**").excludePathPatterns(InterceptorConstant.EXCLUDE_HEADER);
     }
-
 }

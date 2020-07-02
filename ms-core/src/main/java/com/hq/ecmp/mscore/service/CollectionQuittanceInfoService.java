@@ -18,4 +18,6 @@ public interface CollectionQuittanceInfoService {
     Map reckoningDetail(ReckoningDto param);
 
     Map<String, Object> downloadReckoning(ReckoningInfo reckoningInfo);
+
+    boolean existReckoning(ReckoningInfo reckoningInfo);
 }

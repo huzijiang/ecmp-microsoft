@@ -73,7 +73,7 @@ public class DriverInfoController {
 		 * The bug was fixed by Suruman on 06/28/2020.
 		 * Return drivers that are valid.
 		 */
-		driverQuery.setState("V000");
+		//driverQuery.setState("V000");
 		List<DriverQueryResult> list = driverInfoService.queryDriverList(driverQuery);
 		Integer totalNum = driverInfoService.queryDriverListCount(driverQuery);
 		PageResult<DriverQueryResult> pageResult = new PageResult<DriverQueryResult>(Long.valueOf(totalNum), list);

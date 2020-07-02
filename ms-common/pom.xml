@@ -21,19 +21,17 @@
 	</properties>
 
 	<dependencies>
-
         <!-- perf4j -->
         <dependency>
             <groupId>org.perf4j</groupId>
             <artifactId>perf4j</artifactId>
             <version>${perf4j.version}</version>
         </dependency>
-
         <!-- 红旗车辆管理系统后台基础框架包 -->
         <dependency>
             <groupId>com.hq.ecmp</groupId>
             <artifactId>ecmp-base</artifactId>
-            <version>1.0.0-foshan-SNAPSHOT</version>
+            <version>1.0.1-foshan-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

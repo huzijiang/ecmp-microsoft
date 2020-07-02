@@ -1,7 +1,6 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.api.system.domain.SysUser;
-import com.hq.common.exception.BaseException;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
@@ -159,5 +158,14 @@ public interface OrderInfoTwoService {
      * @return
      */
     List<EcmpOrg> getUseCarOrgList(Long companyId);
+
+
+    /**
+     * 外部调度员驳回
+     * @param query
+     * @param loginUser
+     * @throws Exception
+     */
+    void dismissedOutDispatch(ApplyDispatchQuery query, LoginUser loginUser)throws Exception;
 
 }

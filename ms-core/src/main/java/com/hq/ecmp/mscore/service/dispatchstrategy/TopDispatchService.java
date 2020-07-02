@@ -257,8 +257,10 @@ public abstract class TopDispatchService {
                             stringStringMap.put("dispatchMobile", phoneNumber);
                             //用车人发短信
                             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_USER_CAR, stringStringMap, mobile);
-                            //申请人发短信
-                            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                            if (!mobile.equals(applyNameMobile)) {
+                                //申请人发短信
+                                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                            }
                     }
                     CarInfo carInfo = carInfoMapper.selectCarInfoById(dispatchSendCarDto.getCarId());
                     CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
@@ -304,8 +306,10 @@ public abstract class TopDispatchService {
                     stringStringMap.put("dispatchMobile", phoneNumber);
                     //用车人发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
-                    //申请人发短信
-                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    if (!mobile.equals(applyNameMobile)) {
+                        //申请人发短信
+                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    }
                     Map<String,String> stringStringMapDriver = new HashMap<>(10);
                     stringStringMapDriver.put("orderNumber", orderNumber);
                     stringStringMapDriver.put("useCarTime", useCarTime);
@@ -385,8 +389,10 @@ public abstract class TopDispatchService {
                     stringStringMap.put("dispatchMobile", phoneNumber);
                     //用车人发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
-                    //申请人发短信
-                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    if (!mobile.equals(applyNameMobile)) {
+                        //申请人发短信
+                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    }
                     Map<String,String> stringStringMapDriver = new HashMap<>(10);
                     stringStringMapDriver.put("orderNumber", orderNumber);
                     stringStringMapDriver.put("useCarTime", useCarTime);
@@ -427,8 +433,10 @@ public abstract class TopDispatchService {
                     stringStringMap.put("dispatchMobile", phoneNumber);
                     //用车人发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_USER_CAR, stringStringMap, mobile);
-                    //申请人发短信
-                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    if (!mobile.equals(applyNameMobile)) {
+                        //申请人发短信
+                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_NO_SELF_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                    }
                 }
             }else{
                 String telephone = "";
@@ -437,8 +445,10 @@ public abstract class TopDispatchService {
                 orderDispatcheDetailInfo1.setOrderId(dispatchSendCarDto.getOrderId());
                 List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = orderDispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(orderDispatcheDetailInfo1);
                 OrderDispatcheDetailInfo orderDispatcheDetailInfo2 = orderDispatcheDetailInfos.get(0);
-                Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
-                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
+                // Long innerDispatcher = orderDispatcheDetailInfo2.getInnerDispatcher();
+                // EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(innerDispatcher);
+                Long outerDispatcher = orderDispatcheDetailInfo2.getOuterDispatcher();
+                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
                 //内部调度员姓名和电话
                 String userName = ecmpUser.getNickName();
                 String phoneNumber = ecmpUser.getPhonenumber();
@@ -487,8 +497,10 @@ public abstract class TopDispatchService {
                 stringStringMap.put("dispatchMobile", phoneNumber);
                 //用车人发短信
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_USER_CAR, stringStringMap, mobile);
-                //申请人发短信
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                if (!mobile.equals(applyNameMobile)) {
+                    //申请人发短信
+                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_APPLY_CAR, stringStringMap, applyNameMobile);
+                }
                 Map<String,String> stringStringMapDriver = new HashMap<>(10);
                 stringStringMapDriver.put("orderNumber", orderNumber);
                 stringStringMapDriver.put("useCarTime", useCarTime);
