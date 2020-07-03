@@ -617,47 +617,11 @@ public class DispatchServiceImpl implements IDispatchService {
 
             log.info("select.car..orderTaskClashBo={}", orderTaskClashBo);
 
-//            List<OrderInfo> orderInfosSetOutClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
-//            List<OrderInfo> orderInfosArrivalClash = orderInfoMapper.getSetOutClashTask(orderTaskClashBo);
             List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
 
-
-            log.info("select.car..orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
-
-            if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
-                waitSelectedCarBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
-
-                List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
-                List<OrderInfo> orderInfosAfter = orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
-
-                if (!orderInfosBefore.isEmpty()) {
-                    waitSelectedCarBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedCarBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
-                }
-                if (!orderInfosAfter.isEmpty()) {
-                    waitSelectedCarBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getUpdateTime().getTime()));
-                }
-            }
-            if ((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())) {
+            //简化任务 冲突查询逻辑
+            if(!orderInfosSetOutClash.isEmpty()){
                 waitSelectedCarBo.setTaskConflict(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH);
-            }
-            if ((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())) {
-                waitSelectedCarBo.setTaskConflict(TaskConflictEnum.BEFORE_TASK_CLASH);
-                List<OrderInfo> orderInfosAfter = orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
-                if (!orderInfosAfter.isEmpty()) {
-                    waitSelectedCarBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedCarBo.setAfterTaskBeginTime(new Timestamp(orderInfosAfter.get(0).getUpdateTime().getTime()));
-                }
-            }
-            if ((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())) {
-                waitSelectedCarBo.setTaskConflict(TaskConflictEnum.AFTER_TASK_CLASH);
-                List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
-                if (!orderInfosBefore.isEmpty()) {
-                    waitSelectedCarBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedCarBo.setBeforeTaskEndTime(new Timestamp(orderInfosBefore.get(0).getCreateTime().getTime()));
-                }
             }
 
             CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
@@ -771,45 +735,12 @@ public class DispatchServiceImpl implements IDispatchService {
 
             log.info("selectDrivers.......orderTaskClashBo={}.....dirver_phone={}...", orderTaskClashBo, driver.getMobile());
             List<OrderInfo> orderInfosSetOutClash =  getSetOutClashTask(orderTaskClashBo);
-            List<OrderInfo> orderInfosArrivalClash =  getArrivalClashTask(orderTaskClashBo);
 
-
-            log.info("selectDrivers....... orderInfosSetOutClash={},orderInfosArrivalClash={}", orderInfosSetOutClash, orderInfosArrivalClash);
-            if (orderInfosSetOutClash.isEmpty() && orderInfosArrivalClash.isEmpty()) {
-                waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
-                List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
-                List<OrderInfo> orderInfosAfter = orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
-
-                if (!orderInfosBefore.isEmpty()) {
-                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
-                }
-                if (!orderInfosAfter.isEmpty()) {
-                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedDriverBo.setAfterTaskBeginTime(orderInfosAfter.get(0).getUpdateTime());
-                }
-            }
-            if ((!orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())) {
+            //简化 任务冲突的 逻辑
+            if(!orderInfosSetOutClash.isEmpty()){
                 waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH);
             }
-            if ((!orderInfosSetOutClash.isEmpty()) && (orderInfosArrivalClash.isEmpty())) {
-                waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.BEFORE_TASK_CLASH);
-                List<OrderInfo> orderInfosAfter = orderInfoMapper.getArrivalAfterTaskForCarOrDriver(orderTaskClashBo);
-                if (!orderInfosAfter.isEmpty()) {
-                    waitSelectedDriverBo.setAfterTaskOrderId(orderInfosAfter.get(0).getOrderId());
-                    waitSelectedDriverBo.setAfterTaskBeginTime(orderInfosAfter.get(0).getUpdateTime());
-                }
-            }
-            if ((orderInfosSetOutClash.isEmpty()) && (!orderInfosArrivalClash.isEmpty())) {
-                waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.AFTER_TASK_CLASH);
 
-                List<OrderInfo> orderInfosBefore = orderInfoMapper.getSetOutBeforeTaskForCarOrDriver(orderTaskClashBo);
-                if (!orderInfosBefore.isEmpty()) {
-                    waitSelectedDriverBo.setBeforeTaskOrderId(orderInfosBefore.get(0).getOrderId());
-                    waitSelectedDriverBo.setBeforeTaskEndTime(orderInfosBefore.get(0).getCreateTime());
-                }
-            }
-            log.info("selectDrivers.......waitSelectedDriverBo={}", waitSelectedDriverBo);
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
         });
 
@@ -842,25 +773,9 @@ public class DispatchServiceImpl implements IDispatchService {
         boolean clash = !OrderState.endServerStates().contains(order.getState());
         log.info("OrderState.clash={}",clash);
         return clash;
-//                || !waitingServiceExpired(order);
     };
 
-    /**
-     *   如果过了时间一直是待服务的话，车辆可以被再派单，也就是列表默认应该查出来
-     * @param order
-     * @return
-     */
-//    private boolean waitingServiceExpired(OrderInfo order) {
-//        if(OrderState.waitingServiceExpired().contains(order.getState())){
-//
-//            journeyPlanPriceInfoMapper.
-//            JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(order.getJourneyId());
-//            journeyInfo.get
-//
-//        }
-//
-//        return false;
-//    }
+
 
 
     private List<OrderInfo> getArrivalClashTask(OrderTaskClashBo orderTaskClashBo) {
