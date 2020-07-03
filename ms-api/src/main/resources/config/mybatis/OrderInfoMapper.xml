@@ -1077,8 +1077,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
-            <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null and  arrivalTime!=''">
+            <if test="carId != null and  carId !=''"> and  ord.car_id=#{carId}  </if>
+            <if test="setOutTime != null and  arrivalTime != null ">
                 and (
                    ( jpp.planned_departure_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_departure_time )
                    OR
@@ -1102,8 +1102,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
-            <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
-            <if test="setOutTime != null and  arrivalTime!=''">
+            <if test="carId != null and  carId !=''"> and  ord.car_id = #{carId} </if>
+            <if test="setOutTime != null and  arrivalTime != null ">
                 and (
                 ( jpp.planned_departure_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_departure_time )
                 OR
