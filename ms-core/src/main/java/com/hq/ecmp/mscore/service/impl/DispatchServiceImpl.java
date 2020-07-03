@@ -622,6 +622,8 @@ public class DispatchServiceImpl implements IDispatchService {
             //简化任务 冲突查询逻辑
             if(!orderInfosSetOutClash.isEmpty()){
                 waitSelectedCarBo.setTaskConflict(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH);
+            }else{
+                waitSelectedCarBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
             }
 
             CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
@@ -739,6 +741,8 @@ public class DispatchServiceImpl implements IDispatchService {
             //简化 任务冲突的 逻辑
             if(!orderInfosSetOutClash.isEmpty()){
                 waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.BEFORE_AND_AFTER_TASK_CLASH);
+            }else{
+                waitSelectedDriverBo.setTaskConflict(TaskConflictEnum.CONFLICT_FREE);
             }
 
             waitSelectedDriverBoList.add(waitSelectedDriverBo);
