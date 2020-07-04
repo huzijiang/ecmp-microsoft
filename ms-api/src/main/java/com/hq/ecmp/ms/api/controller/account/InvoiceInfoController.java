@@ -118,7 +118,6 @@ public class InvoiceInfoController {
         try {
          invoiceInfoService.insertInvoiceInfo(invoiceInsertDTO);
          Long invoiceId = invoiceInsertDTO.getInvoiceId();
-         System.out.println("新增发票返回ID："+ invoiceId);
         //发票账期
         List<OrderInvoiceInfo> list = new ArrayList<OrderInvoiceInfo>();
 /*
@@ -129,7 +128,6 @@ public class InvoiceInfoController {
             for (int i = 0; i < periodIds.length; i++) {
                 periodIds[i] = Long.valueOf(attr[i]);
             }
-        System.out.println("前端返回账期ID："+ periodIds);
         for (Long periodId : periodIds)
            {
                OrderInvoiceInfo invoicePer = new OrderInvoiceInfo();
@@ -146,7 +144,7 @@ public class InvoiceInfoController {
           //  return ApiResponse.success("成功开发票");
            }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("新增失败");
         }
         return ApiResponse.success("开发票成功");
@@ -289,7 +287,7 @@ public class InvoiceInfoController {
             }
             invoiceInfoService.insertInvoiceHeader(invoiceHeaderDTO);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("新增失败");
         }
         return ApiResponse.success("新增成功");

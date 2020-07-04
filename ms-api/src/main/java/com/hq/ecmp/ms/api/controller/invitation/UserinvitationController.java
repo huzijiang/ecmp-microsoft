@@ -74,7 +74,7 @@ public class UserinvitationController {
             ecmpEnterpriseInvitationInfoService.updateInvitationUrl(userUrl);
             return ApiResponse.success(invitationUrlVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("新增员工邀请失败");
         }
     }
@@ -103,7 +103,7 @@ public class UserinvitationController {
             }
             ecmpEnterpriseRegisterInfoServicee.insertUserRegister(userRegisterDTO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("员工邀请注册失败");
         }
         return ApiResponse.success("员工邀请注册成功");
@@ -122,7 +122,7 @@ public class UserinvitationController {
             invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("邀请停用失败");
         }
         return ApiResponse.success("邀请停用成功");
@@ -141,7 +141,7 @@ public class UserinvitationController {
             invitationDto.setUpdateTime(DateUtils.getNowDate());
             ecmpEnterpriseInvitationInfoService.updateInvitationState(invitationDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("邀请启用失败");
         }
         return ApiResponse.success("邀请启用成功");
@@ -161,7 +161,7 @@ public class UserinvitationController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterApprove(registerId,loginUser.getUser().getUserId(),null, InvitionStateEnum.APPROVEPASS.getKey());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("审核通过");
@@ -180,7 +180,7 @@ public class UserinvitationController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             int i=ecmpEnterpriseRegisterInfoServicee.updateRegisterApprove(registerId,loginUser.getUser().getUserId(),reason, InvitionStateEnum.APPROVEREJECT.getKey());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("申请拒绝失败");
         }
         return ApiResponse.success("申请拒绝成功");
@@ -259,7 +259,7 @@ public class UserinvitationController {
         try {
             ecmpEnterpriseInvitationInfoService.invitationDel(invitationDto.getInvitationId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("删除失败");
         }
         return ApiResponse.success("删除邮箱成功"+invitationDto.getInvitationId());

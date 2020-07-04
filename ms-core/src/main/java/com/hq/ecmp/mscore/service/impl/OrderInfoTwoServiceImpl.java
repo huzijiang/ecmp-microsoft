@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1134,7 +1135,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 applyInfo.setUpdateTime(DateUtils.getNowDate());
                 applyInfoMapper.updateApplyInfo(applyInfo);
             }
-            ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason());
+            ismsBusiness.sendSmsInnerDispatcherReject(orderInfo,query.getRejectReason(),loginUser);
         } else {
             /**订单状态不变,给内部调度员发短信通知**/
             List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(query.getOrderId()));
@@ -1201,7 +1202,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         }
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos = dispatcheDetailInfoMapper.selectOrderDispatcheDetailInfoList(new OrderDispatcheDetailInfo(orderId));
         if (CollectionUtils.isEmpty(orderDispatcheDetailInfos)){
-            log.error("订单:"+orderId+"的调度详情不存在!");
+            log.warn("订单:"+orderId+"的调度详情不存在!");
             throw new BaseException("订单异常");
         }
         OrderDispatcheDetailInfo orderDispatcheDetailInfo = orderDispatcheDetailInfos.get(0);
@@ -1229,8 +1230,14 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         stateTraceInfo.setContent("用车人已还车");
         stateTraceInfo.setCreateBy(String.valueOf(userId));
         stateTraceInfo.setCreateTime(new Date());
-        stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+        stateTraceInfo.setState(OrderStateTrace.GIVE_UP_CAR.getState());
         orderStateTraceInfoMapper.insertOrderStateTraceInfo(stateTraceInfo);
+        stateTraceInfo.setState(OrderStateTrace.ORDERCLOSE.getState());
+        log.info("还车插入订单状态S900");
+        int result = orderStateTraceInfoMapper.insertOrderStateTrace(stateTraceInfo);
+        if(result < 1) {
+            log.warn("插入订单状态s900失败 orderId={}", orderId);
+        }
         /**计算自驾的费用*/
         CarInfo carInfo = carInfoMapper.selectCarInfoById(orderDispatcheDetailInfo.getCarId());
         if (carInfo==null){
@@ -1499,6 +1506,13 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getDispatchOrderApplyInfos(DispatchVo dispatchVo){
         DispatchVo dispatchApplyInfoByJourneyId = applyInfoMapper.getDispatchApplyInfoByJourneyId(dispatchVo.getJourneyId());
+        log.info("获取订单的社会租赁车队数据，journeyId:{},dispatchVo:{}",dispatchVo.getJourneyId(),JSONObject.toJSONString(dispatchApplyInfoByJourneyId));
+        //查询外部车队，设置外部车队名称
+        String carGroupName= applyInfoMapper.getOutDispatchApplyNameByJourneyId(dispatchVo.getJourneyId());
+        if(StringUtils.isNotEmpty(carGroupName)){
+            dispatchApplyInfoByJourneyId.setCarGroupName(carGroupName);
+            log.info("获取订单的社会租赁车队数据，journeyId:{},carGroupName:{}",dispatchVo.getJourneyId(),carGroupName);
+        }
         JourneyAddressInfo journeyAddressInfo = new JourneyAddressInfo();
         journeyAddressInfo.setJourneyId(dispatchVo.getJourneyId());
         List<JourneyAddressInfo> journeyAddressInfos = journeyAddressInfoMapper.selectJourneyAddressInfoList(journeyAddressInfo);
@@ -1532,6 +1546,49 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     public List<EcmpOrg> getUseCarOrgList(Long companyId) {
         List<EcmpOrg>  useCarOrgList = ecmpOrgMapper.getUseCarOrgList(companyId);
         return useCarOrgList;
+    }
+
+    /**
+     * 外部调度员驳回
+     * @param query
+     * @param loginUser
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void dismissedOutDispatch(ApplyDispatchQuery query, LoginUser loginUser) throws Exception {
+        String logHeader="外部调度员驳回逻辑==>";
+        log.info("{} query:{}",logHeader,JSON.toJSONString(query));
+        SysUser user = loginUser.getUser();
+
+        log.info("{} 登录用户信息 user:{}",logHeader,JSON.toJSONString(user));
+        if (!String.valueOf(CommonConstant.ONE).equals(user.getItIsDispatcher())) {
+            throw new BaseException("只有调度员身份才可驳回!");
+        }
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(query.getOrderId());
+        int state = Integer.parseInt(orderInfo.getState().substring(1));
+        if (state >= Integer.parseInt(OrderState.ALREADYSENDING.getState().substring(1))) {
+            throw new BaseException("此订单已派车不可驳回!");
+        }
+        /**修改订单状态,插入轨迹*/
+        orderInfo.setState(OrderState.ORDERCLOSE.getState());
+        orderInfo.setUpdateBy(user.getUserId().toString());
+        orderInfo.setUpdateTime(DateUtils.getNowDate());
+        orderInfoMapper.updateOrderInfo(orderInfo);
+        OrderStateTraceInfo orderStateTraceInfo = new OrderStateTraceInfo(orderInfo.getOrderId(), OrderState.ORDERDENIED.getState());
+        orderStateTraceInfo.setCreateBy(user.getUserId().toString());
+        orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        orderStateTraceInfo.setContent(query.getRejectReason());
+        orderStateTraceInfoMapper.insertOrderStateTraceInfo(orderStateTraceInfo);
+        //修改申请单状态为驳回
+        List<ApplyInfo> applyInfos = applyInfoMapper.selectApplyInfoList(new ApplyInfo(orderInfo.getJourneyId()));
+        if (!CollectionUtils.isEmpty(applyInfos)){
+            ApplyInfo applyInfo = applyInfos.get(0);
+            applyInfo.setState(ApplyStateConstant.REJECT_APPLY);
+            applyInfo.setUpdateBy(user.getUserId().toString());
+            applyInfo.setUpdateTime(DateUtils.getNowDate());
+            applyInfoMapper.updateApplyInfo(applyInfo);
+        }
+        ismsBusiness.sendSmsOutDispatcherReject(orderInfo,query.getRejectReason(),user);
     }
 
 }

@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.dto.EmailUpdateDTO;
 import com.hq.ecmp.mscore.service.UserAcceptOrderAccountEmailInfoService;
 import com.hq.ecmp.mscore.vo.EmailVO;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +28,7 @@ import java.util.List;
  */
  @RestController
  @RequestMapping("/email")
+ @Slf4j
 public class EmailController {
 
     @Autowired
@@ -71,7 +73,7 @@ public class EmailController {
              emailDTO.setUserId(userId);
              userAcceptOrderAccountEmailInfoService.insertEmail(emailDTO);
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("新增失败");
          }
          return ApiResponse.success("新增成功");
@@ -96,7 +98,7 @@ public class EmailController {
              emailUpdateDTO.setState("Y000");
              userAcceptOrderAccountEmailInfoService.updateEmail(emailUpdateDTO);
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("修改失败");
          }
          return ApiResponse.success("修改成功");
@@ -114,7 +116,7 @@ public class EmailController {
              System.out.println("发票ID"+emailDeleteDTO.getId());
              userAcceptOrderAccountEmailInfoService.deleteEmailById(emailDeleteDTO.getId());
          } catch (Exception e) {
-             e.printStackTrace();
+             log.error("业务处理异常", e);
              return ApiResponse.error("删除失败");
          }
          return ApiResponse.success("删除邮箱成功"+emailDeleteDTO.getId());

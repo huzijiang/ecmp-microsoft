@@ -172,4 +172,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 user_id = #{userId}))
 
     </select>
+
+<!--    根据用户ID查询车队电话-->
+    <select id="selectCarGroupPhoneByUserId" resultType="java.lang.String">
+        select b.telephone
+            from car_group_dispatcher_info a
+            left join car_group_info b on  a.car_group_id=b.car_group_id
+        where a.user_id =#{userId} order by a.create_time desc limit 1
+    </select>
+
 </mapper>

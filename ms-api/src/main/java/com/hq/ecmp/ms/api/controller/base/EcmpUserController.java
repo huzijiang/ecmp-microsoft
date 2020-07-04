@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.vo.OrgTreeVo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ecmpUser")
 @Api(description="企业员工管理")
+@Slf4j
 public class EcmpUserController {
 
     @Autowired
@@ -228,7 +230,7 @@ public class EcmpUserController {
         try {
             ecmpUserService.bindUserRegimens(userReqimensDTO.getUserId(),userReqimensDTO.getRegimenIds());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(1,"设置用车制度失败",null);
         }
         return ApiResponse.success("设置成功");
@@ -280,7 +282,7 @@ public class EcmpUserController {
             List<EcmpUserDto> result=ecmpUserService.queryUserListByCompanyIdAndName(ecmpUser.getDeptId(),ecmpUser.getNickName(),ecmpUser.getItIsDispatcher());
             return ApiResponse.success(result);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询公司员工失败");
         }
     }

@@ -1,8 +1,10 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
@@ -19,6 +21,7 @@ import com.hq.ecmp.mscore.dto.OrderViaInfoDto;
 import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
 import com.hq.ecmp.mscore.service.IDriverOrderService;
 import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
+import com.hq.ecmp.mscore.service.IsmsBusiness;
 import com.hq.ecmp.mscore.service.OrderInfoTwoService;
 import com.hq.ecmp.mscore.vo.OrderReassignVO;
 import io.swagger.annotations.ApiImplicitParam;
@@ -61,6 +64,11 @@ public class DriverOrderController {
     OrderInfoMapper orderInfoMapper;
 
 
+    @Resource
+    IsmsBusiness ismsBusiness;
+
+
+
 
     @Autowired
     TokenService tokenService;
@@ -83,13 +91,21 @@ public class DriverOrderController {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         try {
+
+            if(StringUtil.isEmpty(mileage)){
+                mileage="0.00";
+            }
+            Double mileageKm=Double.parseDouble(mileage);
+            mileageKm=mileageKm/1000;
+            mileage=mileageKm.toString();
+
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getDriver().getDriverId();
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("handleStatus异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
@@ -113,7 +129,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             aContinue = iDriverOrderService.isContinue(orderNo,String.valueOf(userId));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(aContinue);
@@ -142,7 +158,7 @@ public class DriverOrderController {
             Long userId = loginUser.getDriver().getDriverId();
             traceId = iDriverOrderService.waitingOrder(orderNo,isFinish,currentPoint, String.valueOf(userId), waitingId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         JSONObject jsonObject = new JSONObject();
@@ -176,7 +192,7 @@ public class DriverOrderController {
             }
             contactorDto.setRoleName(CommonConstant.PASSENGER_ROLE);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(contactorDto);
@@ -195,7 +211,7 @@ public class DriverOrderController {
         try {
             infoWithCarGroup = iDriverOrderService.getInfoWithCarGroup(orderNo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(infoWithCarGroup);
@@ -213,7 +229,7 @@ public class DriverOrderController {
         try {
             orderViaInfos = iDriverOrderService.getOrderViaInfos(orderNo);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error();
         }
         return ApiResponse.success(orderViaInfos);
@@ -234,8 +250,12 @@ public class DriverOrderController {
            if(i<0){
                return ApiResponse.error("司机端费用上报提交失败");
            }
+
+            //司机服务-结束不发送短信，应该在提交金额后在发短信 GONGCHE-67
+            ismsBusiness.sendSmsDriverServiceEnd(orderSettlingInfoVo.getOrderId());
+
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();

@@ -20,6 +20,8 @@ import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +45,9 @@ import javax.annotation.Resource;
  */
 @Service
 public class EcmpUserServiceImpl implements IEcmpUserService {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private EcmpUserMapper ecmpUserMapper;
     @Resource
@@ -264,7 +269,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
         try {
             bindUserRegimens(userId, regimenIds);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
         }
         /*保存用户角色信息*/
         Long[] roleIds=ecmpUser.getRoleIds();

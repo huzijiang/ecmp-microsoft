@@ -264,7 +264,7 @@ public class ApplyContoller {
             ApplyInfoDetailVO vo=applyInfoBackService.getApplyInfoDetail(applyId,loginUser);
             return ApiResponse.success(vo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("查询异常");
         }
     }
@@ -304,7 +304,7 @@ public class ApplyContoller {
                 resultInfoService.applyPass(journeyApplyDto,userId,applyApproveResultInfos);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("行程申请单审批通过");
@@ -327,7 +327,7 @@ public class ApplyContoller {
                 resultInfoService.applyReject(journeyApplyDto,userId,applyApproveResultInfos);
             }
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("行程申请单审批驳回");
@@ -405,7 +405,7 @@ public class ApplyContoller {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("网络异常");
         }
     }
@@ -428,7 +428,7 @@ public class ApplyContoller {
             String msg=regimeInfoService.checkUseCarModeAndType(regimeDto,loginUser);
             return ApiResponse.success(msg);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             if (e instanceof Exception){
                 return ApiResponse.error(e.getMessage());
             }
@@ -457,7 +457,7 @@ public class ApplyContoller {
             }
             list=regimeInfoService.getUseCarModeAndType(regimeDto,loginUser);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(list);
@@ -477,7 +477,7 @@ public class ApplyContoller {
             List<OnLineCarTypeVO> list=regimeInfoService.getUseCarType(regimeDto,loginUser.getUser());
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return ApiResponse.success();
     }

@@ -18,6 +18,8 @@ import com.hq.ecmp.mscore.service.IEcmpNoticeService;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PageResult;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +31,8 @@ import org.springframework.stereotype.Service;
  * @date 2020-01-02
  */
 @Service
-public class EcmpNoticeServiceImpl implements IEcmpNoticeService
-{
+public class EcmpNoticeServiceImpl implements IEcmpNoticeService {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private EcmpNoticeMapper ecmpNoticeMapper;
 
@@ -251,7 +253,7 @@ public class EcmpNoticeServiceImpl implements IEcmpNoticeService
                 scheduling.setCreateTime(new Date());
                 ecmpNoticeMapper.addObtainScheduling(scheduling);
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.error("业务处理异常", e);
             }
 
         }

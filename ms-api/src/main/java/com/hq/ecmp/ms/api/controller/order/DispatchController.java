@@ -120,7 +120,7 @@ public class DispatchController {
 				return ApiResponse.error("调派单【" + OrderNo + "】自有车派车失败");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("调派单【" + OrderNo + "】自有车派车异常", e);
 		}
 	}
@@ -205,7 +205,7 @@ public class DispatchController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             dispatchService.noCarDenied(orderId, reason, loginUser.getUser().getUserId());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("调度无车驳回通过");
@@ -244,7 +244,7 @@ public class DispatchController {
             Map<String,Object> list = orderInfoTwoService.queryDispatchReassignmentList(query,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取申请调度列表失败");
         }
     }
@@ -262,7 +262,7 @@ public class DispatchController {
             Map<String,Object> list = orderInfoTwoService.queryDispatchOrder(loginUser,query);
             return ApiResponse.success(list);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("获取申请调度列表失败");
         }
     }

@@ -76,6 +76,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+
+    <insert id="insertOrderStateTrace" parameterType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
+        insert into order_state_trace_info (order_id, state, content, create_by, create_time ) values (#{orderId}, #{state}, #{content}, #{createBy}, #{createTime})
+    </insert>
+
     <update id="updateOrderStateTraceInfo" parameterType="com.hq.ecmp.mscore.domain.OrderStateTraceInfo">
         update order_state_trace_info
         <trim prefix="SET" suffixOverrides=",">

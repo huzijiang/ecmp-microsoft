@@ -104,6 +104,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
     private String apiUrl;
 
 
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handleDriverOrderStatus(String type, String currentPoint, String orderNo, Long userId, String mileage, String travelTime) throws Exception {
@@ -131,6 +132,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
         orderStateTraceInfo.setDriverLatitude(latitude);
         orderStateTraceInfo.setCreateBy(String.valueOf(userId));
         orderStateTraceInfo.setCreateTime(DateUtils.getNowDate());
+        log.info("orderStateTraceInfo:[{}]", orderStateTraceInfo);
 
         JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfoOld.getJourneyId());
 
@@ -139,6 +141,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             /** xmy1*/
             //1判断当前服务是不是暂停状态
             if(null != orderInfoOld && OrderState.SERVICE_SUSPEND.getState().equals(orderInfoOld.getState())){
+                log.info("订单服务中止 orderInfo:[{}]", orderInfo);
                 //2改变 服务状态
                 orderInfo.setState(OrderState.REASSIGNMENT.getState());
                 iOrderInfoService.updateOrderInfo(orderInfo);
@@ -153,6 +156,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
             }else {//第一次服务原逻辑
                 //订单状态
+                log.info("前往出发地 orderInfo:[{}]", orderInfo);
                 orderInfo.setState(OrderState.REASSIGNMENT.getState());
                 iOrderInfoService.updateOrderInfo(orderInfo);
                 //订单轨迹状态
@@ -165,6 +169,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
             log.info("司机--出发去接乘客--短信-给乘车人和申请人orderId：{}",orderId);
 
         }else if(DriverBehavior.ARRIVE.getType().equals(type)){
+            log.info("准备服务 orderInfo:[{}]", orderInfo);
             //订单状态
             orderInfo.setState(OrderState.READYSERVICE.getState());
             iOrderInfoService.updateOrderInfo(orderInfo);
@@ -208,6 +213,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 this.updateOrderPlanPrice(userId,orderInfoOld,1);
             }
             if(null != orderAddressInfos && orderAddressInfos.size() > 0){
+                log.info("orderAddressInfos.size:[{}]", orderAddressInfos.size());
                 OrderAddressInfo orderAddressInfoCh = orderAddressInfos.get(0);
                 setOutOrderAddressId = orderAddressInfoCh.getOrderAddressId();
                 OrderAddressInfo orderAddressInfo = new OrderAddressInfo();
@@ -245,6 +251,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
                 //ismsBusiness.sendSmsDriverBeginService(orderId);
                 //司机开始服务发送消息给乘车人和申请人（行程通知）
                 ismsBusiness.sendMessageServiceStart(orderId, userId);
+                log.info("orderInfo:[{}]", orderInfo);
             }
 
         }else if((DriverBehavior.SERVICE_COMPLETION.getType().equals(type))){//----服务完成4---
@@ -396,7 +403,7 @@ public class DriverOrderServiceImpl implements IDriverOrderService {
 
             //司机服务-结束发送短信
             //ismsBusiness.sendSmsDriverServiceComplete(orderId);
-            ismsBusiness.sendSmsDriverServiceEnd(orderId);
+//            ismsBusiness.sendSmsDriverServiceEnd(orderId);
             log.info("司机服务-结束发送短信已发送orderId：{}",orderId);
 
         }else{

@@ -440,7 +440,7 @@ public List<UserAuthorityGroupCity> getUserCarAuthority(Long journeyId) {
 				orderInfoService.cancelOrder(orderInfo.getOrderId(), 1L, "用车权限过期自动取消订单");
 				userCarAuthority.setState(OrderState.TRAVELOVERUSECARTIMENOUSE.getState());
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("业务处理异常", e);
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import com.hq.ecmp.mscore.service.ThirdService;
 
 import com.hq.ecmp.util.GsonUtils;
 import com.hq.ecmp.util.MacTools;
+import lombok.extern.slf4j.Slf4j;
 import org.etsi.uri.x01903.v13.impl.CertIDTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/city")
+@Slf4j
 public class CityController {
 
 	private  static final Logger logger = LoggerFactory.getLogger(CityController.class);
@@ -92,7 +94,7 @@ public class CityController {
 			}
 			return ApiResponse.success(weatherAndCity);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 	}

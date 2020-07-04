@@ -56,4 +56,5 @@ public interface CollectionQuittanceInfoMapper {
 
     int updateByCollectionId(ReckoningInfo param);
 
+    Long existReckoning(ReckoningInfo param);
 }

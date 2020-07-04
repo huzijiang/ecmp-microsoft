@@ -47,6 +47,14 @@ public interface OrderStateTraceInfoMapper
     public int insertOrderStateTraceInfo(OrderStateTraceInfo orderStateTraceInfo);
 
     /**
+     * 新增【请填写功能名称】
+     *
+     * @param orderStateTraceInfo 【请填写功能名称】
+     * @return 结果
+     */
+    public int insertOrderStateTrace(OrderStateTraceInfo orderStateTraceInfo);
+
+    /**
      * 修改【请填写功能名称】
      *
      * @param orderStateTraceInfo 【请填写功能名称】

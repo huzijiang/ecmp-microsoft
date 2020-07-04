@@ -32,7 +32,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectEcmpUserVo">
-        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, del_flag, station_code,login_ip, login_date, create_by, create_time, update_by, update_time, remark,it_is_dispatcher,it_is_driver,job_number from ecmp_user
+        select user_id, dept_id, owner_company, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status,
+        del_flag, station_code,login_ip, login_date, create_by, create_time, update_by, update_time, remark, it_is_dispatcher,
+        it_is_driver, job_number from ecmp_user
     </sql>
 
     <select id="selectEcmpUserList" parameterType="com.hq.ecmp.mscore.domain.EcmpUser" resultMap="EcmpUserResult">
@@ -757,11 +759,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="updateEcmpUserjobNumber" parameterType="com.hq.ecmp.mscore.domain.EcmpUser">
-    update ecmp_user set
-         <if test="jobNumber != null and jobNumber != ''">
-               job_number=#{jobNumber},
-          </if>
-        it_is_driver = #{itIsDriver},update_by = #{updateBy},update_time = #{updateTime} where user_id=#{userId}
+        update ecmp_user set
+        <if test="jobNumber != null and jobNumber != ''">
+            job_number=#{jobNumber},
+        </if>
+        it_is_driver = #{itIsDriver}, update_by = #{updateBy}, update_time = #{updateTime} where user_id=#{userId}
     </update>
 
     <select id="getUsersByCompany" resultType="com.hq.ecmp.mscore.vo.ProjectUserVO">

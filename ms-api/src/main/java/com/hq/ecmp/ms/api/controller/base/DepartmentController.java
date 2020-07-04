@@ -18,6 +18,8 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +30,7 @@ import java.util.List;
 @RequestMapping("/dept")
 @Api(description="部门管理")
 public class DepartmentController {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private IEcmpOrgService orgService;
 
@@ -119,7 +122,7 @@ public class DepartmentController {
             int i = orgService.addDept(ecmpOrg,loginUser.getUser().getUserId());
             return ApiResponse.success("添加部门成功");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -139,7 +142,7 @@ public class DepartmentController {
             return ApiResponse.success("修改部门成功!");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }

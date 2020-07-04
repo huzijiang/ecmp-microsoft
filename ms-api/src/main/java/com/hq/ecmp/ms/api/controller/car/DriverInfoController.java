@@ -44,20 +44,23 @@ public class DriverInfoController {
 	@ApiOperation(value = "create", notes = "新增驾驶员", httpMethod = "POST")
 	@PostMapping("/create")
 	public ApiResponse create(@RequestBody DriverCreateInfo driverCreateInfo) {
+		/**
+		 * This bug was fixed by Gandaif on 06/29/2020.
+		 */
 		HttpServletRequest request = ServletUtils.getRequest();
 		LoginUser loginUser = tokenService.getLoginUser(request);
+		log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(), loginUser.getUser().getPhonenumber());
 		try {
-			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber());
 			driverCreateInfo.setOptUserId(loginUser.getUser().getUserId());
 			driverCreateInfo.setCompanyId(loginUser.getUser().getOwnerCompany());
 			boolean createDriver = driverInfoService.createDriver(driverCreateInfo);
-			if(createDriver){
+			if (createDriver) {
 				return ApiResponse.success();
-			}else{
+			} else {
 				return ApiResponse.error();
 			}
 		} catch (Exception e) {
-			log.info("新增驾驶员请求参数：{}，操作人：{}", JSONArray.toJSON(driverCreateInfo).toString(),loginUser.getUser().getPhonenumber(),e);
+			log.error("新增驾驶员失败：{}，操作人：{}", e.getMessage(), loginUser.getUser().getPhonenumber());
 			return ApiResponse.error("新增驾驶员失败");
 		}
 	}
@@ -66,6 +69,11 @@ public class DriverInfoController {
 	@ApiOperation(value = "driverList", notes = "驾驶员列表", httpMethod = "POST")
 	@PostMapping("/driverList")
 	public ApiResponse<PageResult<DriverQueryResult>> driverList(@RequestBody DriverQuery driverQuery) {
+		/**
+		 * The bug was fixed by Suruman on 06/28/2020.
+		 * Return drivers that are valid.
+		 */
+		//driverQuery.setState("V000");
 		List<DriverQueryResult> list = driverInfoService.queryDriverList(driverQuery);
 		Integer totalNum = driverInfoService.queryDriverListCount(driverQuery);
 		PageResult<DriverQueryResult> pageResult = new PageResult<DriverQueryResult>(Long.valueOf(totalNum), list);
@@ -79,7 +87,7 @@ public class DriverInfoController {
 		try {
 			return ApiResponse.success(driverInfoService.queryDriverDetail(driverId));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("查询驾驶员详情失败");
 		}
 	}
@@ -119,7 +127,7 @@ public class DriverInfoController {
 			driverInfoService.checkjobNumber(driverUserJobNumber);
 			return ApiResponse.success();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error(e.getMessage());
 		}
 	}

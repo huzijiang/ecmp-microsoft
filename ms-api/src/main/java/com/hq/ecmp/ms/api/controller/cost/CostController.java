@@ -1,6 +1,5 @@
 package com.hq.ecmp.ms.api.controller.cost;
 
-import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -9,7 +8,6 @@ import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.mscore.domain.CostConfigCityInfo;
-import com.hq.ecmp.mscore.domain.CostConfigInfo;
 import com.hq.ecmp.mscore.dto.cost.*;
 import com.hq.ecmp.mscore.service.ICarGroupInfoService;
 import com.hq.ecmp.mscore.service.ICostConfigInfoService;
@@ -17,6 +15,8 @@ import com.hq.ecmp.mscore.vo.CarGroupCostVO;
 import com.hq.ecmp.mscore.vo.CityInfo;
 import com.hq.ecmp.mscore.vo.PriceOverviewVO;
 import com.hq.ecmp.mscore.vo.SupplementVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +34,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/cost")
 public class CostController {
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Resource
     private ICostConfigInfoService costConfigInfoService;
@@ -59,7 +61,7 @@ public class CostController {
             List<CostConfigCityInfo> citys=carGroupInfoService.getCitysBycarGroupId(carGroupId);
             return ApiResponse.success(citys);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询失败");
         }
     }
@@ -82,7 +84,7 @@ public class CostController {
             costConfigDto.setCompanyId(companyId);
             costConfigInfoService.createCostConfig(costConfigDto,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("成本录入失败");
         }
         return ApiResponse.success("成本设置录入成功");
@@ -105,7 +107,7 @@ public class CostController {
             costConfigQueryDto.setCompanyId(companyId);
             costConfigListResults = costConfigInfoService.selectCostConfigInfoList(costConfigQueryDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("成本设置列表查询失败");
         }
         return ApiResponse.success(costConfigListResults);
@@ -124,7 +126,7 @@ public class CostController {
         try {
             costConfigListResult = costConfigInfoService.selectCostConfigInfoById(costId,null);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("通过id查询成本信息失败");
         }
         return ApiResponse.success(costConfigListResult);
@@ -146,6 +148,7 @@ public class CostController {
             Long userId = loginUser.getUser().getUserId();
             costConfigInfoService.updateCostConfig(costConfigListResult, userId);
         } catch (Exception e) {
+            logger.error("业务处理异常", e);
             return ApiResponse.error("成本设置信息更新失败");
 
         }
@@ -167,7 +170,7 @@ public class CostController {
         try {
             costConfigInfoService.deleteCostConfigByCostCityId(costConfigCityId,costId,cityCode);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return ApiResponse.error("删除失败");
         }
         return ApiResponse.success("删除成功");
@@ -186,7 +189,7 @@ public class CostController {
         try {
             res = costConfigInfoService.checkDoubleByServiceTypeCityCarType(costConfigQueryDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return  ApiResponse.error("判重失败");
         }
         return ApiResponse.success(res);
@@ -210,7 +213,7 @@ public class CostController {
             costConfigQueryDto.setCompanyId(companyId);
             res = costConfigInfoService.checkCharteredCost(costConfigQueryDto);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             return  ApiResponse.error("判重失败");
         }
         return ApiResponse.success(res);
@@ -234,7 +237,7 @@ public class CostController {
             String json = costConfigInfoService.supplementAmountCalculation(supplement,companyId);
             apiResponse.setData(json);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("业务处理异常", e);
             apiResponse.setMsg("补单成本计算失败");
             return apiResponse;
         }
@@ -256,6 +259,7 @@ public class CostController {
                 return ApiResponse.success(Boolean.valueOf(false));
             }
         } catch (Exception e) {
+            logger.error("业务处理异常", e);
             return ApiResponse.error("判重失败");
         }
     }
@@ -273,8 +277,9 @@ public class CostController {
             Long companyId = loginUser.getUser().getOwnerCompany();
             queryPriceDto.setCompanyId(companyId);
             List<PriceOverviewVO> list=costConfigInfoService.getGroupPrice(queryPriceDto,loginUser);
-                return ApiResponse.success(list);
+            return ApiResponse.success(list);
         } catch (Exception e) {
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询异常");
         }
     }
@@ -294,6 +299,7 @@ public class CostController {
             List<CarGroupCostVO> list=costConfigInfoService.getCarGroupListForCost(queryPriceDto,loginUser);
             return ApiResponse.success(list);
         } catch (Exception e) {
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询异常");
         }
     }
@@ -313,6 +319,7 @@ public class CostController {
             List<CityInfo> list=costConfigInfoService.getCostCityList(companyId);
             return ApiResponse.success(list);
         } catch (Exception e) {
+            logger.error("业务处理异常", e);
             return ApiResponse.error("查询异常");
         }
     }

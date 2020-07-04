@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志输出格式 -->
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} [%M:%L] %X{traceId} %X{orderNo} %X{NG_TRACE_ID} %logSort - %msg%n" />
+    <conversionRule conversionWord="logSort" converterClass="com.hq.ecmp.interceptor.log.LogSort"/>
+    <property name="MAX_HISTORY" value="3660"/>
+
+    <!-- 日志输出格式 -->
+	<property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} [%M:%L] %X{traceId} %X{orderNo} %X{NG_TRACE_ID} %logSort - %msg%n" />
+    <springProperty scope="context" name="LOG_PATH" source="HOST_IP"/>
+
+    <!-- 日志存放路径 -->
+    <property name="log.path" value="/u01/ecmp-microservice/${LOG_PATH}/logs" />
+
+    <conversionRule conversionWord="logSort" converterClass="com.hq.ecmp.interceptor.log.LogSort"/>
+    <property name="MAX_HISTORY" value="3660"/>
+
+	<!-- 控制台输出 -->
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- 系统日志输出 -->
+	<appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/ecmp-microservice.all.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+			<fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.all.log.%d{yyyyMMdd}</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+            <charset>UTF-8</charset>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${log.path}/ecmp-microservice.error.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.error.log.%d{yyyyMMdd}</fileNamePattern>
+			<!-- 日志最大的历史 60天 -->
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>ERROR</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+	<!-- 用户访问日志输出  -->
+    <appender name="sys-user" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.path}/ecmp-microservice.user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.user.log.%d{yyyyMMdd}</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="perf4jFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.path}/ecmp-microservice.perf4j.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.path}/history/%d{yyyyMM,aux}/ecmp-microservice.perf4j.log.%d{yyyyMMdd}</FileNamePattern>
+            <MaxHistory>${MAX_HISTORY}</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%msg%n</Pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!--接口请求参数输入输出日志打印-->
+    <appender name="reqInterceptor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/req_interceptor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/history/%d{yyyyMM,aux}/req_interceptor.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>{"createTime":"%d{yyyy-MM-dd HH:mm:ss.SSS}","payload":%message}%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="CoalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+        <param name="TimeSlice" value="60000"/>
+        <appender-ref ref="perf4jFile"/>
+    </appender>
+
+    <logger name="org.perf4j.TimingLogger"  level="debug" additivity="false">
+        <appender-ref ref="CoalescingStatistics" />
+    </logger>
+
+    <!--异步输入参数日志-->
+    <appender name="reqInterceptorFile" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>512</queueSize>
+        <!-- 添加附加的appender ，每个异步日志打印仅支持一个appender-->
+        <appender-ref ref="reqInterceptor"/>
+    </appender>
+
+    <logger name="com.hq.ecmp.interceptor.log.ParamsLogger" level="INFO" additivity="false">
+        <appender-ref ref="reqInterceptorFile"/>
+    </logger>
+
+	<!--系统操作日志-->
+    <root level="info">
+        <appender-ref ref="file_info" />
+        <appender-ref ref="file_error" />
+        <appender-ref ref="console" />
+    </root>
+	
+</configuration>

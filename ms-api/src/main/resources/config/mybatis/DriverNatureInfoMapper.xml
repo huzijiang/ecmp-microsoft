@@ -71,7 +71,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="select"/>
         where invitation_id = #{invitationId}
     </select>
-    <delete id="updateDriverNatureInfoByInvatationId"  parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
+    <!--
+    This bug was fixed by Gandaif on 06/29/2020.
+    <delete> to <update>
+    -->
+    <update id="updateDriverNatureInfoByInvatationId" parameterType="com.hq.ecmp.mscore.domain.DriverNatureInfo">
         update driver_nature_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="driverId != null  ">driver_id = #{driverId},</if>
@@ -84,5 +88,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update_time = now()
         </trim>
         where invitation_id = #{invitationId}
+    </update>
+
+    <delete id="deleteDriverNatureInfoById" parameterType="Long">
+        delete from driver_nature_info where driver_id = #{driverId}
     </delete>
 </mapper>

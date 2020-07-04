@@ -98,7 +98,7 @@ public class  OrderController {
             officialOrderReVo.setCompanyId(loginUser.getUser().getOwnerCompany());
             orderId = iOrderInfoService.officialOrder(officialOrderReVo,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("公务下单成功",orderId);
@@ -123,7 +123,7 @@ public class  OrderController {
                 return ApiResponse.error("'订单状态改为【待派单失败】");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("'订单状态改为【待派单失败】");
         }
         return ApiResponse.success("订单状态修改成功");
@@ -158,7 +158,7 @@ public class  OrderController {
             //判断是否是网约车且是往返，如果是，超过约定时间则下一单返程的网约车订单
             iOrderInfoService.checkCreateReturnAuthority(orderId,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success("约车成功");
@@ -241,7 +241,7 @@ public class  OrderController {
             //插入订单轨迹表
             iOrderInfoService.insertOrderStateTrace(String.valueOf(orderDto.getOrderId()), OrderState.ORDERCLOSE.getState(), String.valueOf(userId),null,null,null);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("行程确认失败");
         }
         return ApiResponse.success();
@@ -272,7 +272,7 @@ public class  OrderController {
             Long orderId = orderDto.getOrderId();
             iOrderInfoService.cancelOrder(orderId,userId,orderDto.getCancelReason());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("订单取消失败->" + e.getMessage());
         }
         return ApiResponse.success("订单取消成功");
@@ -365,7 +365,7 @@ public class  OrderController {
 				return ApiResponse.error("调派单【" + orderId + "】自有车派车失败");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("调派单【" + orderId + "】自有车派车异常", e);
 		}
 
@@ -390,7 +390,7 @@ public class  OrderController {
 				return ApiResponse.error("调派单【" + orderId + "】自有车派车前生成行程预估价失败");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("业务处理异常", e);
 			return ApiResponse.error("调派单【" + orderId + "】自有车派车前生成行程预估价异常", e);
 		}
 
@@ -428,7 +428,7 @@ public class  OrderController {
         try {
             return ApiResponse.success(iOrderInfoService.getOrderList(loginUser.getUser(), orderPage.getPageNum(), orderPage.getPageSize(),orderPage.getIsConfirmState()));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return ApiResponse.success("加载订单列表失败");
     }
@@ -446,7 +446,7 @@ public class  OrderController {
             Long userId = loginUser.getUser().getUserId();
             iOrderInfoService.reassign(orderNo,rejectReason,status,userId,null,null);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
         }
         return ApiResponse.success();
 
@@ -470,7 +470,7 @@ public class  OrderController {
             Integer count=orderInfoTwoService.getDriverOrderListCount(loginUser);
             return ApiResponse.success(new PageResult<OrderDriverListInfo>(Long.valueOf(count),driverOrderList));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -491,7 +491,7 @@ public class  OrderController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             driverOrderList = iOrderInfoService.driverOrderUndoneList(loginUser, driverListRequest.getPageNum(), driverListRequest.getPageSize(),driverListRequest.getDay());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success(driverOrderList);
@@ -506,7 +506,7 @@ public class  OrderController {
             int count = iOrderInfoService.driverOrderCount(loginUser);
             return ApiResponse.success(count);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -533,7 +533,7 @@ public class  OrderController {
             applyUseWithTravelDto.setCompanyId(companyId);
             orderId = iOrderInfoService.applyUseCarWithTravel(applyUseWithTravelDto,userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("申请派车失败");
         }
         return ApiResponse.success("申请派车成功",orderId);
@@ -562,7 +562,7 @@ public class  OrderController {
             driverServiceAppraiseeInfo.setCarLicense(orderInfo.getCarLicense());
             driverServiceAppraiseeInfoService.insert(driverServiceAppraiseeInfo);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error("评价失败");
         }
         return ApiResponse.success("评价成功");
@@ -581,7 +581,7 @@ public class  OrderController {
             OrderVO orderVO = iOrderInfoService.orderBeServiceDetail(Long.parseLong(orderId));
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -602,7 +602,7 @@ public class  OrderController {
             UserApplySingleVo orderVO = orderInfoTwoService.getOrderInfoDetail(orderId,loginUser.getUser(),applyId);
             return ApiResponse.success(orderVO);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());
         }
     }
@@ -633,7 +633,7 @@ public class  OrderController {
             }
             return ApiResponse.success(orderVO);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error(e.getMessage());
         }
     }
@@ -652,7 +652,7 @@ public class  OrderController {
             DriverOrderInfoVO  orderVO = iOrderInfoService.driverOrderDetail(orderDto.getOrderId());
             return ApiResponse.success(orderVO);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("司机端获取任务详情");
         }
     }
@@ -676,7 +676,7 @@ public class  OrderController {
             String param="orderId="+orderDto.getOrderId()+"&userId="+userId+"&flag=share";
             return ApiResponse.success("分享成功",URLEncoder.encode(url+param, "UTF-8"));
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("获取提示语异常!");
         }
     }
@@ -693,7 +693,7 @@ public class  OrderController {
             orderInfoTwoService.replaceCar(orderInfo,loginUser.getUser()==null?null:loginUser.getUser().getUserId());
             return ApiResponse.success();
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("更换车辆失败");
         }
     }
@@ -722,7 +722,7 @@ public class  OrderController {
             CancelOrderCostVO cancelOrderCostVO = orderInfoTwoService.cancelBusinessOrder(orderDto.getOrderId(), orderDto.getCancelReason(),loginUser.getUser().getUserId());
             return ApiResponse.success(cancelOrderCostVO);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("取消订单失败");
         }
     }
@@ -738,7 +738,7 @@ public class  OrderController {
             List<RunningOrderVo> runningOrders = orderInfoTwoService.runningOrder(loginUser.getUser().getUserId());
             return ApiResponse.success(runningOrders);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("查询失败");
         }
     }
@@ -750,7 +750,7 @@ public class  OrderController {
             Map<String,String> orderInfo = iOrderInfoService.downloadOrderData(orderId);
             return ApiResponse.success(orderInfo);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("查询失败");
         }
     }
@@ -763,7 +763,7 @@ public class  OrderController {
             Map map = iOrderInfoService.selectOrderCarGroup(companyId);
             return ApiResponse.success(map);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("查询失败");
         }
     }
@@ -775,7 +775,7 @@ public class  OrderController {
             Map map = iOrderInfoService.selectNormalOrderReserveTime(companyId,statisticsParam.getBeginDate(),statisticsParam.getEndDate());
             return ApiResponse.success(map);
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("业务处理异常", e);
             return  ApiResponse.error("查询失败");
         }
     }
