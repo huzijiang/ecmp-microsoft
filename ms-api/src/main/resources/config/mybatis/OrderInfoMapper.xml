@@ -3126,13 +3126,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 乘车人数
        ifnull(jpi.peer_number, '无') peerName,
        -- 目的地
-       ifnull(cc.short_name, '无')  shortName,
+       ifnull(oai.address_long, '无')  shortName,
        -- 用车天数
        ifnull(ji.use_time, '无') useTime,
         -- 预约用车时间
        ifnull(ji.start_date, '无') startDate,
         -- 出发地点
-       ifnull(oai.address_long, '无') addressLong,
+       ifnull(oaie.address_long, '无') addressLong,
        -- 驾驶员姓名
        ifnull(di.driver_name, '无')driverName,
        -- 驾驶员电话
