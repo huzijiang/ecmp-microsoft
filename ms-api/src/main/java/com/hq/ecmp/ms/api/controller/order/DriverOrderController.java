@@ -1,8 +1,10 @@
 package com.hq.ecmp.ms.api.controller.order;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.util.StringUtil;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
@@ -89,6 +91,10 @@ public class DriverOrderController {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         try {
+
+            if(StringUtil.isEmpty(mileage)){
+                mileage="0.00";
+            }
             Double mileageKm=Double.parseDouble(mileage);
             mileageKm=mileageKm/1000;
             mileage=mileageKm.toString();
