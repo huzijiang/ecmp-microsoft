@@ -3417,8 +3417,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         o.order_id orderId,
         o.order_number orderNumber,-- #订单号
         pa.NAME userName,-- #用车人
-        ct.NAME carType,-- #用车类型名
-        ct.LEVEL carLevel,
+        ifnull(ecti.name,o.demand_car_level) carType,-- #用车类型名
+        ifnull(ecti.name,o.demand_car_level) carLevel,
         adr.action_time actionTime,-- #用车时间
         jo.use_time useTime,-- #用车天数
         se.amount amount,-- #总费用
@@ -3436,6 +3436,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         LEFT JOIN journey_passenger_info pa ON o.journey_id = pa.journey_id
 		LEFT JOIN car_group_driver_relation r on o.driver_id = r.driver_id
 		LEFT JOIN car_group_info g ON r.car_group_id = g.car_group_id
+		left join car_info ci on ci.car_id=o.car_id
+		left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
         WHERE
             o.user_id in (
                 SELECT user.user_id from ecmp_user user where  user.dept_id = #{companyId}
