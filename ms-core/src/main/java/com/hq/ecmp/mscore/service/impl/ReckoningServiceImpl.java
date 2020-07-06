@@ -183,24 +183,66 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                     map.put("data",dayAndMoney);
                     carTypeMapList.add(map);
                 }else {
+//                    for (int j = 0; j < carTypeMapList.size() ; j++) {
+//                        Map<String,Object> carTypeMap = carTypeMapList.get(j);
+//                        String carLevel = String.valueOf(carTypeMap.get("carLevel"));
+//                        if(carLevel.equals(money.getCarLevel())){
+//                            dateMap = (Map) carTypeMap.get("data");
+//                            Double day = dateMap.get("dayNum") == null ? 0.00: Double.parseDouble((dateMap.get("dayNum").toString()));
+//                            BigDecimal moneyNum = dateMap.get("moneyNum")== null ? BigDecimal.ZERO : new BigDecimal(dateMap.get("moneyNum").toString());
+//                            if(null != money.getUseTime() && !StringUtils.isEmpty(money.getUseTime())){
+//                                Double day1 = Double.valueOf(money.getUseTime());
+//                                dateMap.put("dayNum",day+day1);
+//                            }
+//                            if(null != money.getAmount()){
+//                                BigDecimal moneyNum1 = money.getAmount();
+//                                dateMap.put("moneyNum",moneyNum.add(moneyNum1));
+//                            }
+//                            continue;
+//                        }
+//                    }
+                    //重写
+                    List<String> allCarLevelList=new ArrayList<>();
                     for (int j = 0; j < carTypeMapList.size() ; j++) {
                         Map<String,Object> carTypeMap = carTypeMapList.get(j);
                         String carLevel = String.valueOf(carTypeMap.get("carLevel"));
-                        if(carLevel.equals(money.getCarLevel())){
-                            dateMap = (Map) carTypeMap.get("data");
-                            Double day = dateMap.get("dayNum") == null ? 0.00: Double.parseDouble((dateMap.get("dayNum").toString()));
-                            BigDecimal moneyNum = dateMap.get("moneyNum")== null ? BigDecimal.ZERO : new BigDecimal(dateMap.get("moneyNum").toString());
-                            if(null != money.getUseTime() && !StringUtils.isEmpty(money.getUseTime())){
-                                Double day1 = Double.valueOf(money.getUseTime());
-                                dateMap.put("dayNum",day+day1);
-                            }
-                            if(null != money.getAmount()){
-                                BigDecimal moneyNum1 = money.getAmount();
-                                dateMap.put("moneyNum",moneyNum.add(moneyNum1));
-                            }
-                            continue;
-                        }
+                        allCarLevelList.add(carLevel);
                     }
+                    //检验是否添加过
+                    if(allCarLevelList.contains(money.getCarLevel())){
+                        Map<String,Object> calCarTypeMap=null;
+                        for (int j = 0; j < carTypeMapList.size() ; j++) {
+                            Map<String,Object> carTypeMap = carTypeMapList.get(j);
+                            String carLevel = String.valueOf(carTypeMap.get("carLevel"));
+                            if(carLevel.equals(money.getCarLevel())){
+                                calCarTypeMap=carTypeMap;
+                                break;
+                            }
+                        }
+                        //累加
+                        dateMap = (Map) calCarTypeMap.get("data");
+                        Double day = dateMap.get("dayNum") == null ? 0.00: Double.parseDouble((dateMap.get("dayNum").toString()));
+                        BigDecimal moneyNum = dateMap.get("moneyNum")== null ? BigDecimal.ZERO : new BigDecimal(dateMap.get("moneyNum").toString());
+                        if(null != money.getUseTime() && !StringUtils.isEmpty(money.getUseTime())){
+                            Double day1 = Double.valueOf(money.getUseTime());
+                            dateMap.put("dayNum",day+day1);
+                        }
+                        if(null != money.getAmount()){
+                            BigDecimal moneyNum1 = money.getAmount();
+                            dateMap.put("moneyNum",moneyNum.add(moneyNum1));
+                        }
+                    }else{
+                        Map<String,Object> map = new HashMap();
+                        map.put("carLevel",money.getCarLevel());
+                        map.put("carType",money.getCarType());
+                        Map dayAndMoney = new HashMap();
+                        dayAndMoney.put("dayNum",money.getUseTime());
+                        dayAndMoney.put("moneyNum",money.getAmount());
+                        map.put("data",dayAndMoney);
+                        carTypeMapList.add(map);
+                    }
+
+
                     /*Map<String,Object> map = new HashMap();
                     map.put("carLevel",money.getCarLevel());
                     map.put("carType",money.getCarType());
