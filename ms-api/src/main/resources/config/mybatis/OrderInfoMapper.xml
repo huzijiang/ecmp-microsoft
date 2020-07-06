@@ -1077,8 +1077,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
-            <if test="carId != null and  carId!=''"> and  ord.car_id=#{carId}  </if>
-            <if test="setOutTime != null "> and jpp.planned_arrival_time > #{setOutTime}  </if>
+            <if test="carId != null and  carId !=''"> and  ord.car_id=#{carId}  </if>
+            <if test="setOutTime != null and  arrivalTime != null ">
+                and (
+                   ( jpp.planned_departure_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_departure_time )
+                   OR
+                   ( jpp.planned_arrival_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_arrival_time )
+                   OR
+                   ( #{setOutTime} > jpp.planned_departure_time  and  jpp.planned_arrival_time > #{arrivalTime})
+                )
+            </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}  </if>
         </where>
 
@@ -1094,8 +1102,16 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         FROM  order_info ord
         LEFT JOIN journey_plan_price_info jpp on jpp.node_id=ord.node_id and jpp.journey_id=ord.journey_id
         <where>
-            <if test="carId != null and  carId!=''"> and  ord.car_id = #{carId} </if>
-            <if test="arrivalTime != null "> and jpp.planned_departure_time > #{arrivalTime} </if>
+            <if test="carId != null and  carId !=''"> and  ord.car_id = #{carId} </if>
+            <if test="setOutTime != null and  arrivalTime != null ">
+                and (
+                ( jpp.planned_departure_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_departure_time )
+                OR
+                ( jpp.planned_arrival_time > #{setOutTime} and  #{arrivalTime} >jpp.planned_arrival_time )
+                OR
+                ( #{setOutTime} > jpp.planned_departure_time  and  jpp.planned_arrival_time > #{arrivalTime})
+                )
+            </if>
             <if test="driverId != null and  driverId!='' "> and ord.driver_id = #{driverId}</if>
         </where>
 
@@ -3126,13 +3142,13 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 乘车人数
        ifnull(jpi.peer_number, '无') peerName,
        -- 目的地
-       ifnull(cc.short_name, '无')  shortName,
+       ifnull(oai.address_long, '无')  shortName,
        -- 用车天数
        ifnull(ji.use_time, '无') useTime,
         -- 预约用车时间
        ifnull(ji.start_date, '无') startDate,
         -- 出发地点
-       ifnull(oai.address_long, '无') addressLong,
+       ifnull(oaie.address_long, '无') addressLong,
        -- 驾驶员姓名
        ifnull(di.driver_name, '无')driverName,
        -- 驾驶员电话
