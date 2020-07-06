@@ -28,7 +28,7 @@ import java.util.UUID;
 import static com.hq.ecmp.constant.TraceConstant.NG_TRACE_ID;
 import static com.hq.ecmp.constant.TraceConstant.TRACE_KEY;
 
-@Component
+//@Component
 public class ScheduledTask {
 
 	private static final Logger log = LoggerFactory.getLogger(ScheduledTask.class);

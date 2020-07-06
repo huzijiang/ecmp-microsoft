@@ -119,8 +119,14 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
         Long carGroupId = getCarGroupId(loginUser);
         //根据车队id 查询驾驶员列表
         DriverQuery query = new DriverQuery();
-        query.setCarGroupId(carGroupId);
+        //query.setCarGroupId(carGroupId);
         query.setState("V000");
+        /**
+         * This bug was fixed by Gandaif on 07/06/2020.
+         */
+        if (!carGroupId.equals(Long.valueOf(0l))) {
+            query.setCarGroupId(carGroupId);
+        }
         List<DriverQueryResult> driverQueryResults = driverInfoMapper.queryDriverList(query);
         return driverQueryResults;
     }
@@ -130,8 +136,12 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
         Long userId = loginUser.getUser().getUserId();
         CarGroupDispatcherInfo carGroupDispatcherInfo = CarGroupDispatcherInfo.builder().userId(userId).build();
         List<CarGroupDispatcherInfo> carGroupDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(carGroupDispatcherInfo);
-        if(CollectionUtils.isEmpty(carGroupDispatcherInfos)){
-            throw new RuntimeException("该用户不是调度员");
+        /**
+         * This bug was fixed by Gandaif on 07/06/2020.
+         */
+        if (CollectionUtils.isEmpty(carGroupDispatcherInfos)) {
+            //throw new RuntimeException("该用户不是调度员");
+            return Long.valueOf(0l);
         }
         return carGroupDispatcherInfos.get(0).getCarGroupId();
     }
@@ -140,23 +150,34 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
     public List<CarInfo> dispatcherCarList(LoginUser loginUser) {
         //查询调度员所在车队
         Long carGroupId = getCarGroupId(loginUser);
+        /**
+         * This bug was fixed by Gandaif on 07/06/2020.
+         */
+        if (carGroupId.equals(Long.valueOf(0l))) {
+            carGroupId = null;
+        }
         //根据车队id查询车辆列表
-        List<CarInfo> carInfos = carInfoMapper.selectCarInfoListByGroupId(carGroupId,null,"S000",null);
+        List<CarInfo> carInfos = carInfoMapper.selectCarInfoListByGroupId(carGroupId, null, "S000", null);
         return carInfos;
-
     }
 
     @Override
     public PageResult<QuestionnaireVo> dispatcherDriverAppraiseList(LoginUser loginUser, DriverAppraiseDto driverAppraiseDto) {
         //获取调度员所在车队id
         Long carGroupId = getCarGroupId(loginUser);
+        /**
+         * This bug was fixed by Gandaif on 07/06/2020.
+         */
+        if (carGroupId.equals(Long.valueOf(0l))) {
+            carGroupId = null;
+        }
         //分页查询评价列表
         Integer pageNum = driverAppraiseDto.getPageNum();
         Integer pageSize = driverAppraiseDto.getPageSize();
         String orderNum = driverAppraiseDto.getOrderNum();
-        PageHelper.startPage(pageNum,pageSize);
-        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId,driverAppraiseDto.getDriverId(),driverAppraiseDto.getCarId(),orderNum);
+        PageHelper.startPage(pageNum, pageSize);
+        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId, driverAppraiseDto.getDriverId(), driverAppraiseDto.getCarId(), orderNum);
         PageInfo<EcmpQuestionnaire> pageInfo = new PageInfo(list);
-        return new PageResult<QuestionnaireVo>(pageInfo.getTotal(),pageInfo.getPages(),list);
+        return new PageResult<QuestionnaireVo>(pageInfo.getTotal(), pageInfo.getPages(), list);
     }
 }
