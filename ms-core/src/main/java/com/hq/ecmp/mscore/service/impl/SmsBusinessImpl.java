@@ -1488,7 +1488,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
         log.info("短信开始-订单{},司机结束服务", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
-            orderCommonInfo.setTotalFee(new BigDecimal(0.00));
+//            orderCommonInfo.setTotalFee(new BigDecimal(0.00));
             if (null != orderCommonInfo.getTotalFee()) {
                 BigDecimal totalFee = orderCommonInfo.getTotalFee();
                 BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
@@ -1513,6 +1513,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 //调度员电话
                 orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
             }
+            log.info("sendSmsDriverServiceEnd发送短信内容={}",orderCommonInfoMap);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
