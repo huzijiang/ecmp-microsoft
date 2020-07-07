@@ -59,50 +59,56 @@ public class HomePageSortController {
 
     /**
      * 根据角色获取模块
+     *
      * @return
      */
-    @ApiOperation(value = "getHomeSort",notes = "根据角色获取模块",httpMethod ="POST")
+    @ApiOperation(value = "getHomeSort", notes = "根据角色获取模块", httpMethod = "POST")
     @PostMapping("/getHomeSort")
-    public ApiResponse<List<UserConsoleHomePageSortInfo>> getHomeSort(){
+    public ApiResponse<List<UserConsoleHomePageSortInfo>> getHomeSort() {
         try {
+            /**
+             * This requirement was optimized by Gandaif on 07/07/2020.
+             */
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
 
             List<UserConsoleHomePageSortInfo> list2 = homePageSortService.getHomePageSort(loginUser.getUser().getUserId());
 //            if(list2.size() == 0){
-                String roleIds = homePageSortService.getRoleIds(loginUser.getUser().getUserId());
-                List<UserConsoleHomePageSortInfo> homeSort;
+            String roleIds = homePageSortService.getRoleIds(loginUser.getUser().getUserId());
+            List<UserConsoleHomePageSortInfo> homeSort;
 //                if(roleIds.contains("管理")){
-                if(roleIds.contains("admin")){
-                    homeSort = homePageSortService.getPanelByRoleId(CommonConstant.ADMIN);
+            if (roleIds.contains("admin")) {
+                homeSort = homePageSortService.getPanelByRoleId(CommonConstant.ADMIN);
 //                }else if(roleIds.contains("调度")){
-                }else if(roleIds.contains("dispatcher")){
-                    homeSort = homePageSortService.getPanelByRoleId(CommonConstant.DISPATCHER);
-                }else{
-                    homeSort = homePageSortService.getPanelByRoleId(CommonConstant.EMPLOYEE);
-                }
-                StringBuffer s1 = new StringBuffer();
-                for (UserConsoleHomePageSortInfo obj : list2){
-                        s1.append(obj.getPanelName());
-                }
-                StringBuffer s2 = new StringBuffer();
-                for (UserConsoleHomePageSortInfo obj : homeSort){
-                    s2.append(obj.getPanelName());
-                }
-                if(s1.toString().equals(s2.toString())){
-                    return ApiResponse.success(list2);
-                }else{
-                    List<UserConsoleHomePageSortInfo> list = new ArrayList();
-                    for (UserConsoleHomePageSortInfo userConsoleHomePageSortInfo : homeSort){
-                        if(null == userConsoleHomePageSortInfo.getUserId() || "".equals(userConsoleHomePageSortInfo.getUserId())){
-                            userConsoleHomePageSortInfo.setUserId(loginUser.getUser().getUserId());
-                            list.add(userConsoleHomePageSortInfo);
-                        }
+            } else if (roleIds.contains("dispatcher")) {
+                homeSort = homePageSortService.getPanelByRoleId(CommonConstant.DISPATCHER);
+            } else if (roleIds.contains("customer_service")) {
+                homeSort = homePageSortService.getPanelByRoleId(CommonConstant.CUSTOMER_SERVICE);
+            } else {
+                homeSort = homePageSortService.getPanelByRoleId(CommonConstant.EMPLOYEE);
+            }
+            StringBuffer s1 = new StringBuffer();
+            for (UserConsoleHomePageSortInfo obj : list2) {
+                s1.append(obj.getPanelName());
+            }
+            StringBuffer s2 = new StringBuffer();
+            for (UserConsoleHomePageSortInfo obj : homeSort) {
+                s2.append(obj.getPanelName());
+            }
+            if (s1.toString().equals(s2.toString())) {
+                return ApiResponse.success(list2);
+            } else {
+                List<UserConsoleHomePageSortInfo> list = new ArrayList();
+                for (UserConsoleHomePageSortInfo userConsoleHomePageSortInfo : homeSort) {
+                    if (null == userConsoleHomePageSortInfo.getUserId() || "".equals(userConsoleHomePageSortInfo.getUserId())) {
+                        userConsoleHomePageSortInfo.setUserId(loginUser.getUser().getUserId());
+                        list.add(userConsoleHomePageSortInfo);
                     }
-                    homePageSortService.deleteHomeSorts(list2);
-                    homePageSortService.updateHomeSorts(list);
-                    return ApiResponse.success(list);
                 }
+                homePageSortService.deleteHomeSorts(list2);
+                homePageSortService.updateHomeSorts(list);
+                return ApiResponse.success(list);
+            }
 //                homeSort = homePageSortService.getPanelByRoleId(roleIds);
 
 //            }else{

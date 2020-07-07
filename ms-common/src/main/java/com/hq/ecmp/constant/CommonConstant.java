@@ -137,4 +137,6 @@ public final class CommonConstant {
 //    public static final String DISPATCHER = "%调度%";
     public static final String DISPATCHER = "%dispatcher%";
 
+    //    public static final String CUSTOMER_SERVICE = "%客服%";
+    public static final String CUSTOMER_SERVICE = "%customer_service%";
 }
