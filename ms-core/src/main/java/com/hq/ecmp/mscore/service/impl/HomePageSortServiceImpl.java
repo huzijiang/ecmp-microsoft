@@ -57,18 +57,18 @@ public class HomePageSortServiceImpl implements IHomePageSortService {
      */
     @Override
     public void updateHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo) {
-        for (UserConsoleHomePageSortInfo homePageSort:userConsoleHomePageSortInfo){
+        for (UserConsoleHomePageSortInfo homePageSort : userConsoleHomePageSortInfo) {
             List<UserConsoleHomePageSortInfo> homeSorts = homePageSortMapper.getHomeSortsById(homePageSort.getUserId(), homePageSort.getCompanyId(), homePageSort.getPanelId());
-            if(homeSorts.size() != 0){
-                UserConsoleHomePageSortInfo  home = new UserConsoleHomePageSortInfo();
+            if (homeSorts.size() != 0) {
+                UserConsoleHomePageSortInfo home = new UserConsoleHomePageSortInfo();
                 home.setSortNum(homePageSort.getSortNum());
                 home.setPanelId(homePageSort.getPanelId());
                 home.setPanelName(homePageSort.getPanelName());
                 home.setUserId(homePageSort.getUserId());
                 home.setCompanyId(homePageSort.getCompanyId());
                 homePageSortMapper.updateHomeSorts(home);
-            }else{
-                UserConsoleHomePageSortInfo  home = new UserConsoleHomePageSortInfo();
+            } else {
+                UserConsoleHomePageSortInfo home = new UserConsoleHomePageSortInfo();
                 home.setSortNum(homePageSort.getSortNum());
                 home.setPanelId(homePageSort.getPanelId());
                 home.setUserId(homePageSort.getUserId());
@@ -79,7 +79,6 @@ public class HomePageSortServiceImpl implements IHomePageSortService {
             }
         }
     }
-
 
     @Override
     public void deleteHomeSorts(List<UserConsoleHomePageSortInfo> userConsoleHomePageSortInfo) {
