@@ -58,37 +58,38 @@ public class EcmpQuestionnaireController {
             orderInfo.setCarId(ecmpQuestionnaire.getCarId());
             List<OrderInfo> orderInfos = orderInfoMapper.selectOrderInfoList(orderInfo);
             //时间倒叙，理论上最新的车辆相关订单就是当前评价的订单
-            //orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
-            OrderInfo info = null;
-            for(OrderInfo x:orderInfos){
-                Map map = new HashMap();
-                map.put("orderId",x.getOrderId());
-                //查询行程
-                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(x.getJourneyId());
-                map.put("begin",journeyInfo.getUseCarTime());
-                Calendar calendar  =   Calendar.getInstance();
-                calendar.setTime(journeyInfo.getUseCarTime());
-                //半日租
-                if(journeyInfo.getCharterCarType().equals("T001")){
-                    calendar.add(calendar.HOUR_OF_DAY,4);
-                    map.put("end",calendar.getTime());
-                }
-                //整日租
-                if(journeyInfo.getCharterCarType().equals("T002")){
-                    calendar.add(calendar.HOUR_OF_DAY,8);
-                    map.put("end",calendar.getTime());
-                }
-                //多日租
-                if(journeyInfo.getCharterCarType().equals("T009")){
-                    calendar.add(calendar.DATE, Integer.parseInt(journeyInfo.getUseTime()));//把日期往后增加n天.正数往后推,负数往前移动
-                    map.put("end",calendar.getTime());
-                }
-                if (ecmpQuestionnaire.getUseCarTime().after((Date)map.get("begin"))
-                        && ecmpQuestionnaire.getUseCarTime().before((Date)map.get("end"))
-                ){
-                    info = x;
-                }
-            };
+            orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
+            OrderInfo info = orderInfos.get(0);
+//  奇怪的绑定订单操作，先注释掉，默认绑定车辆最新的订单  update_by huzj
+//            for(OrderInfo x:orderInfos){
+//                Map map = new HashMap();
+//                map.put("orderId",x.getOrderId());
+//                //查询行程
+//                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(x.getJourneyId());
+//                map.put("begin",journeyInfo.getUseCarTime());
+//                Calendar calendar  =   Calendar.getInstance();
+//                calendar.setTime(journeyInfo.getUseCarTime());
+//                //半日租
+//                if(journeyInfo.getCharterCarType().equals("T001")){
+//                    calendar.add(calendar.HOUR_OF_DAY,4);
+//                    map.put("end",calendar.getTime());
+//                }
+//                //整日租
+//                if(journeyInfo.getCharterCarType().equals("T002")){
+//                    calendar.add(calendar.HOUR_OF_DAY,8);
+//                    map.put("end",calendar.getTime());
+//                }
+//                //多日租
+//                if(journeyInfo.getCharterCarType().equals("T009")){
+//                    calendar.add(calendar.DATE, Integer.parseInt(journeyInfo.getUseTime()));//把日期往后增加n天.正数往后推,负数往前移动
+//                    map.put("end",calendar.getTime());
+//                }
+//                if (ecmpQuestionnaire.getUseCarTime().after((Date)map.get("begin"))
+//                        && ecmpQuestionnaire.getUseCarTime().before((Date)map.get("end"))
+//                ){
+//                    info = x;
+//                }
+//            };
             if(info==null){
                 return ApiResponse.error("无匹配订单");
             }
