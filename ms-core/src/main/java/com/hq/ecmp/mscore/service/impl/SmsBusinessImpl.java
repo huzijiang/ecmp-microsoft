@@ -374,7 +374,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
     @Override
     @Async
     public void sendSmsDriverArrivePrivate(Long orderId) {
-        log.info("短信开始-订单{},司机开始服务", orderId);
+        log.info("短信开始-订单{},司机到达", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
@@ -663,6 +663,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
     @Override
     @Async
     public void sendMessageServiceStart(Long orderId, Long createId) {
+        log.info("短信开始-订单{},司机开始服务", orderId);
         try {
             OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
             Map<String, String> applyAndRiderMobile = getApplyAndRiderMobile(orderInfo);
@@ -1431,7 +1432,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
     @Async
     @Override
     public void sendSmsServiceStart(long orderId) {
-        log.info("短信开始-订单{},司机开始服务", orderId);
+        log.info("短信开始-订单{},司机出发", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
             //用车人
@@ -1493,7 +1494,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
     @Async
     @Override//司机结束服务
     public void sendSmsDriverServiceEnd(long orderId) {
-        log.info("短信开始-订单{},司机结束服务", orderId);
+        log.info("短信开始-订单{},司机提交费用", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
 //            orderCommonInfo.setTotalFee(new BigDecimal(0.00));
