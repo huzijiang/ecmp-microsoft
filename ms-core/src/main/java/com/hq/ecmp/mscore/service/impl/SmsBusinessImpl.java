@@ -384,10 +384,12 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                if (carGroupInfo != null) {
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
@@ -1437,10 +1439,12 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                if(carGroupInfo != null){
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
@@ -1488,7 +1492,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
         log.info("短信开始-订单{},司机结束服务", orderId);
         try {
             DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
-            orderCommonInfo.setTotalFee(new BigDecimal(0.00));
+//            orderCommonInfo.setTotalFee(new BigDecimal(0.00));
             if (null != orderCommonInfo.getTotalFee()) {
                 BigDecimal totalFee = orderCommonInfo.getTotalFee();
                 BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
@@ -1502,17 +1506,20 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
-                //car_group_dispatcher_info   ecmp_user
+                if(carGroupInfo != null){
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
+               //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
                 orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
                 //调度员电话
                 orderCommonInfoMap.put("dispatcherPhoneNumber", ecmpUser.getPhonenumber());
             }
+            log.info("sendSmsDriverServiceEnd发送短信内容={}",orderCommonInfoMap);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.PRICAR_DRIVER_SERVICE_END, orderCommonInfoMap, applyMobile);
 
         } catch (Exception e) {
