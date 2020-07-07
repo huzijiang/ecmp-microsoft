@@ -35,10 +35,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where feedback_id = #{feedbackId}
     </select>
 
-    <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo" useGeneratedKeys="true" keyProperty="feedbackId">
+    <insert id="insertEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo"
+            useGeneratedKeys="true" keyProperty="feedbackId">
         insert into ecmp_user_feedback_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-
             <if test="deptId != null ">user_own_dept,</if>
             <if test="title != null ">title,</if>
             <if test="feedbackId != null ">feedback_id,</if>
@@ -50,7 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">create_time,</if>
             <if test="updateBy != null ">update_by,</if>
             <if test="updateTime != null ">update_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="deptId != null ">#{deptId},</if>
             <if test="title != null ">#{title},</if>
@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null ">#{createTime},</if>
             <if test="updateBy != null ">#{updateBy},</if>
             <if test="updateTime != null ">#{updateTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateEcmpUserFeedbackInfo" parameterType="com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo">
@@ -167,16 +167,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LEFT JOIN ecmp_org o on eufi.user_own_dept = o.dept_id
         <where>
             1=1
-            <if test="deptId != null and deptId!= ''">and eufi.user_own_dept = #{deptId} </if>
-            <if test="status != null and status!= '' ">and eufi.state = #{status} </if>
-            <if test="feedbackId != null and feedbackId!='' "> and eufi.feedback_id = #{feedbackId}</if>
-            <if test="type != null  and type != '' "> and eufi.type = #{type}</if>
+            <if test="deptId != null and deptId!= ''">and eufi.user_own_dept = #{deptId}</if>
+            <if test="status != null and status!= '' ">and eufi.state = #{status}</if>
+            <if test="feedbackId != null and feedbackId!='' ">and eufi.feedback_id = #{feedbackId}</if>
+            <if test="type != null  and type != '' ">and eufi.type = #{type}</if>
             <if test="title != null  and title != '' ">
                 and ( eufi.content like CONCAT('%',#{title},'%')
-                or  eufi.title like CONCAT('%',#{title},'%') )
+                or eufi.title like CONCAT('%',#{title},'%') )
             </if>
             <if test="isAdmin != null  and isAdmin != 1 ">
-             and eufi.user_id  = #{userId}
+                and eufi.user_id = #{userId}
             </if>
         </where>
         order by eufi.feedback_id desc

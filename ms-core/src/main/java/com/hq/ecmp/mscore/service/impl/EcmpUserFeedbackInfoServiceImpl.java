@@ -99,7 +99,6 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
         return ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
     }
 
-
     /**
      * 新增投诉建议
      *
@@ -107,17 +106,12 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
      * @return 结果
      */
 
-    public int insertUserFeedbackInfo(EcmpUserFeedbackInfo ecmpUserFeedbackInfo)
-    {
+    public int insertUserFeedbackInfo(EcmpUserFeedbackInfo ecmpUserFeedbackInfo) {
         ecmpUserFeedbackInfo.setCreateTime(DateUtils.getNowDate());
         EcmpUser ecmpUser = iecmpUserService.selectEcmpUserById(ecmpUserFeedbackInfo.getUserId());
         ecmpUserFeedbackInfo.setDeptId(ecmpUser.getDeptId());
         return ecmpUserFeedbackInfoMapper.insertEcmpUserFeedbackInfo(ecmpUserFeedbackInfo);
     }
-
-
-
-
 
     /**
      * 修改【请填写功能名称】
@@ -411,19 +405,19 @@ public class EcmpUserFeedbackInfoServiceImpl implements IEcmpUserFeedbackInfoSer
 
     @Override
     public PageResult<EcmpUserFeedbackVo> findFeedback(EcmpUserFeedbackInfo ecmpUserFeedbackInfo) {
-
+        /**
+         * This requirement was optimized by Gandaif on 07/07/2020.
+         */
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        int admin = HqAdmin.isAdmin(loginUser);
+        //int admin = HqAdmin.isAdmin(loginUser);
+        int admin = HqAdmin.isAdminOrCustomerService(loginUser);
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
-        PageHelper.startPage(ecmpUserFeedbackInfo.getPageNum(),ecmpUserFeedbackInfo.getPageSize());
-        List<EcmpUserFeedbackVo> backInfoList =  ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
+        PageHelper.startPage(ecmpUserFeedbackInfo.getPageNum(), ecmpUserFeedbackInfo.getPageSize());
+        List<EcmpUserFeedbackVo> backInfoList = ecmpUserFeedbackInfoMapper.findFeedback(ecmpUserFeedbackInfo);
         PageInfo<EcmpUserFeedbackVo> info = new PageInfo<>(backInfoList);
-        return new PageResult<>(info.getTotal(),info.getPages(),backInfoList);
+        return new PageResult<>(info.getTotal(), info.getPages(), backInfoList);
     }
-
-
-
 
 }

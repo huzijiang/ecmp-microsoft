@@ -123,7 +123,8 @@ public class BaseController {
         ecmpUserFeedbackInfo.setType(FeedBackTypeEnum.COMPLAIN_TYPE.getType());//标注为投诉建议
         HttpServletRequest request = ServletUtils.getRequest();
         LoginUser loginUser = tokenService.getLoginUser(request);
-        int admin = HqAdmin.isAdmin(loginUser);
+        //int admin = HqAdmin.isAdmin(loginUser);
+        int admin = HqAdmin.isAdminOrCustomerService(loginUser);
         ecmpUserFeedbackInfo.setIsAdmin(admin);
         ecmpUserFeedbackInfo.setUserId(loginUser.getUser().getUserId());
         ecmpUserFeedbackInfo.setContent(feedBackDto.getContent());
@@ -138,13 +139,16 @@ public class BaseController {
 
     /**
      * 查询投诉建议
-     * @param  feedBackDto
+     *
+     * @param feedBackDto
      * @return
      */
-    @ApiOperation(value = "findFeedback",notes = "查询投诉建议",httpMethod ="POST")
+    @ApiOperation(value = "findFeedback", notes = "查询投诉建议", httpMethod = "POST")
     @PostMapping("/findFeedback")
-    public ApiResponse<PageResult<EcmpUserFeedbackVo>> findFeedback(@RequestBody FeedBackDto feedBackDto){
-
+    public ApiResponse<PageResult<EcmpUserFeedbackVo>> findFeedback(@RequestBody FeedBackDto feedBackDto) {
+        /**
+         * This requirement was optimized by Gandaif on 07/07/2020.
+         */
         EcmpUserFeedbackInfo ecmpUserFeedbackInfo = new EcmpUserFeedbackInfo();
         ecmpUserFeedbackInfo.setType(FeedBackTypeEnum.COMPLAIN_TYPE.getType());
         ecmpUserFeedbackInfo.setDeptId(feedBackDto.getDeptId());
@@ -153,9 +157,9 @@ public class BaseController {
         ecmpUserFeedbackInfo.setPageNum(feedBackDto.getPageNum());
         ecmpUserFeedbackInfo.setPageSize(feedBackDto.getPagesize());
         PageResult<EcmpUserFeedbackVo> info = iEcmpUserFeedbackInfoService.findFeedback(ecmpUserFeedbackInfo);
-        if (null != info){
+        if (null != info) {
             return ApiResponse.success(info);
-        }else {
+        } else {
             return ApiResponse.success("查询投诉建议失败");
         }
     }
