@@ -384,10 +384,12 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                if (carGroupInfo != null) {
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
@@ -1437,10 +1439,12 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                if(carGroupInfo != null){
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
                 //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
@@ -1502,11 +1506,13 @@ public class SmsBusinessImpl implements IsmsBusiness {
             if(orderDispatcheDetailInfo != null) {
                 log.warn("外部车队订单orderId={}", orderId);
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(orderDispatcheDetailInfo.getNextCarGroupId());
-                //车队名称
-                orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
-                //车队电话
-                orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
-                //car_group_dispatcher_info   ecmp_user
+                if(carGroupInfo != null){
+                    //车队名称
+                    orderCommonInfoMap.put("carGroupName", carGroupInfo.getCarGroupName());
+                    //车队电话
+                    orderCommonInfoMap.put("telephone", carGroupInfo.getTelephone());
+                }
+               //car_group_dispatcher_info   ecmp_user
                 //调度员
                 EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
                 orderCommonInfoMap.put("dispatcherNickName", ecmpUser.getNickName());
