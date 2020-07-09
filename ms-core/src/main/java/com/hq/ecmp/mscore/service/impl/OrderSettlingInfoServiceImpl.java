@@ -539,7 +539,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             costConfigQueryDto.setServiceType(orderInfo.getServiceType());
 
             //车型级别，车型级别以 用户申请时的车型为准 进行费用结算。未指定时，使用真实派遣的车辆对应的车型级别进行费用结算。@huzj 20200709
-            if(applyInfos.get(0).getCarTypeId()!=null){
+            if(applyInfos.get(0).getCarTypeId()!= 0L){
                 costConfigQueryDto.setCarTypeId(applyInfos.get(0).getCarTypeId());
             }else{
                 costConfigQueryDto.setCarTypeId(carInfo.getCarTypeId());
