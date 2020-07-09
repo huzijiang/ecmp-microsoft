@@ -55,6 +55,9 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
     private OrderServiceImagesInfoMapper imagesInfoMapper;
     @Autowired
     private OrderAccountInfoMapper accountInfoMapper;
+    @Autowired
+    private  ApplyInfoMapper applyInfoMapper;
+
 
     /**
      * 查询【请填写功能名称】
@@ -513,6 +516,17 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             orderAddressInfo.setOrderId(orderSettlingInfoVo.getOrderId());
             OrderAddressInfo addressStartInfo = orderAddressInfoMapper.queryOrderStartAndEndInfo(orderAddressInfo);
 
+            ApplyInfo applyInfoParam=new ApplyInfo();
+                      applyInfoParam.setJourneyId(orderInfo.getJourneyId());
+
+            List<ApplyInfo> applyInfos=applyInfoMapper.selectApplyInfoList(applyInfoParam);
+            if(applyInfos==null ){
+                throw new BaseException("行程未找到对应的申请信息。");
+            }
+            if(applyInfos.size()!=1){
+                throw new BaseException("行程对应的申请信息异常。");
+            }
+
             //车型级别
             CarInfo carInfo = carInfoMapper.selectCarInfoById(orderInfo.getCarId());
             //筛选出成本数据model
@@ -523,8 +537,13 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
             costConfigQueryDto.setCityCode(addressStartInfo.getCityPostalCode());
             //服务类型
             costConfigQueryDto.setServiceType(orderInfo.getServiceType());
-            //车型级别
-            costConfigQueryDto.setCarTypeId(carInfo.getCarTypeId());
+
+            //车型级别，车型级别以 用户申请时的车型为准 进行费用结算。未指定时，使用真实派遣的车辆对应的车型级别进行费用结算。@huzj 20200709
+            if(applyInfos.get(0).getCarTypeId()!=null){
+                costConfigQueryDto.setCarTypeId(applyInfos.get(0).getCarTypeId());
+            }else{
+                costConfigQueryDto.setCarTypeId(carInfo.getCarTypeId());
+            }
 
             List costConfigInfoList = new ArrayList<>();
             //是否插入总表
