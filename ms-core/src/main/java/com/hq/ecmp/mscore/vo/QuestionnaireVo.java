@@ -25,6 +25,9 @@ public class QuestionnaireVo {
     /** 车辆id */
     private Long carId;
 
+    /** 星级评分 */
+    private Integer score;
+
     /** 是否按时 */
     private String itIsOnTime;
 

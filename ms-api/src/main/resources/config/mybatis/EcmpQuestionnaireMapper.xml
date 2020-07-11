@@ -9,6 +9,7 @@
         <result property="driverId"    column="driver_id"    />
         <result property="orderNumber" column="order_number"/>
         <result property="carId"    column="car_id"    />
+        <result property="score"    column="score"    />
         <result property="itIsOnTime"    column="it_is_on_time"    />
         <result property="itIsHelp"    column="it_is_help"    />
         <result property="itIsCalm"    column="it_is_calm"    />
@@ -58,6 +59,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">driver_id,</if>
             <if test="carId != null ">car_id,</if>
+            <if test="score != null ">score,</if>
             <if test="orderNumber != null ">order_number,</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">it_is_on_time,</if>
             <if test="itIsHelp != null  and itIsHelp != ''">it_is_help,</if>
@@ -76,6 +78,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
             <if test="carId != null ">#{carId},</if>
+            <if test="score != null ">score,</if>
             <if test="orderNumber != null ">#{orderNumber},</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">#{itIsOnTime},</if>
             <if test="itIsHelp != null  and itIsHelp != ''">#{itIsHelp},</if>
@@ -131,6 +134,7 @@
         eq.id,
         eq.driver_id AS driverId,
         eq.car_id AS carId,
+        eq.score AS score,
         eq.it_is_on_time AS itIsOnTime, -- 是否按时到达出发地
         eq.it_is_help AS itIsHelp, -- 是否主动开门拿行李
         eq.it_Is_calm AS itIsCalm, -- 是否不接私人电话，不主动攀谈
@@ -155,6 +159,7 @@
             <if test="carGroupId != null ">and cgdr.car_group_id = #{carGroupId}</if>
             <if test="driverId != null ">and eq.driver_id = #{driverId}</if>
             <if test="carId != null ">and eq.car_id = #{carId}</if>
+            <if test="score != null ">and eq.score = #{score}</if>
             <if test="orderNum != null and orderNum != ''">and eq.order_number like concat('%',#{orderNum},'%')</if>
         </where>
         order by eq.create_time desc

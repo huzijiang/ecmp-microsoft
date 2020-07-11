@@ -74,6 +74,9 @@ public class EcmpQuestionnaire extends BaseEntity
     @Excel(name = "联系电话")
     private String phone;
 
+    /** 星级评分 */
+    private Integer score;
+
     private String carLicense;
 
     public String getCarLicense() {
@@ -191,6 +194,14 @@ public class EcmpQuestionnaire extends BaseEntity
     public String getPhone() 
     {
         return phone;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 
     @Override

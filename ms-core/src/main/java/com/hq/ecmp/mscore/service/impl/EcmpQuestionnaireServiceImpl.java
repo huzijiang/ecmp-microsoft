@@ -141,7 +141,7 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
          */
         if (CollectionUtils.isEmpty(carGroupDispatcherInfos)) {
             //throw new RuntimeException("该用户不是调度员");
-            return Long.valueOf(0l);
+            return Long.valueOf(0L);
         }
         return carGroupDispatcherInfos.get(0).getCarGroupId();
     }
@@ -168,15 +168,17 @@ public class EcmpQuestionnaireServiceImpl implements IEcmpQuestionnaireService
         /**
          * This bug was fixed by Gandaif on 07/06/2020.
          */
-        if (carGroupId.equals(Long.valueOf(0l))) {
+        if (carGroupId.equals(Long.valueOf(0L))) {
             carGroupId = null;
         }
         //分页查询评价列表
         Integer pageNum = driverAppraiseDto.getPageNum();
         Integer pageSize = driverAppraiseDto.getPageSize();
         String orderNum = driverAppraiseDto.getOrderNum();
+        Integer score = driverAppraiseDto.getScore();
         PageHelper.startPage(pageNum, pageSize);
-        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId, driverAppraiseDto.getDriverId(), driverAppraiseDto.getCarId(), orderNum);
+        List<QuestionnaireVo> list = ecmpQuestionnaireMapper.selectEcmpQuestionnaireListByCarGroup(carGroupId,
+                driverAppraiseDto.getDriverId(), driverAppraiseDto.getCarId(), orderNum, score);
         PageInfo<EcmpQuestionnaire> pageInfo = new PageInfo(list);
         return new PageResult<QuestionnaireVo>(pageInfo.getTotal(), pageInfo.getPages(), list);
     }

@@ -14,4 +14,5 @@ public class DriverAppraiseDto {
     private Long carId;
     private Long driverId;
     private String orderNum;
+    private Integer score;
 }
