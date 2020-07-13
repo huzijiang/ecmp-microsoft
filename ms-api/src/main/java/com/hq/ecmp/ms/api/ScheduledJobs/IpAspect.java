@@ -23,11 +23,11 @@ public class IpAspect {
     @Pointcut(value = "execution(* com.hq.ecmp.ms.api.ScheduledJobs.ScheduledTask.*(..))")
     public void exec() {
     }
-    @Before("exec()")
-    public void doBefore(JoinPoint joinPoint) {
-        String name = joinPoint.getSignature().getName();
-        log.info("定时任务拦截=={}==开始执行",name);
-    }
+//    @Before("exec()")
+//    public void doBefore(JoinPoint joinPoint) {
+//        String name = joinPoint.getSignature().getName();
+//        log.info("定时任务拦截=={}==开始执行",name);
+//    }
 
     @Around("exec()")
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) {
