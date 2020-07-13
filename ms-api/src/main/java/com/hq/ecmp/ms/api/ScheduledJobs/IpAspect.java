@@ -34,7 +34,7 @@ public class IpAspect {
         try {
             Object ret = null;
             String localIp = IpUtil.getLocalIP();
-            if (!"".equals(localIp)) {
+            if (!"10.32.10.31".equals(localIp)) {
                 // 执行方法
                 ret = proceedingJoinPoint.proceed();
                 log.warn("定时任务拦截在服务器{}开始执行",localIp);
