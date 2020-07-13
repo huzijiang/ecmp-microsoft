@@ -6,7 +6,9 @@ import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.DispatchSendCarDto;
+import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.service.IEcmpOrgService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.aop.framework.AopContext;
@@ -57,6 +59,8 @@ public abstract class TopDispatchService {
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
     @Resource
     private DriverInfoMapper driverInfoMapper;
+    @Resource
+    private IEcmpOrgService ecmpOrgService;
 
     /**
      * 业务执行方法
@@ -204,6 +208,12 @@ public abstract class TopDispatchService {
         EcmpUser ecmpUser1 = ecmpUserMapper.selectEcmpUserById(userId);
         //申请人
         String applyNameMobile = ecmpUser1.getPhonenumber();
+        //申请人单位
+        String applyDeptName = "";
+        EcmpOrgDto ecmpOrgDto = ecmpOrgService.getDeptDetails(ecmpUser1.getDeptId());
+        if(ecmpOrgDto != null){
+            applyDeptName = ecmpOrgDto.getDeptName();
+        }
         //订单编号
         String orderNumber = orderInfo.getOrderNumber();
         JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
@@ -315,6 +325,7 @@ public abstract class TopDispatchService {
                     stringStringMapDriver.put("useCarTime", useCarTime);
                     stringStringMapDriver.put("name", name);
                     stringStringMapDriver.put("mobile", mobile);
+                    stringStringMapDriver.put("applyDeptName", applyDeptName);
                     stringStringMapDriver.put("notes", notes);
                     //司机发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
@@ -398,6 +409,7 @@ public abstract class TopDispatchService {
                     stringStringMapDriver.put("useCarTime", useCarTime);
                     stringStringMapDriver.put("name", name);
                     stringStringMapDriver.put("mobile", mobile);
+                    stringStringMapDriver.put("applyDeptName", applyDeptName);
                     stringStringMapDriver.put("notes", notes);
                     //司机发短信
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
@@ -506,6 +518,7 @@ public abstract class TopDispatchService {
                 stringStringMapDriver.put("useCarTime", useCarTime);
                 stringStringMapDriver.put("name", name);
                 stringStringMapDriver.put("mobile", mobile);
+                stringStringMapDriver.put("applyDeptName", applyDeptName);
                 stringStringMapDriver.put("notes", notes);
                 //司机发短信
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
