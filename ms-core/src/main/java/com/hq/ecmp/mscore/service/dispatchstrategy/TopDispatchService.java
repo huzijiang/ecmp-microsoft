@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.dispatchstrategy;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
@@ -328,6 +329,7 @@ public abstract class TopDispatchService {
                     stringStringMapDriver.put("applyDeptName", applyDeptName);
                     stringStringMapDriver.put("notes", notes);
                     //司机发短信
+                    log.info("司机发短信={}", JSONObject.toJSONString(stringStringMapDriver));
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
 
                 }
@@ -412,6 +414,7 @@ public abstract class TopDispatchService {
                     stringStringMapDriver.put("applyDeptName", applyDeptName);
                     stringStringMapDriver.put("notes", notes);
                     //司机发短信
+                    log.info("司机发短信={}", JSONObject.toJSONString(stringStringMapDriver));
                     iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
                 }else if(dispatchSendCarDto.getSelfDrive().equals(CarConstant.SELFDRIVER_YES)){
 
@@ -521,6 +524,7 @@ public abstract class TopDispatchService {
                 stringStringMapDriver.put("applyDeptName", applyDeptName);
                 stringStringMapDriver.put("notes", notes);
                 //司机发短信
+                log.info("司机发短信={}", JSONObject.toJSONString(stringStringMapDriver));
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSAN_SEND_CAR_TO_DRIVER,stringStringMapDriver,driverMobile );
             }
         }
