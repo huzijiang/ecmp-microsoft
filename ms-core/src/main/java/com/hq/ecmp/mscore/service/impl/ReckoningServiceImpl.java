@@ -141,19 +141,20 @@ public class ReckoningServiceImpl implements CollectionQuittanceInfoService {
                 MoneyListDto money = moneyList.get(i);
 
                 /** 用车费用 */
-                BigDecimal amountDetai = BigDecimal.ZERO;//用车费用
-                String amountDetaiList = money.getAmountDetai();//用车费用
-                JSONObject objects = JSONObject.parseObject(amountDetaiList);
-                if(null != objects){
-                    JSONArray otherCostList = objects.getJSONArray("otherCost");
-                    if(null != otherCostList && otherCostList.size() > 0){
-                        for (int j = 0; j < otherCostList.size(); j++) {
-                            JSONObject jsonObject = otherCostList.getJSONObject(j);
-                            BigDecimal cost = jsonObject.getBigDecimal("cost");
-                            amountDetai = amountDetai.add(cost);
-                        }
-                    }
-                }
+//                BigDecimal amountDetai = BigDecimal.ZERO;//用车费用
+//                String amountDetaiList = money.getAmountDetai();//用车费用
+//                JSONObject objects = JSONObject.parseObject(amountDetaiList);
+//                if(null != objects){
+//                    JSONArray otherCostList = objects.getJSONArray("otherCost");
+//                    if(null != otherCostList && otherCostList.size() > 0){
+//                        for (int j = 0; j < otherCostList.size(); j++) {
+//                            JSONObject jsonObject = otherCostList.getJSONObject(j);
+//                            BigDecimal cost = jsonObject.getBigDecimal("cost");
+//                            amountDetai = amountDetai.add(cost);
+//                        }
+//                    }
+//                }
+                BigDecimal amountDetai = money.getAmount();//用车费用
                 money.setCarTotalMoney(amountDetai);
 
                 /** 其他总费用 */
