@@ -39,12 +39,12 @@ public class IpAspect {
     public Object doAround(ProceedingJoinPoint proceedingJoinPoint) {
         try {
             String name = proceedingJoinPoint.getSignature().getName();
-            Boolean ack = redisUtil.lock(name, 20);
+            Boolean ack = redisUtil.lock(name, 60);
             Object ret = null;
             if (ack) {
                 // 执行方法
+                log.info("定时任务拦{}开始执行",name);
                 ret = proceedingJoinPoint.proceed();
-                log.warn("定时任务拦{}开始执行",name);
             } else {
                 log.warn("定时任务{}拦截在服务器{}拒绝执行",name,IpUtil.getLocalIP());
             }
