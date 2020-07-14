@@ -96,7 +96,7 @@ public class ScheduledTask {
 	/**
 	 * 每五分钟判断订单（自有车或者未派车的订单）是否过期,约车中状态不做判断，由云端回调过期来处理
 	 */
-	@Scheduled(cron = "0 0/5 * * * ? ")
+	@Scheduled(cron = "0 0/10 * * * ? ")
 	public void checkOrderIsExpired(){
 		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
 		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
@@ -145,7 +145,7 @@ public class ScheduledTask {
 	 *
 	 * @throws Exception
 	 */
-	@Scheduled(cron = "0 */5 * * * ?")
+	@Scheduled(cron = "0 */30 * * * ?")
 	public void autoDispatch() {
 		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
 		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
@@ -248,7 +248,7 @@ public class ScheduledTask {
 
 
 	//后台公告管理通过发布时间与结束时间做状态修改
-	@Scheduled(cron = "0 0/1 * * * ? ")
+	@Scheduled(cron = "0 0/30 * * * ? ")
 	public void  announcementManagementTimingTask (){
 		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
 		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
@@ -293,7 +293,7 @@ public class ScheduledTask {
 	}
 
 	//定时任务独立审核
-	@Scheduled(cron = "0 0/1 * * * ? ")
+	@Scheduled(cron = "0 0/10 * * * ? ")
 	public void  SchedulingIndependentTask (){
 		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
 		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
@@ -382,7 +382,7 @@ public class ScheduledTask {
 	 * 自驾包车定时任务去更新状态
 	 * add by liuzb
 	 */
-	@Scheduled(cron = "0 */5 * * * ?")
+	@Scheduled(cron = "0 */10 * * * ?")
 	public void  updatePickupCarState(){
 		MDC.put(TRACE_KEY, UUID.randomUUID().toString().replace("-", ""));
 		MDC.put(NG_TRACE_ID, MDC.get(TRACE_KEY));
