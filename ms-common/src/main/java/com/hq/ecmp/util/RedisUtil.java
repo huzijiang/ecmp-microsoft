@@ -25,7 +25,7 @@ public class RedisUtil {
     public boolean lock(String k,  long expire){
         Long v = System.currentTimeMillis();
         Boolean acquire = redisTemplate.opsForValue().setIfAbsent(k,v,expire,TimeUnit.SECONDS);
-        if(acquire){
+        if(acquire != null && acquire){
             return true;
         }
         Object value = redisTemplate.opsForValue().get(k);
