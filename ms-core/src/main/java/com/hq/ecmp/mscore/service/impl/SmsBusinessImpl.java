@@ -1234,7 +1234,11 @@ public class SmsBusinessImpl implements IsmsBusiness {
         List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(applyOfficialRequest);
         if (!ecmpUser.isEmpty()) {
             for (EcmpUser user : ecmpUser) {
-                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, mapTwo, user.getPhonenumber());
+                if(user!=null){
+                    if(StringUtils.isNotEmpty(user.getPhonenumber())){
+                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_INTERNAL_DISPATCHER_NOT, mapTwo, user.getPhonenumber());
+                    }
+                }
             }
         }
         log.info("短信结束-撤销未派单短信", JSON.toJSON(map));
