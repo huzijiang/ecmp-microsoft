@@ -1278,7 +1278,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
         //发给内部车队所有调度员
         ApplyOfficialRequest applyOfficialRequest = new ApplyOfficialRequest();
         applyOfficialRequest.setCompanyId(undoSMSTemplate.getCompanyId());
-        List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherExternalList(applyOfficialRequest);
+        List<EcmpUser> ecmpUser = carGroupDispatcherInfoMapper.getCarGroupDispatcherList(applyOfficialRequest);
         if (!ecmpUser.isEmpty()) {
             for (EcmpUser user : ecmpUser) {
                 iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_EXTERNAL_DISPATCHER_YES, mapTwo, user.getPhonenumber());
