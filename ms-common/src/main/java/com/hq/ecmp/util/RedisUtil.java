@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,22 @@ public class RedisUtil {
 
     //- - - - - - - - - - - - - - - - - - - - -  公共方法 - - - - - - - - - - - - - - - - - - - -
 
+    public boolean lock(String k,  long expire){
+        Long v = System.currentTimeMillis();
+        Boolean acquire = redisTemplate.opsForValue().setIfPresent(k,v,expire,TimeUnit.SECONDS);
+        if(acquire){
+            return true;
+        }
+        Object value = redisTemplate.opsForValue().get(k);
+        if (Objects.nonNull(value)) {
+            Long expireTime = (Long)value;
+            // 保证释放锁
+            if ((expireTime + expire * 1000 * 10) < System.currentTimeMillis()) {
+                return redisTemplate.delete(k);
+            }
+        }
+        return false;
+    }
     /**
      * 给一个指定的 key 值附加过期时间
      * @param key
