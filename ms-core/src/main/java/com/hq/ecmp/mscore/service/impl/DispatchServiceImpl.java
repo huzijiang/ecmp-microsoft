@@ -549,11 +549,11 @@ public class DispatchServiceImpl implements IDispatchService {
 
         int seatNumber = 0;
         if (CarConstant.SELFDRIVER_YES.equals(selectCarConditionBo.getItIsSelfDriver())) {
-            //人数=同行人+1
-            seatNumber = journeyPassengerInfoList.get(0).getPeerNumber() == null ? 0 : journeyPassengerInfoList.get(0).getPeerNumber();
+            //人数=同行人+乘车人
+            seatNumber = journeyPassengerInfoList.get(0).getPeerNumber() == null ? 0 : journeyPassengerInfoList.get(0).getPeerNumber()+1;
         } else {
-            //人数=同行人+1
-            seatNumber = journeyPassengerInfoList.get(0).getPeerNumber() == null ? 0 : journeyPassengerInfoList.get(0).getPeerNumber() + 1;
+            //人数=同行人+乘车人+司机
+            seatNumber = journeyPassengerInfoList.get(0).getPeerNumber() == null ? 0 : journeyPassengerInfoList.get(0).getPeerNumber() + 1 +1;
         }
         log.info("select.car...seatNumber.={}", seatNumber);
 
