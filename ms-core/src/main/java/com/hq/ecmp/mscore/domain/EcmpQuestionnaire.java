@@ -75,6 +75,7 @@ public class EcmpQuestionnaire extends BaseEntity
     private String phone;
 
     /** 星级评分 */
+    @Excel(name = "星级评分")
     private Integer score;
 
     /** 用户反馈 */

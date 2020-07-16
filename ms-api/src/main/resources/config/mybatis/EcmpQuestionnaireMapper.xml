@@ -80,7 +80,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="driverId != null ">#{driverId},</if>
             <if test="carId != null ">#{carId},</if>
-            <if test="score != null ">score,</if>
+            <if test="score != null ">#{score},</if>
             <if test="orderNumber != null ">#{orderNumber},</if>
             <if test="itIsOnTime != null  and itIsOnTime != ''">#{itIsOnTime},</if>
             <if test="itIsHelp != null  and itIsHelp != ''">#{itIsHelp},</if>
