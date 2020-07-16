@@ -45,6 +45,7 @@ public class EcmpQuestionnaireController {
     @PostMapping("/submit")
     public ApiResponse ranking(@RequestBody EcmpQuestionnaire ecmpQuestionnaire){
         try {
+            log.info("ecmpQuestionnaire={}", ecmpQuestionnaire);
             //车牌号查询车辆id
             CarInfo carInfo = new CarInfo();
             carInfo.setCarLicense(ecmpQuestionnaire.getCarLicense());
