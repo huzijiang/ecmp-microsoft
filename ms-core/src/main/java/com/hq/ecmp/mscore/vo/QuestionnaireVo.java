@@ -49,6 +49,9 @@ public class QuestionnaireVo {
     /** 是否有异味 */
     private String itIsOdor;
 
+    /** 意见反馈 */
+    private String content;
+
     /** 用车时间 */
     private Date useCarTime;
 

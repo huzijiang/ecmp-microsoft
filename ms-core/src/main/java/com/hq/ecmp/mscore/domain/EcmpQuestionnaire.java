@@ -77,6 +77,10 @@ public class EcmpQuestionnaire extends BaseEntity
     /** 星级评分 */
     private Integer score;
 
+    /** 用户反馈 */
+    @Excel(name = "用户反馈")
+    private String content;
+
     private String carLicense;
 
     public String getCarLicense() {
@@ -194,6 +198,14 @@ public class EcmpQuestionnaire extends BaseEntity
     public String getPhone() 
     {
         return phone;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Integer getScore() {

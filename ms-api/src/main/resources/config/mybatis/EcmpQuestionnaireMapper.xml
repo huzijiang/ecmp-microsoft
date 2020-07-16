@@ -17,6 +17,7 @@
         <result property="itIsSmooth"    column="it_is_smooth"    />
         <result property="itIsClean"    column="it_is_clean"    />
         <result property="itIsOdor"    column="it_is_odor"    />
+        <result property="content"    column="content"    />
         <result property="useCarTime"    column="use_car_time"    />
         <result property="phone"    column="phone"    />
         <result property="createBy"    column="create_by"    />
@@ -68,6 +69,7 @@
             <if test="itIsSmooth != null  and itIsSmooth != ''">it_is_smooth,</if>
             <if test="itIsClean != null  and itIsClean != ''">it_is_clean,</if>
             <if test="itIsOdor != null  and itIsOdor != ''">it_is_odor,</if>
+            <if test="content != null  and content != ''">content,</if>
             <if test="useCarTime != null ">use_car_time,</if>
             <if test="phone != null  and phone != ''">phone,</if>
             <if test="createBy != null ">create_by,</if>
@@ -87,6 +89,7 @@
             <if test="itIsSmooth != null  and itIsSmooth != ''">#{itIsSmooth},</if>
             <if test="itIsClean != null  and itIsClean != ''">#{itIsClean},</if>
             <if test="itIsOdor != null  and itIsOdor != ''">#{itIsOdor},</if>
+            <if test="content != null  and content != ''">#{content},</if>
             <if test="useCarTime != null ">#{useCarTime},</if>
             <if test="phone != null  and phone != ''">#{phone},</if>
             <if test="createBy != null ">#{createBy},</if>
@@ -142,6 +145,7 @@
         eq.it_is_smooth AS itIsSmooth, -- 是否平稳驾驶
         eq.it_is_clean AS itIsClean, -- 是否干净
         eq.it_is_odor AS itIsOdor, -- 是否有异味
+        eq.content AS content, -- 意见反馈
         eq.use_car_time AS useCarTime,
         eq.phone, -- 意见建议，乘客电话
         eq.create_time AS createTime, -- 评价日期
