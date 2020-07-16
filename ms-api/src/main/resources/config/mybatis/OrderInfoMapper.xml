@@ -3414,6 +3414,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 
     <select id="getMoneyList" resultType="com.hq.ecmp.mscore.dto.MoneyListDto" parameterType="com.hq.ecmp.mscore.dto.ReckoningDto">
         SELECT
+            DISTINCTROW
         o.order_id orderId,
         o.order_number orderNumber,-- #订单号
         pa.NAME userName,-- #用车人
@@ -3447,6 +3448,43 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
         <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
         GROUP BY o.order_id
+
+        UNION
+
+        SELECT
+            DISTINCTROW
+        o.order_id orderId,
+        o.order_number orderNumber,-- #订单号
+        pa.NAME userName,-- #用车人
+        ifnull(ecti.name,o.demand_car_level) carType,-- #用车类型名
+        ifnull(ecti.name,o.demand_car_level) carLevel,
+        adr.action_time actionTime,-- #用车时间
+        jo.use_time useTime,-- #用车天数
+        se.amount amount,-- #总费用
+        se.amount_detail amountDetai, -- #用车费用
+		se.out_price outPrice -- 其他费用
+        FROM
+        order_info o
+        LEFT JOIN order_address_info adr ON o.order_id = adr.order_id
+        AND adr.type = 'A999'
+        LEFT JOIN order_account_info acc ON o.order_id = acc.order_id
+        AND acc.state != 'S005'
+        LEFT JOIN journey_info jo ON o.journey_id = jo.journey_id
+        LEFT JOIN enterprise_car_type_info ct ON jo.company_id = ct.company_id
+        LEFT JOIN order_settling_info se ON o.order_id = se.order_id
+        LEFT JOIN journey_passenger_info pa ON o.journey_id = pa.journey_id
+		left join car_info ci on ci.car_id=o.car_id
+		left join enterprise_car_type_info ecti on ecti.car_type_id=ci.car_type_id
+        WHERE
+            o.user_id in (
+                SELECT user.user_id from ecmp_user user where  user.dept_id = #{companyId}
+              )
+        and
+          ci.car_group_id = #{carGroupId}
+        <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
+        <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
+        GROUP BY o.order_id
+
     </select>
     <select id="selectOrderCarGroup" resultType="map">
         select GROUP_CONCAT(order_state_trace_info.state)states,DATE_FORMAT(add1.action_time,'%Y-%m-%d')date,DATE_FORMAT(add2.action_time,'%Y-%m-%d')end_date,car_group_info.it_is_inner,car_group_info.car_group_id,
