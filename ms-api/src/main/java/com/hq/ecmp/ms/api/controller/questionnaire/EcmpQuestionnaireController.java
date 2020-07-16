@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.questionnaire;
 
 
+import com.alibaba.fastjson.JSON;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.core.security.LoginUser;
@@ -45,7 +46,6 @@ public class EcmpQuestionnaireController {
     @PostMapping("/submit")
     public ApiResponse ranking(@RequestBody EcmpQuestionnaire ecmpQuestionnaire){
         try {
-            log.info("ecmpQuestionnaire={}", ecmpQuestionnaire.toString());
             //车牌号查询车辆id
             CarInfo carInfo = new CarInfo();
             carInfo.setCarLicense(ecmpQuestionnaire.getCarLicense());
