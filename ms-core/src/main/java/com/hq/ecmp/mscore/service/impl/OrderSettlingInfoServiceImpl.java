@@ -341,26 +341,26 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
         //超里程价格
         //OrderSettling.setOverMileagePrice(orderSettlingInfoVo.getOverMileagePrice());
         Map overMileagePrice = new HashMap();
-        overMileagePrice.put("cost", orderSettlingInfoVo.getOverMileagePrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        overMileagePrice.put("cost", orderSettlingInfoVo.getOverMileagePrice() != null? orderSettlingInfoVo.getOverMileagePrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         overMileagePrice.put("typeName", "超里程价格");
         list.add(overMileagePrice);
         //超时长价格
         //OrderSettling.setOvertimeLongPrice(orderSettlingInfoVo.getOvertimeLongPrice());
         Map overtimeLongPrice = new HashMap();
-        overtimeLongPrice.put("cost", orderSettlingInfoVo.getOvertimeLongPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        overtimeLongPrice.put("cost", orderSettlingInfoVo.getOvertimeLongPrice() != null? orderSettlingInfoVo.getOvertimeLongPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         overtimeLongPrice.put("typeName", "超时长价格");
         list.add(overtimeLongPrice);
         //起步价
         //OrderSettling.setStartingPrice(orderSettlingInfoVo.getStartingPrice());
         Map startingPrice = new HashMap();
-        startingPrice.put("cost", orderSettlingInfoVo.getStartingPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        startingPrice.put("cost", orderSettlingInfoVo.getStartingPrice() != null ? orderSettlingInfoVo.getStartingPrice().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         startingPrice.put("typeName", "起步价");
         list.add(startingPrice);
         //等待费
         //OrderSettling.setWaitingFee(orderSettlingInfoVo.getWaitingFee());
-        if (serviceType.equals(OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState())) {
+        if (OrderServiceType.ORDER_SERVICE_TYPE_CHARTERED.getBcState().equals(serviceType)) {
             Map waitingFee = new HashMap();
-            waitingFee.put("cost", orderSettlingInfoVo.getWaitingFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+            waitingFee.put("cost",orderSettlingInfoVo.getWaitingFee() != null ? orderSettlingInfoVo.getWaitingFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
             waitingFee.put("typeName", "等待费");
             list.add(waitingFee);
         }
@@ -397,37 +397,37 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
         //路桥费
         //OrderSettling.setRoadBridgeFee(orderSettlingInfoVo.getRoadBridgeFee());
         Map roadBridgeFee = new HashMap();
-        roadBridgeFee.put("cost", orderSettlingInfoVo.getRoadBridgeFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        roadBridgeFee.put("cost", orderSettlingInfoVo.getRoadBridgeFee() != null ? orderSettlingInfoVo.getRoadBridgeFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         roadBridgeFee.put("typeName", "路桥费");
         list.add(roadBridgeFee);
         //高速费
         //OrderSettling.setHighSpeedFee(orderSettlingInfoVo.getHighSpeedFee());
         Map highSpeedFee = new HashMap();
-        highSpeedFee.put("cost", orderSettlingInfoVo.getHighSpeedFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        highSpeedFee.put("cost", orderSettlingInfoVo.getHighSpeedFee() != null ? orderSettlingInfoVo.getHighSpeedFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         highSpeedFee.put("typeName", "高速费");
         list.add(highSpeedFee);
         //停车费
         //OrderSettling.setParkingRateFee(orderSettlingInfoVo.getParkingRateFee());
         Map parkingRateFee = new HashMap();
-        parkingRateFee.put("cost", orderSettlingInfoVo.getParkingRateFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        parkingRateFee.put("cost", orderSettlingInfoVo.getParkingRateFee() != null ? orderSettlingInfoVo.getParkingRateFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         parkingRateFee.put("typeName", "停车费");
         list.add(parkingRateFee);
         //住宿费
         //OrderSettling.setHotelExpenseFee(orderSettlingInfoVo.getHotelExpenseFee());
         Map hotelExpenseFee = new HashMap();
-        hotelExpenseFee.put("cost", orderSettlingInfoVo.getHotelExpenseFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        hotelExpenseFee.put("cost", orderSettlingInfoVo.getHotelExpenseFee() != null ? orderSettlingInfoVo.getHotelExpenseFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         hotelExpenseFee.put("typeName", "住宿费");
         list.add(hotelExpenseFee);
         //餐饮费
         //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
         Map restaurantFee = new HashMap();
-        restaurantFee.put("cost", orderSettlingInfoVo.getRestaurantFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        restaurantFee.put("cost", orderSettlingInfoVo.getRestaurantFee() != null ? orderSettlingInfoVo.getRestaurantFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         restaurantFee.put("typeName", "餐饮费");
         list.add(restaurantFee);
         //其他费用
         //OrderSettling.setRestaurantFee(orderSettlingInfoVo.getRestaurantFee());
         Map otherFee = new HashMap();
-        otherFee.put("cost", orderSettlingInfoVo.getOtherFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+        otherFee.put("cost", orderSettlingInfoVo.getOtherFee() != null ? orderSettlingInfoVo.getOtherFee().setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() : 0);
         otherFee.put("typeName", "其他费用");
         list.add(otherFee);
         //超里程价格

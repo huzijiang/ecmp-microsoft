@@ -1253,6 +1253,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         applyPriceDetails.setCarTypeId(carInfo.getCarTypeId());
         BigDecimal amount=BigDecimal.ZERO;
         if (useTime.compareTo(BigDecimal.ONE)==0){//整日租
+            log.info("整日租还车结算,orderId={}", orderId);
             applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
             List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
             if (!CollectionUtils.isEmpty(applyPriceDetails1)){
@@ -1265,6 +1266,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
             }
         }else if (useTime.compareTo(BigDecimal.ZERO)==1&&useTime.compareTo(BigDecimal.ONE)<0){//半日租
+            log.info("半日租还车结算,orderId={}", orderId);
             applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey());
             List<ApplyPriceDetails> applyPriceDetails2 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
             if (!CollectionUtils.isEmpty(applyPriceDetails2)){
@@ -1277,6 +1279,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                 orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
             }
         }else if (useTime.compareTo(BigDecimal.ONE)==1){//多日租
+            log.info("多日租还车结算,orderId={}", orderId);
             if (journeyInfo.getUseTime().contains(".5")){//包含半天的多日租
                 applyPriceDetails.setRentType(charterTypeEnum.HALF_DAY_TYPE.getKey()+","+charterTypeEnum.OVERALL_RENT_TYPE.getKey());
                 List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
@@ -1295,6 +1298,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
                     orderSettlingInfoService.selfDriverCostPrice(orderSettlingInfoVo,userId,orderInfo.getCompanyId(),null);
                 }
             }else{
+                log.info("整日租(8小时)还车结算,orderId={}", orderId);
                 applyPriceDetails.setRentType(charterTypeEnum.OVERALL_RENT_TYPE.getKey());
                 List<ApplyPriceDetails> applyPriceDetails1 = costConfigInfoMapper.applySinglePriceDetails(applyPriceDetails);
                 if (!CollectionUtils.isEmpty(applyPriceDetails1)){
