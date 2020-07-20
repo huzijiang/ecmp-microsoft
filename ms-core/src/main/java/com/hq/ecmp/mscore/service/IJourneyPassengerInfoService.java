@@ -1,6 +1,7 @@
 package com.hq.ecmp.mscore.service;
 
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
 
 import java.util.List;
 
@@ -71,4 +72,15 @@ public interface IJourneyPassengerInfoService
     
     //查询指定行程中所有同行人
     public List<String> queryPeerUserNameList(Long journeyId);
+
+
+    /**
+     * 根据乘车人名称模糊查询
+     *
+     * @param name
+     * @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.JourneyPassengerInfo>>
+     * @author Chenkp
+     * @date 2020-07-17 15:32
+     */
+    List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(String name);
 }

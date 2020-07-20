@@ -13,7 +13,9 @@ import com.hq.core.security.service.TokenService;
 import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
+import com.hq.ecmp.ms.api.dto.journey.JourneyApplyOrderDto;
 import com.hq.ecmp.mscore.domain.CarGroupInfo;
+import com.hq.ecmp.mscore.domain.OrderInfo;
 import com.hq.ecmp.mscore.dto.cost.ApplyPriceDetails;
 import com.hq.ecmp.mscore.dto.cost.CarGroupInfoVo;
 import com.hq.ecmp.mscore.service.*;
@@ -53,6 +55,12 @@ public class UserApplySingleController {
 
     @Autowired
     private ICostConfigInfoService costConfigInfoService;
+
+    @Autowired
+    private IOrderInfoService orderInfoService;
+
+
+
 
     /**
      * 分页查询用车申请列表
@@ -132,6 +140,37 @@ public class UserApplySingleController {
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getUser().getUserId();
             ApiResponse apiResponse = applyInfoService.updateApplyOrderState(journeyApplyDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY, ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(), userId);
+            return apiResponse;
+        } catch (Exception e) {
+            log.error("业务处理异常", e);
+            return ApiResponse.error("撤销申请失败，请重试");
+        }
+    }
+
+
+    /**
+     * 撤消申请单
+     *
+     * @param journeyApplyOrderDto 撤消申请单
+     * @return
+     */
+    @com.hq.core.aspectj.lang.annotation.Log(title = "撤消申请单", businessType = BusinessType.OTHER)
+    @ApiOperation(value = "revokeApplySingleByOrderNumber", notes = "撤消申请单", httpMethod = "POST")
+    @PostMapping("/revokeApplySingleByOrderNumber")
+    public ApiResponse revokeApplySingleByOrderNumber(@RequestBody JourneyApplyOrderDto journeyApplyOrderDto) {
+        //撤销行程申请
+        try {
+            //查询订单对应的申请单编号
+            OrderInfo orderInfo=new OrderInfo();
+                      orderInfo.setOrderNumber(journeyApplyOrderDto.getOrderNumber());
+            String applyId=orderInfoService.selectOrderApplyInfoByOrderNumber(orderInfo);
+
+            journeyApplyOrderDto.setApplyId(Long.parseLong(applyId));
+
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            Long userId = loginUser.getUser().getUserId();
+            ApiResponse apiResponse = applyInfoService.updateApplyOrderState(journeyApplyOrderDto.getApplyId(), ApplyStateConstant.CANCEL_APPLY, ApproveStateEnum.CANCEL_APPROVE_STATE.getKey(), userId);
             return apiResponse;
         } catch (Exception e) {
             log.error("业务处理异常", e);

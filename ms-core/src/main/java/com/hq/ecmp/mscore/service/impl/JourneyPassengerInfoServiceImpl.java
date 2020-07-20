@@ -1,8 +1,11 @@
 package com.hq.ecmp.mscore.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
+import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
 import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,4 +112,18 @@ public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoSer
 	public List<String> queryPeerUserNameList(Long journeyId) {
 		return journeyPassengerInfoMapper.queryPeerUserNameList(journeyId);
 	}
+
+    /**
+     * 根据乘车人名称模糊查询
+     *
+     * @param name
+     * @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.JourneyPassengerInfo>>
+     * @author Chenkp
+     * @date 2020-07-17 15:32
+     */
+    @Override
+    public List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(String name) {
+        List<JourneyPassengerInfoDto> journeyPassengerInfoDtos = journeyPassengerInfoMapper.selectJourneyPassengerInfoByName(name);
+        return journeyPassengerInfoDtos.stream().distinct().collect(Collectors.toList());
+    }
 }

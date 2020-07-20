@@ -378,5 +378,7 @@ public interface IOrderInfoService {
     PayeeInfoDto getPayeeInfo(ReckoningDto param);
 
     PayeeInfoDto getCarGroupInfo(String carGroupId);
+
+    String selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo);
 }
 
