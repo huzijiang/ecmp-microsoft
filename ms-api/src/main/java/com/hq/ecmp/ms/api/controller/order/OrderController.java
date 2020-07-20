@@ -807,7 +807,7 @@ public class  OrderController {
             return  ApiResponse.success("更改订单用车时间成功。");
         }catch (Exception e){
             log.error("业务处理异常", e);
-            return  ApiResponse.error("查询失败");
+            return  ApiResponse.error(e.getMessage());
         }
     }
 
@@ -861,7 +861,7 @@ public class  OrderController {
         //根据天数算出分钟数。一天按照 8小时计算,可能为负数
         JourneyPlanPriceInfo  journeyPlanPriceInfoa=journeyPlanPriceInfos.get(0);
 
-        int minutes=(int)(newUserTime-oldUseTime)*8*60;
+        int minutes=(int)(newUserTime-oldUseTime)*24*60;
         Calendar arrivalCalendar = Calendar.getInstance();
         arrivalCalendar.setTime(journeyPlanPriceInfoa.getPlannedArrivalTime());
         arrivalCalendar.add(Calendar.MINUTE, minutes);

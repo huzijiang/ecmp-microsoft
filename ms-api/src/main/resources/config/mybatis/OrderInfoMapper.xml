@@ -2576,6 +2576,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ci.car_color  carColor,
         -- 用车时间
         ji.use_time useTime,
+        --  历史用车时间
+        ji.old_use_time oldUseTime,
         -- 用车开始时间
         ji.start_date beginTime,
         -- 用车结束时间

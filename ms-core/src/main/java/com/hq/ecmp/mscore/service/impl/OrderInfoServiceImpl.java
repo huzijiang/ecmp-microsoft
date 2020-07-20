@@ -3423,7 +3423,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     @Override
     public String getOrderStateByOrderInfo(OrderInfo orderInfo) {
         String orderState=orderInfoMapper.getOrderStateByOrderInfo(orderInfo);
-        return null;
+        return orderState;
     }
 
     @Override
