@@ -730,7 +730,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oodi.next_car_group_id nextCarGroupId,
         cgi.car_group_name carGroupName,
         s.it_is_supplement itIsSupplement,
-        ji.user_time useTime
+        ji.use_time useTime
         from order_info s
         left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
