@@ -162,7 +162,7 @@ public class UserApplySingleController {
         try {
             //查询订单对应的申请单编号
             OrderInfo orderInfo=new OrderInfo();
-                      orderInfo.setOrderNumber(journeyApplyOrderDto.getOrderNumber().toString());
+                      orderInfo.setOrderNumber(journeyApplyOrderDto.getOrderNumber());
             String applyId=orderInfoService.selectOrderApplyInfoByOrderNumber(orderInfo);
 
             journeyApplyOrderDto.setApplyId(Long.parseLong(applyId));

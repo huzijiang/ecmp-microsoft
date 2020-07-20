@@ -33,5 +33,5 @@ public class JourneyApplyOrderDto {
     @ApiParam(required = true)
     @NotEmpty
     @NotNull
-    private Long orderNumber;
+    private String orderNumber;
 }

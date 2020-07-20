@@ -2059,11 +2059,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateBy(String.valueOf(userId));
         applyInfo.setUpdateTime(new Date());
         UndoSMSTemplate undoSMSTemplate = applyInfoMapper.queryApplyUndoList(applyId);
-        if(Integer.valueOf(undoSMSTemplate.getState().substring(1))>=Integer.valueOf(OrderState.INSERVICE.getState().substring(1))){
-            apiResponse.setCode(1);
-            apiResponse.setMsg("您所撤销的订单已经属于服务中或完成状态，不可以撤销了");
-            return  apiResponse;
-        }
+        //任何状态下的 订单都可以撤销
+//        if(Integer.valueOf(undoSMSTemplate.getState().substring(1))>=Integer.valueOf(OrderState.INSERVICE.getState().substring(1))){
+//            apiResponse.setCode(1);
+//            apiResponse.setMsg("您所撤销的订单已经属于服务中或完成状态，不可以撤销了");
+//            return  apiResponse;
+//        }
         int i=0;
         if (StringUtils.isNotBlank(applyState)){
             i = applyInfoMapper.updateApplyInfo(applyInfo);

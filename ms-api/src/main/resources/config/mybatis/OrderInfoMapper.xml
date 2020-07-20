@@ -3650,7 +3650,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             LEFT JOIN apply_info app  ON ord.journey_id=app.journey_id
             <where>
                 1=1
-                <if test="demandCarLevel != null "> and ord.order_number = #{orderNumber} </if>
+                <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
             </where>
     </select>
 </mapper>
