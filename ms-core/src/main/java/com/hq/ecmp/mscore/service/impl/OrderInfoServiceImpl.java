@@ -3118,13 +3118,23 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             }
         }
 
+
+
         OrderDetailBackDto orderDetailBackDto = orderInfoMapper.getOrderListDetail(String.valueOf(orderId));
+        if(orderDetailBackDto == null){
+            return result;
+        }
+        String shortName = result.get("shortName");
+        JourneyNodeInfo journeyNodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoByJourneyId(orderDetailBackDto.getJourneyId());
+        //按需求，此处导出计划地址，不按照实际地址导出
+        if(journeyNodeInfo != null){
+            shortName = journeyNodeInfo.getPlanEndAddress();
+        }
         String newEndAdress = orderDetailBackDto.getNewEndAddress();
         if(!StringUtils.isEmpty(newEndAdress)){
-            String shortName = result.get("shortName");
-            result.put("shortName",shortName+","+newEndAdress);
+            shortName = shortName+","+newEndAdress;
         }
-
+        result.put("shortName",shortName);
        return result;
     }
 

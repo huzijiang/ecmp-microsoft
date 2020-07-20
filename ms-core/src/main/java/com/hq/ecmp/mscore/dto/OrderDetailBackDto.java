@@ -87,4 +87,5 @@ public class OrderDetailBackDto extends OrderListBackDto {
     @ApiModelProperty(value = "行程天数")
     String useTime;
     String newEndAddress;
+    Long journeyId;
 }

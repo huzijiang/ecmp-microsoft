@@ -801,6 +801,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.name sceneName,
         srr.scene_id sceneId,
         s.order_id orderId,
+        s.journey_id journeyId,
         s.order_number orderNumber,
         eu.nick_name applyName,
         eu.phonenumber applyPhoneNumber,
