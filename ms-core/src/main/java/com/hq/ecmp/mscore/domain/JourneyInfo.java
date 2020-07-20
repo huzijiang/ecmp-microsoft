@@ -70,6 +70,11 @@ public class JourneyInfo extends BaseEntity
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String oldUseTime;
+
+
+    /** $column.columnComment */
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private String waitTimeLong;
 
     /** $column.columnComment */

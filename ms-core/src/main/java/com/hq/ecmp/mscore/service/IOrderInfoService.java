@@ -380,5 +380,16 @@ public interface IOrderInfoService {
     PayeeInfoDto getCarGroupInfo(String carGroupId);
 
     String selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo);
+
+    /**
+     * 通过订单信息 查询订单状态
+     * @param orderInfo
+     * @return
+     */
+    String getOrderStateByOrderInfo(OrderInfo orderInfo);
+
+
+
+
 }
 

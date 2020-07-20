@@ -3654,4 +3654,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
             </where>
     </select>
+
+
+    <select id="getOrderStateByOrderInfo" resultType="java.lang.String"  parameterType="com.hq.ecmp.mscore.domain.OrderInfo" >
+        SELECT ost.state
+        FROM  order_info  ord
+        LEFT JOIN order_state_trace_info ost ON ost.order_id=ord.order_id
+        <where>
+            1=1   AND ord.state != 'S900'
+            <if test="orderId != null and '' != orderId "> and ord.order_id = #{orderId} </if>
+            <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
+        </where>
+        ORDER BY ost.create_time  DESC
+        LIMIT 1
+    </select>
+
 </mapper>

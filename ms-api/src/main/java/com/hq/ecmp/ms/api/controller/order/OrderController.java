@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
@@ -15,6 +16,7 @@ import com.hq.ecmp.ms.api.dto.car.CarDto;
 import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
+import com.hq.ecmp.ms.api.dto.order.OrderUseTimeDto;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
@@ -29,11 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +70,12 @@ public class  OrderController {
 
     @Resource
     private  OrderInfoTwoService orderInfoTwoService;
+
+    @Resource
+    private IJourneyInfoService journeyInfoService;
+
+    @Resource
+    private IJourneyPlanPriceInfoService journeyPlanPriceInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -778,6 +789,96 @@ public class  OrderController {
             log.error("业务处理异常", e);
             return  ApiResponse.error("查询失败");
         }
+    }
+
+    /**
+     * 更新订单用车时长
+     * @param orderUseTimeDto
+     * @return
+     */
+    @ApiOperation(value = "更新订单用车时长",httpMethod = "POST")
+    @PostMapping(value = "/updateOrderUserCarTime")
+    @Transactional
+    public ApiResponse updateOrderUserCarTime(@RequestBody OrderUseTimeDto orderUseTimeDto){
+        try {
+            HttpServletRequest request = ServletUtils.getRequest();
+            LoginUser loginUser = tokenService.getLoginUser(request);
+            updateOrderUserCarTimeTransaction(orderUseTimeDto);
+            return  ApiResponse.success("更改订单用车时间成功。");
+        }catch (Exception e){
+            log.error("业务处理异常", e);
+            return  ApiResponse.error("查询失败");
+        }
+    }
+
+
+
+    @Transactional
+    public void updateOrderUserCarTimeTransaction(OrderUseTimeDto orderUseTimeDto) throws  Exception{
+        Double  newUserTime=0.0;
+        try{
+            newUserTime=Double.parseDouble(orderUseTimeDto.getNewUseTime());
+        }catch (Exception e){
+            throw new Exception("新的用车时间输入不合法.");
+        }
+
+        //订单状态检测,订单状态
+        //必须在订单结束之前，来源于订单状态轨迹表
+        OrderInfo   orderInfo=new OrderInfo();
+        orderInfo.setOrderId(orderUseTimeDto.getOrderId());
+        orderInfo.setOrderNumber(orderUseTimeDto.getOrderNumber());
+
+        String state=iOrderInfoService.getOrderStateByOrderInfo(orderInfo);
+
+        if(StringUtils.isEmpty(state)){
+            throw new Exception("订单状态不符合要求。请检查订单是否已经结束.");
+        }
+
+        //查询订单信息
+        orderInfo=iOrderInfoService.selectOrderInfoById(orderUseTimeDto.getOrderId());
+
+        //更改行程信息,修改旧的用车时间  和新的用车时间，时间需要估算
+        //查询行程信息
+        JourneyInfo journeyInfo=new JourneyInfo();
+        journeyInfo=journeyInfoService.selectJourneyInfoById(orderInfo.getJourneyId());
+        Double oldUseTime=Double.parseDouble(journeyInfo.getUseTime());
+        journeyInfo.setOldUseTime(oldUseTime.toString());
+        journeyInfo.setUseTime(newUserTime.toString());
+        int i=journeyInfoService.updateJourneyInfo(journeyInfo);
+        if(i<1){
+            throw new Exception("行程信息更新失败.");
+        }
+        //更改预算价信息,释放司机和车辆
+        JourneyPlanPriceInfo journeyPlanPriceInfo=new JourneyPlanPriceInfo();
+        journeyPlanPriceInfo.setJourneyId(journeyInfo.getJourneyId());
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos=journeyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
+        if(journeyPlanPriceInfos.isEmpty()){
+            throw new Exception("没有找到对应的预算价信息.");
+        }
+        if(journeyPlanPriceInfos.size()>1){
+            throw new Exception("包车预算价信息生成错误.");
+        }
+        //根据天数算出分钟数。一天按照 8小时计算,可能为负数
+        JourneyPlanPriceInfo  journeyPlanPriceInfoa=journeyPlanPriceInfos.get(0);
+
+        int minutes=(int)(newUserTime-oldUseTime)*8*60;
+        Calendar arrivalCalendar = Calendar.getInstance();
+        arrivalCalendar.setTime(journeyPlanPriceInfoa.getPlannedArrivalTime());
+        arrivalCalendar.add(Calendar.MINUTE, minutes);
+
+        //如果小于当前时间。 否则 更新价格计划
+        if(arrivalCalendar.getTime().getTime() < System.currentTimeMillis()){
+            throw new Exception("更改后的使用天数输入 不能小于 当前已使用天数.");
+        }
+
+        journeyPlanPriceInfoa.setPlannedArrivalTime(arrivalCalendar.getTime());
+
+        int j=journeyPlanPriceInfoService.updateJourneyPlanPriceInfo(journeyPlanPriceInfoa);
+
+        if(j<1){
+            throw new Exception("行程预算价信息更新失败.");
+        }
+
     }
 
 }
