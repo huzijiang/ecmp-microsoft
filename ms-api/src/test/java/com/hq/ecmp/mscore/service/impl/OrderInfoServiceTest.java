@@ -31,6 +31,6 @@ public class OrderInfoServiceTest {
 
     @Test
     public void downloadOrderData() throws Exception {
-        Map aa = orderInfoService.downloadOrderData(919L);
+        Map aa = orderInfoService.downloadOrderData(939L);
     }
 }
