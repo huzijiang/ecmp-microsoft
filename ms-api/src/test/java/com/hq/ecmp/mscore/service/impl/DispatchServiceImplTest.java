@@ -3,11 +3,14 @@ package com.hq.ecmp.mscore.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.gson.JsonObject;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.ms.api.MsApiApplication;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchSelectDriverDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
+import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategy;
+import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategyEngineFactory;
 import com.hq.ecmp.mscore.vo.DispatchResultVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -32,18 +35,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("testk8s")
 @Slf4j
 @SpringBootTest(classes = {  MsApiApplication.class})
 public class DispatchServiceImplTest {
     @Autowired
     private IDispatchService dispatchService;
-
-
+    @Resource
+    private DispatchStrategyEngineFactory dispatchStrategyEngineFactory;
     @Autowired
     private IOrderInfoService iOrderInfoService;
 
-
+    @Test
+    public void strategyGet() throws Exception {
+        DispatchStrategy aa = dispatchStrategyEngineFactory.getDispatchStrategy(DispatchStrategyEnum.InCarAndDriverStrategy.getStrategyServiceName());
+    }
     @Test
     public void seletDriver() throws Exception {
 
