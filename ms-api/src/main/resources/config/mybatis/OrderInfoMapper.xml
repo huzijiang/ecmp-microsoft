@@ -3642,4 +3642,15 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
 				g.car_group_id = #{carGroupId}
 		limit 1
     </select>
+
+
+    <select id="selectOrderApplyInfoByOrderNumber" resultType="java.lang.String"  parameterType="com.hq.ecmp.mscore.domain.OrderInfo" >
+            SELECT  max(app.apply_id)
+            FROM order_info  ord
+            LEFT JOIN apply_info app  ON ord.journey_id=app.journey_id
+            <where>
+                1=1
+                <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
+            </where>
+    </select>
 </mapper>

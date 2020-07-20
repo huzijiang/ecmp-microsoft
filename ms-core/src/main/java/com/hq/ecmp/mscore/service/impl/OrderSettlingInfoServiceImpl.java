@@ -700,6 +700,7 @@ public class OrderSettlingInfoServiceImpl implements IOrderSettlingInfoService {
         costDetailRecordInfo.setCreateBy(userId);
         costDetailRecordInfo.setCreateTime(DateUtils.getNowDate());
         costDetailRecordInfo.setSetMealCost(orderSettlingInfoVo.getAmount());
+        costDetailRecordInfo.setTotalFee(orderSettlingInfoVo.getAmount());
         if (!CollectionUtils.isEmpty(orderAddressInfos)) {
             for (OrderAddressInfo info : orderAddressInfos) {
                 if ("A000".equals(info.getType())) {

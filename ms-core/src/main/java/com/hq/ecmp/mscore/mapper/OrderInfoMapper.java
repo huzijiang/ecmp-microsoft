@@ -522,5 +522,8 @@ public interface OrderInfoMapper {
                                                           @Param("deptId")Long deptId);
 
     PayeeInfoDto getCarGroupInfo(@Param("carGroupId")String carGroupId);
+
+
+    String  selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo);
 }
 

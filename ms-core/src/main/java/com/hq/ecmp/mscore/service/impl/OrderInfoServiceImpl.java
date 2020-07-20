@@ -3405,6 +3405,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     }
 
     @Override
+    public String selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo) {
+        String applyId=orderInfoMapper.selectOrderApplyInfoByOrderNumber(orderInfo);
+        return applyId;
+    }
+
+    @Override
     public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
         return orderInfoMapper.getMoneyList(param);
