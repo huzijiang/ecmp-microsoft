@@ -16,10 +16,12 @@ import com.hq.ecmp.mscore.domain.ApplyApproveResultInfo;
 import com.hq.ecmp.mscore.domain.ApplyInfo;
 import com.hq.ecmp.mscore.domain.JourneyInfo;
 import com.hq.ecmp.mscore.dto.ApplyInfoDTO;
+import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
 import com.hq.ecmp.mscore.dto.config.PowerDTO;
 import com.hq.ecmp.mscore.service.IApplyApproveResultInfoService;
 import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
+import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
 import com.hq.ecmp.mscore.vo.*;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.formula.functions.T;
@@ -52,6 +54,8 @@ public class JourneyController {
     private TokenService tokenService;
     @Autowired
     private IApplyApproveResultInfoService resultInfoService;
+    @Autowired
+    private IJourneyPassengerInfoService iJourneyPassengerInfoService;
     /**
      * 创建行程
      * @param  journeyApplyDto  行程申请信息
@@ -318,6 +322,17 @@ public class JourneyController {
             return ApiResponse.success(journeyInfoService.getInvoiceItineraryCount(invoiceId));
         }catch(Exception e){
             logger.error("当前发票行程总数异常",e);
+        }
+        return ApiResponse.error("ApiResponse");
+    }
+
+    @ApiOperation(value = "getJourneyPassengerInfoByName",notes = "根据乘车人名称模糊查询",httpMethod ="POST")
+    @PostMapping("/getJourneyPassengerInfoByName")
+    public ApiResponse<List<JourneyPassengerInfoDto>> getJourneyPassengerInfoByName(String name) {
+        try{
+            return ApiResponse.success(iJourneyPassengerInfoService.selectJourneyPassengerInfoByName(name));
+        } catch (Exception e) {
+            logger.error("根据乘车人名称模糊查询异常", e);
         }
         return ApiResponse.error("ApiResponse");
     }

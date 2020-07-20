@@ -126,4 +126,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         limit 1
     </select>
 
+    <select id="selectJourneyPassengerInfoByName" parameterType="java.lang.String" resultType="com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto" >
+        SELECT name,
+               mobile
+        FROM journey_passenger_info
+        WHERE name like concat('%', #{name}, '%')
+    </select>
 </mapper>
