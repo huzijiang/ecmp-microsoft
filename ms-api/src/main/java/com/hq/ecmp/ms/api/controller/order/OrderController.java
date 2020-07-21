@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.order;
 
+import com.google.common.collect.Maps;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
@@ -7,9 +8,11 @@ import com.hq.core.aspectj.lang.enums.BusinessType;
 import com.hq.core.aspectj.lang.enums.OperatorType;
 import com.hq.core.security.LoginUser;
 import com.hq.core.security.service.TokenService;
+import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.CarConstant;
 import com.hq.ecmp.constant.OrderServiceType;
 import com.hq.ecmp.constant.OrderState;
+import com.hq.ecmp.constant.SmsTemplateConstant;
 import com.hq.ecmp.interceptor.log.Log;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.car.CarDto;
@@ -17,6 +20,7 @@ import com.hq.ecmp.ms.api.dto.car.DriverDto;
 import com.hq.ecmp.ms.api.dto.order.OrderAppraiseDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.ms.api.dto.order.OrderUseTimeDto;
+import com.hq.ecmp.mscore.bo.OrderFullInfoBo;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.OrderDriverAppraiseDto;
@@ -27,6 +31,7 @@ import com.hq.ecmp.mscore.vo.*;
 import io.netty.handler.codec.compression.FastLzFrameEncoder;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,10 +42,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: zj.hu
@@ -76,6 +78,18 @@ public class  OrderController {
 
     @Resource
     private IJourneyPlanPriceInfoService journeyPlanPriceInfoService;
+
+    @Resource
+    private ISmsTemplateInfoService smsTemplateInfoService;
+
+    @Resource
+    private IOrderDispatcheDetailInfoService orderDispatcheDetailInfoService;
+
+    @Resource
+    private IJourneyPassengerInfoService journeyPassengerInfoService;
+
+    @Resource
+    private IEcmpUserService ecmpUserService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -800,21 +814,110 @@ public class  OrderController {
     @PostMapping(value = "/updateOrderUserCarTime")
     @Transactional
     public ApiResponse updateOrderUserCarTime(@RequestBody OrderUseTimeDto orderUseTimeDto){
+        OrderFullInfoBo orderFullInfoBo=null;
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             LoginUser loginUser = tokenService.getLoginUser(request);
-            updateOrderUserCarTimeTransaction(orderUseTimeDto);
-            return  ApiResponse.success("更改订单用车时间成功。");
+            //维护订单数据
+            orderFullInfoBo=updateOrderUserCarTimeTransaction(orderUseTimeDto);
         }catch (Exception e){
-            log.error("业务处理异常", e);
+            log.error("更新订单用车时长业务处理异常", e);
             return  ApiResponse.error(e.getMessage());
         }
+
+        try{
+            //发送短信,查找订单相关信息
+            String startTime=orderFullInfoBo.getJourneyInfo().getBeginTime()+"";
+            String orderNumber=orderFullInfoBo.getOrderInfo().getOrderNumber()+"";
+            String oldUseTime=orderFullInfoBo.getJourneyInfo().getOldUseTime()+"";
+            String useTime=orderFullInfoBo.getJourneyInfo().getUseTime()+"";
+
+
+            String userInfo="";
+            String applyerInfo="";
+
+            String dispatcherInfoInner="";
+            String dispatcherInfoOuter="";
+
+            //用车人信息
+            JourneyPassengerInfo journeyPassengerInfo=new JourneyPassengerInfo();
+                                 journeyPassengerInfo.setJourneyId(orderFullInfoBo.getJourneyInfo().getJourneyId());
+            List<JourneyPassengerInfo> journeyPassengerInfos=journeyPassengerInfoService.selectJourneyPassengerInfoList(journeyPassengerInfo);
+            if(journeyPassengerInfos.size()!=1){
+                throw new Exception("行程用车人信息异常");
+            }
+            journeyPassengerInfo=journeyPassengerInfos.get(0);
+            userInfo=journeyPassengerInfo.getName()+" "+journeyPassengerInfo.getMobile();
+
+            //申请人信息
+            if(StringUtils.isNotEmpty(orderFullInfoBo.getJourneyInfo().getUserId()+"")){
+                EcmpUser user=ecmpUserService.selectEcmpUserById(orderFullInfoBo.getJourneyInfo().getUserId());
+                applyerInfo=user.getNickName()+" "+user.getPhonenumber();
+            }
+
+            //调度信息查询
+            OrderDispatcheDetailInfo orderDispatcheDetailInfo=new OrderDispatcheDetailInfo();
+                                     orderDispatcheDetailInfo.setOrderId(orderFullInfoBo.getOrderInfo().getOrderId());
+            List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos=orderDispatcheDetailInfoService.selectOrderDispatcheDetailInfoList(orderDispatcheDetailInfo);
+            if(orderDispatcheDetailInfos.size()!=1){
+                throw new Exception("订单调度信息异常.");
+            }
+
+            Map<String, String> mapDispatcher = Maps.newHashMap();
+            mapDispatcher.put("startTime", startTime);
+            mapDispatcher.put("orderNumber", orderNumber);
+            mapDispatcher.put("oldUseTime", oldUseTime);
+            mapDispatcher.put("useTime", useTime);
+            mapDispatcher.put("userInfo", userInfo);
+
+            orderDispatcheDetailInfo=orderDispatcheDetailInfos.get(0);
+            if(StringUtils.isNotEmpty(orderDispatcheDetailInfo.getInnerDispatcher()+"")){
+                EcmpUser user=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
+                dispatcherInfoInner=user.getNickName()+" "+user.getPhonenumber();
+                mapDispatcher.put("dispatcherInfo", dispatcherInfoInner);
+                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, user.getPhonenumber());
+            }else {
+                throw new Exception("订单调度信息异常.无内部调度信息");
+            }
+
+            if(StringUtils.isNotEmpty(orderDispatcheDetailInfo.getOuterDispatcher()+"")){
+                EcmpUser user=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+                dispatcherInfoOuter=user.getNickName()+" "+user.getPhonenumber();
+                mapDispatcher.put("dispatcherInfo", dispatcherInfoOuter);
+                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, user.getPhonenumber());
+            }
+
+            Map<String, String> mapUser = Maps.newHashMap();
+            mapUser.put("orderNumber", orderNumber);
+            mapUser.put("startTime", startTime);
+            mapUser.put("oldUseTime", oldUseTime);
+            mapUser.put("useTime", useTime);
+            mapUser.put("dispatcherInfo", dispatcherInfoInner);
+            smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_USER, mapUser, journeyPassengerInfo.getMobile());
+
+
+            Map<String, String> mapApplyer = Maps.newHashMap();
+            mapApplyer.put("startTime", startTime);
+            mapApplyer.put("orderNumber", orderNumber);
+            mapApplyer.put("oldUseTime", oldUseTime);
+            mapApplyer.put("useTime", useTime);
+            mapApplyer.put("dispatcherInfo", dispatcherInfoInner);
+            smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_APPLYER, mapApplyer, journeyPassengerInfo.getMobile());
+
+
+
+        }catch (Exception e){
+            log.error("订单号：{} 更新订单用车时长成功但发送短信失败",orderUseTimeDto.getOrderNumber());
+        }
+        return  ApiResponse.success("更改订单用车时间成功。");
     }
 
 
 
     @Transactional
-    public void updateOrderUserCarTimeTransaction(OrderUseTimeDto orderUseTimeDto) throws  Exception{
+    public OrderFullInfoBo updateOrderUserCarTimeTransaction(OrderUseTimeDto orderUseTimeDto) throws  Exception{
+        OrderFullInfoBo orderFullInfoBo=new OrderFullInfoBo();
+
         Double  newUserTime=0.0;
         try{
             newUserTime=Double.parseDouble(orderUseTimeDto.getNewUseTime());
@@ -837,10 +940,13 @@ public class  OrderController {
         //查询订单信息
         orderInfo=iOrderInfoService.selectOrderInfoById(orderUseTimeDto.getOrderId());
 
+        orderFullInfoBo.setOrderInfo(orderInfo);
+
         //更改行程信息,修改旧的用车时间  和新的用车时间，时间需要估算
         //查询行程信息
         JourneyInfo journeyInfo=new JourneyInfo();
-        journeyInfo=journeyInfoService.selectJourneyInfoById(orderInfo.getJourneyId());
+                    journeyInfo=journeyInfoService.selectJourneyInfoById(orderInfo.getJourneyId());
+
         Double oldUseTime=Double.parseDouble(journeyInfo.getUseTime());
         journeyInfo.setOldUseTime(oldUseTime.toString());
         journeyInfo.setUseTime(newUserTime.toString());
@@ -848,7 +954,9 @@ public class  OrderController {
         if(i<1){
             throw new Exception("行程信息更新失败.");
         }
-        //更改预算价信息,释放司机和车辆
+        orderFullInfoBo.setJourneyInfo(journeyInfo);
+
+        //更改预算价信息,释放司机和车辆, 包车只有一个预算价信息
         JourneyPlanPriceInfo journeyPlanPriceInfo=new JourneyPlanPriceInfo();
         journeyPlanPriceInfo.setJourneyId(journeyInfo.getJourneyId());
         List<JourneyPlanPriceInfo> journeyPlanPriceInfos=journeyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
@@ -858,7 +966,7 @@ public class  OrderController {
         if(journeyPlanPriceInfos.size()>1){
             throw new Exception("包车预算价信息生成错误.");
         }
-        //根据天数算出分钟数。一天按照 8小时计算,可能为负数
+        //根据天数算出分钟数。一天按照 24小时计算,可能为负数
         JourneyPlanPriceInfo  journeyPlanPriceInfoa=journeyPlanPriceInfos.get(0);
 
         int minutes=(int)(newUserTime-oldUseTime)*24*60;
@@ -866,7 +974,7 @@ public class  OrderController {
         arrivalCalendar.setTime(journeyPlanPriceInfoa.getPlannedArrivalTime());
         arrivalCalendar.add(Calendar.MINUTE, minutes);
 
-        //如果小于当前时间。 否则 更新价格计划
+        //如果小于当前时间。则操作失败
         if(arrivalCalendar.getTime().getTime() < System.currentTimeMillis()){
             throw new Exception("更改后的使用天数输入 不能小于 当前已使用天数.");
         }
@@ -874,10 +982,14 @@ public class  OrderController {
         journeyPlanPriceInfoa.setPlannedArrivalTime(arrivalCalendar.getTime());
 
         int j=journeyPlanPriceInfoService.updateJourneyPlanPriceInfo(journeyPlanPriceInfoa);
-
         if(j<1){
             throw new Exception("行程预算价信息更新失败.");
         }
+        ArrayList<JourneyPlanPriceInfo> arrayList=new ArrayList<>();
+                                        arrayList.add(journeyPlanPriceInfoa);
+        orderFullInfoBo.setJourneyPlanPriceInfos(arrayList);
+
+        return orderFullInfoBo;
 
     }
 
