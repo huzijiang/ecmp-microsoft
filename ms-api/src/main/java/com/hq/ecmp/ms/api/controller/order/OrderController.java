@@ -91,6 +91,9 @@ public class  OrderController {
     @Resource
     private IEcmpUserService ecmpUserService;
 
+    @Resource
+    private IDriverInfoService driverInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -827,7 +830,7 @@ public class  OrderController {
 
         try{
             //发送短信,查找订单相关信息
-            String startTime=orderFullInfoBo.getJourneyInfo().getBeginTime()+"";
+            String startTime=orderFullInfoBo.getJourneyPlanPriceInfos().get(0).getPlannedDepartureTime()+"";
             String orderNumber=orderFullInfoBo.getOrderInfo().getOrderNumber()+"";
             String oldUseTime=orderFullInfoBo.getJourneyInfo().getOldUseTime()+"";
             String useTime=orderFullInfoBo.getJourneyInfo().getUseTime()+"";
@@ -850,9 +853,10 @@ public class  OrderController {
             userInfo=journeyPassengerInfo.getName()+" "+journeyPassengerInfo.getMobile();
 
             //申请人信息
+            EcmpUser userApplyer=null;
             if(StringUtils.isNotEmpty(orderFullInfoBo.getJourneyInfo().getUserId()+"")){
-                EcmpUser user=ecmpUserService.selectEcmpUserById(orderFullInfoBo.getJourneyInfo().getUserId());
-                applyerInfo=user.getNickName()+" "+user.getPhonenumber();
+                userApplyer=ecmpUserService.selectEcmpUserById(orderFullInfoBo.getJourneyInfo().getUserId());
+                applyerInfo=userApplyer.getNickName()+" "+userApplyer.getPhonenumber();
             }
 
             //调度信息查询
@@ -872,19 +876,19 @@ public class  OrderController {
 
             orderDispatcheDetailInfo=orderDispatcheDetailInfos.get(0);
             if(StringUtils.isNotEmpty(orderDispatcheDetailInfo.getInnerDispatcher()+"")){
-                EcmpUser user=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
-                dispatcherInfoInner=user.getNickName()+" "+user.getPhonenumber();
+                EcmpUser userInnerDispatcher=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getInnerDispatcher());
+                dispatcherInfoInner=userInnerDispatcher.getNickName()+" "+userInnerDispatcher.getPhonenumber();
                 mapDispatcher.put("dispatcherInfo", dispatcherInfoInner);
-                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, user.getPhonenumber());
+                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, userInnerDispatcher.getPhonenumber());
             }else {
                 throw new Exception("订单调度信息异常.无内部调度信息");
             }
 
             if(StringUtils.isNotEmpty(orderDispatcheDetailInfo.getOuterDispatcher()+"")){
-                EcmpUser user=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
-                dispatcherInfoOuter=user.getNickName()+" "+user.getPhonenumber();
+                EcmpUser userOuterDispatcher=ecmpUserService.selectEcmpUserById(orderDispatcheDetailInfo.getOuterDispatcher());
+                dispatcherInfoOuter=userOuterDispatcher.getNickName()+" "+userOuterDispatcher.getPhonenumber();
                 mapDispatcher.put("dispatcherInfo", dispatcherInfoOuter);
-                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, user.getPhonenumber());
+                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DISPATCHER, mapDispatcher, userOuterDispatcher.getPhonenumber());
             }
 
             Map<String, String> mapUser = Maps.newHashMap();
@@ -902,12 +906,23 @@ public class  OrderController {
             mapApplyer.put("oldUseTime", oldUseTime);
             mapApplyer.put("useTime", useTime);
             mapApplyer.put("dispatcherInfo", dispatcherInfoInner);
-            smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_APPLYER, mapApplyer, journeyPassengerInfo.getMobile());
+            smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_APPLYER, mapApplyer,userApplyer.getPhonenumber());
 
-
-
+            //向司机发送短信
+            if(StringUtils.isNotEmpty(orderFullInfoBo.getOrderInfo().getDriverId()+"")){
+                DriverInfo  driverInfo=new DriverInfo();
+                            driverInfo=driverInfoService.selectDriverInfoById(orderFullInfoBo.getOrderInfo().getDriverId());
+                Map<String, String> mapDriver = Maps.newHashMap();
+                mapApplyer.put("startTime", startTime);
+                mapApplyer.put("orderNumber", orderNumber);
+                mapApplyer.put("oldUseTime", oldUseTime);
+                mapApplyer.put("useTime", useTime);
+                mapApplyer.put("userInfo", userInfo);
+                mapApplyer.put("dispatcherInfo", dispatcherInfoInner);
+                smsTemplateInfoService.sendSms(SmsTemplateConstant.UPDATE_ORDER_USE_TIME_FOR_DRIVER, mapApplyer,driverInfo.getMobile());
+            }
         }catch (Exception e){
-            log.error("订单号：{} 更新订单用车时长成功但发送短信失败",orderUseTimeDto.getOrderNumber());
+            log.error("订单号：{} 更新订单用车时长成功但发送短信失败,{}",orderUseTimeDto.getOrderNumber(),e.getMessage());
         }
         return  ApiResponse.success("更改订单用车时间成功。");
     }

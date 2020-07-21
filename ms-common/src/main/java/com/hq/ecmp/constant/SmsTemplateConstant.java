@@ -126,6 +126,7 @@ public class SmsTemplateConstant {
     public static final String UPDATE_ORDER_USE_TIME_FOR_USER="update_order_use_time_for_user";
     public static final String UPDATE_ORDER_USE_TIME_FOR_APPLYER="update_order_use_time_for_applyer";
     public static final String UPDATE_ORDER_USE_TIME_FOR_DISPATCHER="update_order_use_time_for_dispatcher";
+    public static final String UPDATE_ORDER_USE_TIME_FOR_DRIVER="update_order_use_time_for_driver";
 
 
 }
