@@ -525,5 +525,7 @@ public interface OrderInfoMapper {
 
 
     String  selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo);
+
+    String  getOrderStateByOrderInfo(OrderInfo orderInfo);
 }
 

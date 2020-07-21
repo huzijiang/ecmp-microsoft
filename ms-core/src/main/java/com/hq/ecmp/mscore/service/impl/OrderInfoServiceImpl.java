@@ -3421,6 +3421,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     }
 
     @Override
+    public String getOrderStateByOrderInfo(OrderInfo orderInfo) {
+        String orderState=orderInfoMapper.getOrderStateByOrderInfo(orderInfo);
+        return orderState;
+    }
+
+    @Override
     public List<MoneyListDto> getMoneyList(ReckoningDto param) {
 
         return orderInfoMapper.getMoneyList(param);

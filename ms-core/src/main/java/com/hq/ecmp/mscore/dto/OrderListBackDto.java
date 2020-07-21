@@ -112,4 +112,6 @@ public class OrderListBackDto extends PageRequest {
     private String nextCarGroupId;
 
     private String carGroupName;
+
+    private String useTime;
 }
