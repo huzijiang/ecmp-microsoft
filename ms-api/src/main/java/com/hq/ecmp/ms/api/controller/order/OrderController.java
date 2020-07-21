@@ -2,6 +2,7 @@ package com.hq.ecmp.ms.api.controller.order;
 
 import com.google.common.collect.Maps;
 import com.hq.common.core.api.ApiResponse;
+import com.hq.common.utils.DateUtils;
 import com.hq.common.utils.ServletUtils;
 import com.hq.common.utils.StringUtils;
 import com.hq.core.aspectj.lang.enums.BusinessType;
@@ -30,10 +31,12 @@ import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import io.netty.handler.codec.compression.FastLzFrameEncoder;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,8 +94,8 @@ public class  OrderController {
     @Resource
     private IEcmpUserService ecmpUserService;
 
-    @Resource
-    private IDriverInfoService driverInfoService;
+    @Autowired
+    private com.hq.ecmp.mscore.service.IDriverInfoService driverInfoService;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -830,7 +833,8 @@ public class  OrderController {
 
         try{
             //发送短信,查找订单相关信息
-            String startTime=orderFullInfoBo.getJourneyPlanPriceInfos().get(0).getPlannedDepartureTime()+"";
+            Date st=orderFullInfoBo.getJourneyPlanPriceInfos().get(0).getPlannedDepartureTime();
+            String startTime= DateUtils.formatDate(st,DateUtils.YYYY_MM_DD_HH_MM_SS) +"";
             String orderNumber=orderFullInfoBo.getOrderInfo().getOrderNumber()+"";
             String oldUseTime=orderFullInfoBo.getJourneyInfo().getOldUseTime()+"";
             String useTime=orderFullInfoBo.getJourneyInfo().getUseTime()+"";
