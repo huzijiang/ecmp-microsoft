@@ -958,7 +958,13 @@ public class  OrderController {
 
         //查询订单信息
         orderInfo=iOrderInfoService.selectOrderInfoById(orderUseTimeDto.getOrderId());
-
+        if(newUserTime<1.0){
+            orderInfo.setItIsSupplement("M005");
+        }else if(newUserTime>1.0){
+            orderInfo.setItIsSupplement("M009");
+        }else {
+            orderInfo.setItIsSupplement("M001");
+        }
         orderFullInfoBo.setOrderInfo(orderInfo);
 
         //更改行程信息,修改旧的用车时间  和新的用车时间，时间需要估算
@@ -969,8 +975,16 @@ public class  OrderController {
         Double oldUseTime=Double.parseDouble(journeyInfo.getUseTime());
         journeyInfo.setOldUseTime(oldUseTime.toString());
         journeyInfo.setUseTime(newUserTime.toString());
+
+        if(newUserTime<1.0){
+            journeyInfo.setCharterCarType("T001");
+        }else if(newUserTime>1.0){
+            journeyInfo.setCharterCarType("T009");
+        }else {
+            journeyInfo.setCharterCarType("T002");
+        }
         int i=journeyInfoService.updateJourneyInfo(journeyInfo);
-        if(i<1){
+        if(i!=1){
             throw new Exception("行程信息更新失败.");
         }
         orderFullInfoBo.setJourneyInfo(journeyInfo);
@@ -1001,13 +1015,32 @@ public class  OrderController {
         journeyPlanPriceInfoa.setPlannedArrivalTime(arrivalCalendar.getTime());
 
         int j=journeyPlanPriceInfoService.updateJourneyPlanPriceInfo(journeyPlanPriceInfoa);
-        if(j<1){
+        if(j!=1){
             throw new Exception("行程预算价信息更新失败.");
         }
         ArrayList<JourneyPlanPriceInfo> arrayList=new ArrayList<>();
                                         arrayList.add(journeyPlanPriceInfoa);
         orderFullInfoBo.setJourneyPlanPriceInfos(arrayList);
 
+        OrderDispatcheDetailInfo orderDispatcheDetailInfo=new OrderDispatcheDetailInfo();
+        orderDispatcheDetailInfo.setOrderId(orderInfo.getOrderId());
+
+        List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos=orderDispatcheDetailInfoService.selectOrderDispatcheDetailInfoList(orderDispatcheDetailInfo);
+        if(orderDispatcheDetailInfos.size()!=1){
+            throw new Exception("订单尚无调度信息.可直接撤销后重新申请。");
+        }
+        orderDispatcheDetailInfo=orderDispatcheDetailInfos.get(0);
+        if(newUserTime<1.0){
+            orderDispatcheDetailInfo.setCharterCarType("T001");
+        }else if(newUserTime>1.0){
+            orderDispatcheDetailInfo.setCharterCarType("T009");
+        }else {
+            orderDispatcheDetailInfo.setCharterCarType("T002");
+        }
+        int k=orderDispatcheDetailInfoService.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+        if(k!=1){
+            throw new Exception("订单调度信息更新失败。");
+        }
         return orderFullInfoBo;
 
     }
