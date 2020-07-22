@@ -103,7 +103,8 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
     private JourneyAddressInfoMapper journeyAddressInfoMapper;
     @Resource
     private EcmpOrgMapper ecmpOrgMapper;
-
+    @Resource
+    private JourneyPlanPriceInfoMapper journeyPlanPriceInfoMapper;
 
     /**
      * 公务取消订单
@@ -1214,10 +1215,20 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if (journeyInfo==null){
             throw new BaseException("该行程不存在");
         }
-//        int day = DateFormatUtils.compareDay(journeyInfo.getEndDate(), new Date());
-//        if (day==-1){
-//            throw new BaseException("当前时间不可还车");
-//        }
+        JourneyPlanPriceInfo journeyPlanPriceInfo = new JourneyPlanPriceInfo();
+        journeyPlanPriceInfo.setJourneyId(orderInfo.getJourneyId());
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos = journeyPlanPriceInfoMapper.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
+
+        if(journeyPlanPriceInfos != null && journeyPlanPriceInfos.size() > 0){
+            JourneyPlanPriceInfo info = journeyPlanPriceInfos.get(0);
+            Date arriveDate = info.getPlannedArrivalTime();
+            int day = DateFormatUtils.compareDayAndTimeSecond(arriveDate, new Date());
+            if (day == -1){
+               throw new BaseException("当前时间不可还车");
+            }
+        }
+
+
         if (!OrderState.INSERVICE.getState().equals(orderInfo.getState())){
             throw new BaseException("当前状态不可还车");
         }

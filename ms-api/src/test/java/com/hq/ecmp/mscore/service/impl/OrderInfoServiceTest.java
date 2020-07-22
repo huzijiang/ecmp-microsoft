@@ -1,10 +1,13 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.ms.api.MsApiApplication;
+import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategy;
+import com.hq.ecmp.mscore.vo.PageResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,5 +35,12 @@ public class OrderInfoServiceTest {
     @Test
     public void downloadOrderData() throws Exception {
         Map aa = orderInfoService.downloadOrderData(939L);
+    }
+
+    @Test
+    public void getOrderList() throws Exception {
+        OrderListBackDto orderListBackDto = new OrderListBackDto();
+        LoginUser loginUser = new LoginUser();
+        PageResult<OrderListBackDto> aa = orderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
     }
 }

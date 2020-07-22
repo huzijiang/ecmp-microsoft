@@ -765,7 +765,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
                 <if test="deptId != null and  deptId!='' "> and eu.dept_id = #{deptId}</if>
                 <if test="state == 1">
-                    and z.state  in ('S911','S900','S699','S616','S600','S500','S299','S635','S380','S970')
+                    and z.state  in ('S911','S900','S699','S616','S600','S500','S299','S635','S380','S921')
                 </if>
                 <if test="state == 2">
                     and z.state  in ('S699','S616','S600','S500','S299','S635','S380')

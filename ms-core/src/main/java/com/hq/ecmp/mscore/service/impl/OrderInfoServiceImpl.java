@@ -3254,14 +3254,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         dataMap.put("sort", "9");
         map.put("completed", dataMap);
 
-       /* dataMap = new HashMap<>();
-        data.setState("S911");
-        List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
-        dataMap.put("msg","已取消");
-        dataMap.put("value",null==cancelled ?0:cancelled.size());
-        dataMap.put("code","S911");
+        dataMap = new HashMap<>();
+        data.setState("S921");
+        List<OrderListBackDto> expired= orderInfoMapper.getCount(data);
+        dataMap.put("msg","已过期");
+        dataMap.put("value",null==expired ?0:expired.size());
+        dataMap.put("code","S921");
         dataMap.put("sort","10");
-        map.put("cancelled",dataMap);*/
+        map.put("expired",dataMap);
         return map;
     }
 
