@@ -194,6 +194,35 @@ public class DateFormatUtils {
 
     /**
      * 比较两个日期+时间大小
+     * @param startDate  yyyy-MM-dd HH:mm:ss
+     * @param endDate  yyyy-MM-dd HH:mm:ss
+     * @return -1:start>end,0:end=start,1:start<end
+     */
+    public static int compareDayAndTimeSecond(Date startDate, Date endDate) {
+        if (startDate==null||endDate==null){
+            return 0;
+        }
+        String start= new SimpleDateFormat(DATE_TIME_FORMAT). format(startDate);
+        String end= new SimpleDateFormat(DATE_TIME_FORMAT). format(endDate);
+        Long startDay=parseDate(DATE_TIME_FORMAT,start).getTime();
+        Long endDay=parseDate(DATE_TIME_FORMAT,end).getTime();
+        try {
+            if (startDay.longValue()>endDay.longValue()){
+                return -1;
+            }else if(startDay.longValue()<endDay.longValue()){
+                return 1;
+            }else{
+                return 0;
+            }
+        } catch (Exception e) {
+            LOGGER.error("业务处理异常", e);
+
+            return 0;
+        }
+    }
+
+    /**
+     * 比较两个日期+时间大小
      * @param start  yyyy-MM-dd
      * @param end  yyyy-MM-dd
      * @return -1:start>end,0:end=start,1:start<end
