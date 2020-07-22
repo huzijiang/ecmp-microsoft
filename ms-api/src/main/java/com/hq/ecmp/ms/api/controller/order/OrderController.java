@@ -97,6 +97,12 @@ public class  OrderController {
     @Autowired
     private com.hq.ecmp.mscore.service.IDriverInfoService driverInfoService;
 
+    @Autowired
+    private  IJourneyNodeInfoService journeyNodeInfoService;
+
+    @Autowired
+    private IOrderAddressInfoService orderAddressInfoService;
+
 
     @Value("${thirdService.enterpriseId}") //企业编号
     private String enterpriseId;
@@ -818,7 +824,6 @@ public class  OrderController {
      */
     @ApiOperation(value = "更新订单用车时长",httpMethod = "POST")
     @PostMapping(value = "/updateOrderUserCarTime")
-    @Transactional
     public ApiResponse updateOrderUserCarTime(@RequestBody OrderUseTimeDto orderUseTimeDto){
         OrderFullInfoBo orderFullInfoBo=null;
         try {
@@ -827,7 +832,7 @@ public class  OrderController {
             //维护订单数据
             orderFullInfoBo=updateOrderUserCarTimeTransaction(orderUseTimeDto);
         }catch (Exception e){
-            log.error("更新订单用车时长业务处理异常", e);
+            log.error("更新订单用车时长业务处理异常:"+orderUseTimeDto.getOrderNumber(), e);
             return  ApiResponse.error(e.getMessage());
         }
 
@@ -973,8 +978,37 @@ public class  OrderController {
                     journeyInfo=journeyInfoService.selectJourneyInfoById(orderInfo.getJourneyId());
 
         Double oldUseTime=Double.parseDouble(journeyInfo.getUseTime());
+
+
+
+        //查询预算价信息
+        JourneyPlanPriceInfo journeyPlanPriceInfo=new JourneyPlanPriceInfo();
+        journeyPlanPriceInfo.setJourneyId(journeyInfo.getJourneyId());
+        List<JourneyPlanPriceInfo> journeyPlanPriceInfos=journeyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
+        if(journeyPlanPriceInfos.isEmpty()){
+            throw new Exception("没有找到对应的预算价信息.");
+        }
+        if(journeyPlanPriceInfos.size()>1){
+            throw new Exception("包车预算价信息生成错误.");
+        }
+        //根据天数算出分钟数。一天按照 24小时计算,可能为负数
+        JourneyPlanPriceInfo  journeyPlanPriceInfoa=journeyPlanPriceInfos.get(0);
+
+        int minutes=(int)((newUserTime-oldUseTime)*24*60);
+        Calendar arrivalCalendar = Calendar.getInstance();
+        arrivalCalendar.setTime(journeyPlanPriceInfoa.getPlannedArrivalTime());
+        arrivalCalendar.add(Calendar.MINUTE, minutes);
+
+        Date arrivalCalendarDate=arrivalCalendar.getTime();
+
+        //如果小于当前时间。则操作失败
+        if(arrivalCalendar.getTime().getTime() < System.currentTimeMillis()){
+            throw new Exception("更改后的使用天数输入 不能小于 当前已使用天数.");
+        }
+        //更改行程到达时间
         journeyInfo.setOldUseTime(oldUseTime.toString());
         journeyInfo.setUseTime(newUserTime.toString());
+        journeyInfo.setEndDate(arrivalCalendarDate);
 
         if(newUserTime<1.0){
             journeyInfo.setCharterCarType("T001");
@@ -989,58 +1023,74 @@ public class  OrderController {
         }
         orderFullInfoBo.setJourneyInfo(journeyInfo);
 
-        //更改预算价信息,释放司机和车辆, 包车只有一个预算价信息
-        JourneyPlanPriceInfo journeyPlanPriceInfo=new JourneyPlanPriceInfo();
-        journeyPlanPriceInfo.setJourneyId(journeyInfo.getJourneyId());
-        List<JourneyPlanPriceInfo> journeyPlanPriceInfos=journeyPlanPriceInfoService.selectJourneyPlanPriceInfoList(journeyPlanPriceInfo);
-        if(journeyPlanPriceInfos.isEmpty()){
-            throw new Exception("没有找到对应的预算价信息.");
-        }
-        if(journeyPlanPriceInfos.size()>1){
-            throw new Exception("包车预算价信息生成错误.");
-        }
-        //根据天数算出分钟数。一天按照 24小时计算,可能为负数
-        JourneyPlanPriceInfo  journeyPlanPriceInfoa=journeyPlanPriceInfos.get(0);
-
-        int minutes=(int)(newUserTime-oldUseTime)*24*60;
-        Calendar arrivalCalendar = Calendar.getInstance();
-        arrivalCalendar.setTime(journeyPlanPriceInfoa.getPlannedArrivalTime());
-        arrivalCalendar.add(Calendar.MINUTE, minutes);
-
-        //如果小于当前时间。则操作失败
-        if(arrivalCalendar.getTime().getTime() < System.currentTimeMillis()){
-            throw new Exception("更改后的使用天数输入 不能小于 当前已使用天数.");
-        }
-
-        journeyPlanPriceInfoa.setPlannedArrivalTime(arrivalCalendar.getTime());
-
+        //更改预算价到达时间
+        journeyPlanPriceInfoa.setPlannedArrivalTime(arrivalCalendarDate);
         int j=journeyPlanPriceInfoService.updateJourneyPlanPriceInfo(journeyPlanPriceInfoa);
         if(j!=1){
             throw new Exception("行程预算价信息更新失败.");
         }
+
+        //更高行程节点时间
+        List<JourneyNodeInfo> journeyNodeInfos;
+        JourneyNodeInfo journeyNodeInfo=new JourneyNodeInfo();
+        journeyNodeInfo.setJourneyId(orderInfo.getJourneyId());
+        journeyNodeInfos=journeyNodeInfoService.selectJourneyNodeInfoList(journeyNodeInfo);
+        if(journeyNodeInfos.isEmpty()){
+            throw new Exception("订单行程节点信息生成异常。");
+        }
+        for (JourneyNodeInfo jou:journeyNodeInfos) {
+            jou.setPlanArriveTime(arrivalCalendarDate);
+            int m=journeyNodeInfoService.updateJourneyNodeInfo(jou);
+            if(m!=1){
+                throw new Exception("更新订单行程节点信息异常。");
+            }
+        }
+
+
         ArrayList<JourneyPlanPriceInfo> arrayList=new ArrayList<>();
                                         arrayList.add(journeyPlanPriceInfoa);
         orderFullInfoBo.setJourneyPlanPriceInfos(arrayList);
 
+        //更改调度详情到达时间
         OrderDispatcheDetailInfo orderDispatcheDetailInfo=new OrderDispatcheDetailInfo();
-        orderDispatcheDetailInfo.setOrderId(orderInfo.getOrderId());
-
+                                 orderDispatcheDetailInfo.setOrderId(orderInfo.getOrderId());
         List<OrderDispatcheDetailInfo> orderDispatcheDetailInfos=orderDispatcheDetailInfoService.selectOrderDispatcheDetailInfoList(orderDispatcheDetailInfo);
-        if(orderDispatcheDetailInfos.size()!=1){
-            throw new Exception("订单尚无调度信息.可直接撤销后重新申请。");
+        if(!orderDispatcheDetailInfos.isEmpty()){
+            if(orderDispatcheDetailInfos.size()>1){
+                throw new Exception("订单调度信息生成异常。");
+            }
+            orderDispatcheDetailInfo=orderDispatcheDetailInfos.get(0);
+            if(newUserTime<1.0){
+                orderDispatcheDetailInfo.setCharterCarType("T001");
+            }else if(newUserTime>1.0){
+                orderDispatcheDetailInfo.setCharterCarType("T009");
+            }else {
+                orderDispatcheDetailInfo.setCharterCarType("T002");
+            }
+            int k=orderDispatcheDetailInfoService.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+            if(k!=1){
+                throw new Exception("订单调度信息更新失败。");
+            }
         }
-        orderDispatcheDetailInfo=orderDispatcheDetailInfos.get(0);
-        if(newUserTime<1.0){
-            orderDispatcheDetailInfo.setCharterCarType("T001");
-        }else if(newUserTime>1.0){
-            orderDispatcheDetailInfo.setCharterCarType("T009");
-        }else {
-            orderDispatcheDetailInfo.setCharterCarType("T002");
+
+
+        //更新订单地址到达时间
+        OrderAddressInfo orderAddressInfo=new OrderAddressInfo();
+        orderAddressInfo.setOrderId(orderInfo.getOrderId());
+        orderAddressInfo.setType("A999");
+        List<OrderAddressInfo> orderAddressInfos=orderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
+        if(orderAddressInfos.size()!=1){
+            throw new Exception("订单出发地址和到达地址信息生成异常。");
         }
-        int k=orderDispatcheDetailInfoService.updateOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
-        if(k!=1){
-            throw new Exception("订单调度信息更新失败。");
+        orderAddressInfo=orderAddressInfos.get(0);
+        orderAddressInfo.setActionTime(arrivalCalendarDate);
+
+        int l=orderAddressInfoService.updateOrderAddressInfo(orderAddressInfo);
+        if(l!=1){
+            throw new Exception("更新订单到达地址信息异常。");
         }
+
+
         return orderFullInfoBo;
 
     }
