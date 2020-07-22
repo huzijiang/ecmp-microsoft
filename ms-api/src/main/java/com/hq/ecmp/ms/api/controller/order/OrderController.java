@@ -979,7 +979,9 @@ public class  OrderController {
 
         Double oldUseTime=Double.parseDouble(journeyInfo.getUseTime());
 
-
+        if(newUserTime>=oldUseTime || newUserTime<=1.0){
+            throw new Exception("订单用车时间不可延长且整日租、半日租不可修改。请确认正确的用车时间.");
+        }
 
         //查询预算价信息
         JourneyPlanPriceInfo journeyPlanPriceInfo=new JourneyPlanPriceInfo();
