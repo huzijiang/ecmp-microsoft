@@ -932,6 +932,7 @@ public class  OrderController {
             }
         }catch (Exception e){
             log.error("订单号：{} 更新订单用车时长成功但发送短信失败,{}",orderUseTimeDto.getOrderNumber(),e.getMessage());
+            return  ApiResponse.success("更新订单用车时长成功但发送短信失败。");
         }
         return  ApiResponse.success("更改订单用车时间成功。");
     }
