@@ -3255,11 +3255,11 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         map.put("completed", dataMap);
 
         dataMap = new HashMap<>();
-        data.setState("S970");
+        data.setState("S921");
         List<OrderListBackDto> expired= orderInfoMapper.getCount(data);
         dataMap.put("msg","已过期");
         dataMap.put("value",null==expired ?0:expired.size());
-        dataMap.put("code","S970");
+        dataMap.put("code","S921");
         dataMap.put("sort","10");
         map.put("expired",dataMap);
         return map;
