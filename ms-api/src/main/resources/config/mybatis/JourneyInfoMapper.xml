@@ -320,6 +320,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ji.wait_time_long as waitMinute,
         ji.charter_car_type serverType,
         ji.use_time charterCarDaysCount,
+        ji.old_use_time oldUseTime,
         CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime
         from journey_info ji
         left join journey_passenger_info jpi on ji.journey_id=jpi.journey_id
