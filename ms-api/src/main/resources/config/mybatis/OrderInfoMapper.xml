@@ -830,6 +830,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.service_type serviceType,
         ji.charter_car_type charterCarType,
         ji.use_time useTime,
+        ji.old_use_time oldUseTime,
         ifnull(ecti.name,s.demand_car_level) carLevel,
         CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,

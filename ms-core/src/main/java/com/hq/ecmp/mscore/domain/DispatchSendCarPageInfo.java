@@ -49,4 +49,9 @@ public class DispatchSendCarPageInfo {
 	 * 用车天数
 	 */
 	String charterCarDaysCount;
+
+	/**
+	 * 历史用车天数
+	 */
+	String oldUseTime;
 }

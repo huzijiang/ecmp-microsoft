@@ -86,6 +86,8 @@ public class OrderDetailBackDto extends OrderListBackDto {
     BigDecimal beyondPriceEveryKm;
     @ApiModelProperty(value = "行程天数")
     String useTime;
+    @ApiModelProperty(value = "历史行程天数")
+    String oldUseTime;
     String newEndAddress;
     Long journeyId;
 }
