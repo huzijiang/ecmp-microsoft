@@ -9,6 +9,7 @@ import com.hq.ecmp.constant.ApplyStateConstant;
 import com.hq.ecmp.constant.ApproveStateEnum;
 import com.hq.ecmp.ms.api.dto.base.UserDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyApplyDto;
+import com.hq.ecmp.ms.api.dto.journey.JourneyNameDto;
 import com.hq.ecmp.ms.api.dto.journey.JourneyNodeDto;
 import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.bo.InvoiceAbleItineraryData;
@@ -28,10 +29,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -328,9 +326,9 @@ public class JourneyController {
 
     @ApiOperation(value = "getJourneyPassengerInfoByName",notes = "根据乘车人名称模糊查询",httpMethod ="POST")
     @PostMapping("/getJourneyPassengerInfoByName")
-    public ApiResponse<List<JourneyPassengerInfoDto>> getJourneyPassengerInfoByName(String name) {
+    public ApiResponse<List<JourneyPassengerInfoDto>> getJourneyPassengerInfoByName(@RequestBody JourneyNameDto journeyNameDto) {
         try{
-            return ApiResponse.success(iJourneyPassengerInfoService.selectJourneyPassengerInfoByName(name));
+            return ApiResponse.success(iJourneyPassengerInfoService.selectJourneyPassengerInfoByName(journeyNameDto.getName()));
         } catch (Exception e) {
             logger.error("根据乘车人名称模糊查询异常", e);
         }
