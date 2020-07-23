@@ -16,6 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="projectId"    column="project_id"    />
         <result property="flightNumber"    column="flight_number"    />
         <result property="useTime"    column="use_time"    />
+        <result property="oldUseTime"    column="old_use_time"    />
         <result property="waitTimeLong"    column="wait_time_long"    />
         <result property="charterCarType"    column="charter_car_type"    />
         <result property="startDate"    column="start_date"    />
@@ -32,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectJourneyInfoVo">
-        select flight_plan_take_off_time,journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date,travel_pickup_city,travel_cities_str,pickup_times,title,use_time from journey_info
+        select flight_plan_take_off_time,journey_id, user_id, regimen_id, service_type, use_car_mode, use_car_time, it_is_return, estimate_price, project_id, flight_number, use_time,old_use_time, wait_time_long, charter_car_type, create_by, create_time, update_by, update_time,title,start_date,end_date,travel_pickup_city,travel_cities_str,pickup_times,title,use_time from journey_info
     </sql>
 
     <select id="selectJourneyInfoList" parameterType="com.hq.ecmp.mscore.domain.JourneyInfo" resultMap="JourneyInfoResult">
@@ -77,6 +78,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="flightNumber != null  and flightNumber != ''">flight_number,</if>
             <if test="flightPlanTakeOffTime != null ">flight_plan_take_off_time,</if>
             <if test="useTime != null  and useTime != ''">use_time,</if>
+            <if test="oldUseTime != null  and oldUseTime != '' ">old_use_time,</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long,</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type,</if>
             <if test="startDate != null">start_date,</if>
@@ -104,6 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="flightNumber != null  and flightNumber != ''">#{flightNumber},</if>
             <if test="flightPlanTakeOffTime != null ">#{flightPlanTakeOffTime},</if>
             <if test="useTime != null  and useTime != ''">#{useTime},</if>
+            <if test="oldUseTime != null  and oldUseTime != '' ">#{oldUseTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">#{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">#{charterCarType},</if>
             <if test="startDate != null">#{startDate},</if>
@@ -132,6 +135,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectId != null ">project_id = #{projectId},</if>
             <if test="flightNumber != null  and flightNumber != ''">flight_number = #{flightNumber},</if>
             <if test="useTime != null  and useTime != ''">use_time = #{useTime},</if>
+            <if test="oldUseTime != null  and oldUseTime != ''">old_use_time = #{oldUseTime},</if>
             <if test="waitTimeLong != null  and waitTimeLong != ''">wait_time_long = #{waitTimeLong},</if>
             <if test="charterCarType != null  and charterCarType != ''">charter_car_type = #{charterCarType},</if>
             <if test="startDate != null">start_date = #{startDate},</if>
@@ -316,6 +320,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ji.wait_time_long as waitMinute,
         ji.charter_car_type serverType,
         ji.use_time charterCarDaysCount,
+        ji.old_use_time oldUseTime,
         CASE WHEN round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )  >= 0 THEN  round(( UNIX_TIMESTAMP( ji.start_date) - UNIX_TIMESTAMP( NOW() )) / 60 )   ELSE 0 END  AS waitingTime
         from journey_info ji
         left join journey_passenger_info jpi on ji.journey_id=jpi.journey_id

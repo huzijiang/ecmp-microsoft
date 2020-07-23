@@ -32,42 +32,7 @@ import com.hq.ecmp.constant.OrderStateTrace;
 import com.hq.ecmp.constant.ResignOrderTraceState;
 import com.hq.ecmp.constant.ServiceTypeConstant;
 import com.hq.ecmp.constant.enumerate.DispatcherFrontState;
-import com.hq.ecmp.mscore.domain.ApplyDispatchQuery;
-import com.hq.ecmp.mscore.domain.ApplyInfo;
-import com.hq.ecmp.mscore.domain.ApplyUseCarType;
-import com.hq.ecmp.mscore.domain.CarGroupDispatcherInfo;
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
-import com.hq.ecmp.mscore.domain.CarInfo;
-import com.hq.ecmp.mscore.domain.DispatchDriverInfo;
-import com.hq.ecmp.mscore.domain.DispatchOptRecord;
-import com.hq.ecmp.mscore.domain.DispatchOrderInfo;
-import com.hq.ecmp.mscore.domain.DispatchSendCarPageInfo;
-import com.hq.ecmp.mscore.domain.DriverHeartbeatInfo;
-import com.hq.ecmp.mscore.domain.DriverInfo;
-import com.hq.ecmp.mscore.domain.DriverServiceAppraiseeInfo;
-import com.hq.ecmp.mscore.domain.EcmpUser;
-import com.hq.ecmp.mscore.domain.EnterpriseCarTypeInfo;
-import com.hq.ecmp.mscore.domain.JourneyInfo;
-import com.hq.ecmp.mscore.domain.JourneyNodeInfo;
-import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
-import com.hq.ecmp.mscore.domain.JourneyPlanPriceInfo;
-import com.hq.ecmp.mscore.domain.JourneyUserCarPower;
-import com.hq.ecmp.mscore.domain.OrderAccountInfo;
-import com.hq.ecmp.mscore.domain.OrderAddressInfo;
-import com.hq.ecmp.mscore.domain.OrderDriverListInfo;
-import com.hq.ecmp.mscore.domain.OrderInfo;
-import com.hq.ecmp.mscore.domain.OrderInfoMessage;
-import com.hq.ecmp.mscore.domain.OrderListInfo;
-import com.hq.ecmp.mscore.domain.OrderPayInfo;
-import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
-import com.hq.ecmp.mscore.domain.OrderServiceImagesInfo;
-import com.hq.ecmp.mscore.domain.OrderSettlingInfo;
-import com.hq.ecmp.mscore.domain.OrderStateTraceInfo;
-import com.hq.ecmp.mscore.domain.OrderViaInfo;
-import com.hq.ecmp.mscore.domain.RegimeInfo;
-import com.hq.ecmp.mscore.domain.SceneInfo;
-import com.hq.ecmp.mscore.domain.SendCarInfo;
-import com.hq.ecmp.mscore.domain.UserEmergencyContactInfo;
+import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.ApplyUseWithTravelDto;
 import com.hq.ecmp.mscore.dto.DirectionDto;
 import com.hq.ecmp.mscore.dto.DriverCloudDto;
@@ -84,35 +49,7 @@ import com.hq.ecmp.mscore.dto.PayeeInfoDto;
 import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
-import com.hq.ecmp.mscore.mapper.ApplyInfoMapper;
-import com.hq.ecmp.mscore.mapper.ApplyUseCarTypeMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupDispatcherInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarGroupInfoMapper;
-import com.hq.ecmp.mscore.mapper.CarInfoMapper;
-import com.hq.ecmp.mscore.mapper.ChinaCityMapper;
-import com.hq.ecmp.mscore.mapper.DriverHeartbeatInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverInfoMapper;
-import com.hq.ecmp.mscore.mapper.DriverServiceAppraiseeInfoMapper;
-import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
-import com.hq.ecmp.mscore.mapper.EnterpriseCarTypeInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyNodeInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyPlanPriceInfoMapper;
-import com.hq.ecmp.mscore.mapper.JourneyUserCarPowerMapper;
-import com.hq.ecmp.mscore.mapper.OrderAccountInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderAddressInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderDispatcheDetailInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderPayInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderServiceCostDetailRecordInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderServiceImagesInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderSettlingInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderStateTraceInfoMapper;
-import com.hq.ecmp.mscore.mapper.OrderViaInfoMapper;
-import com.hq.ecmp.mscore.mapper.RegimeInfoMapper;
-import com.hq.ecmp.mscore.mapper.SceneInfoMapper;
-import com.hq.ecmp.mscore.mapper.UserEmergencyContactInfoMapper;
+import com.hq.ecmp.mscore.mapper.*;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IEcmpConfigService;
 import com.hq.ecmp.mscore.service.IEcmpOrgService;
@@ -254,7 +191,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     private CarGroupInfoMapper carGroupInfoMapper;
     @Resource
     private ApplyUseCarTypeMapper applyUseCarTypeMapper;
-
+    @Resource
+    private JourneyAddressInfoMapper journeyAddressInfoMapper;
     @Resource
     private OrderServiceCostDetailRecordInfoMapper orderServiceCostDetailRecordInfoMapper;
     @Resource
@@ -2375,6 +2313,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
                 dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
                 dispatchSendCarPageInfo.setCharterCarDaysCount(journeyInfo.getUseTime());
+                if(StringUtils.isNotEmpty(journeyInfo.getOldUseTime())){
+                    dispatchSendCarPageInfo.setOldUseTime(journeyInfo.getOldUseTime());
+                }
                 Long applyUserId = journeyInfo.getUserId();
                 if (null != applyUserId) {
                     //申请人手机名字
@@ -3179,6 +3120,24 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 result.put("actionEndTime", DateUtils.formatDate( giveUpOrderStateTraceInfo.getCreateTime() , "yyyy年MM月dd日 HH时mm分ss秒"));
             }
         }
+
+
+
+        OrderDetailBackDto orderDetailBackDto = orderInfoMapper.getOrderListDetail(String.valueOf(orderId));
+        if(orderDetailBackDto == null){
+            return result;
+        }
+        String shortName = result.get("shortName");
+        JourneyNodeInfo journeyNodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoByJourneyId(orderDetailBackDto.getJourneyId());
+        //按需求，此处导出计划地址，不按照实际地址导出
+        if(journeyNodeInfo != null){
+            shortName = journeyNodeInfo.getPlanEndAddress();
+        }
+        String newEndAdress = orderDetailBackDto.getNewEndAddress();
+        if(!StringUtils.isEmpty(newEndAdress)){
+            shortName = shortName+","+newEndAdress;
+        }
+        result.put("shortName",shortName);
        return result;
     }
 
@@ -3298,14 +3257,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         dataMap.put("sort", "9");
         map.put("completed", dataMap);
 
-       /* dataMap = new HashMap<>();
-        data.setState("S911");
-        List<OrderListBackDto> cancelled= orderInfoMapper.getCount(data);
-        dataMap.put("msg","已取消");
-        dataMap.put("value",null==cancelled ?0:cancelled.size());
-        dataMap.put("code","S911");
+        dataMap = new HashMap<>();
+        data.setState("S921");
+        List<OrderListBackDto> expired= orderInfoMapper.getCount(data);
+        dataMap.put("msg","已过期");
+        dataMap.put("value",null==expired ?0:expired.size());
+        dataMap.put("code","S921");
         dataMap.put("sort","10");
-        map.put("cancelled",dataMap);*/
+        map.put("expired",dataMap);
         return map;
     }
 
@@ -3462,6 +3421,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     public String selectOrderApplyInfoByOrderNumber(OrderInfo orderInfo) {
         String applyId=orderInfoMapper.selectOrderApplyInfoByOrderNumber(orderInfo);
         return applyId;
+    }
+
+    @Override
+    public String getOrderStateByOrderInfo(OrderInfo orderInfo) {
+        String orderState=orderInfoMapper.getOrderStateByOrderInfo(orderInfo);
+        return orderState;
     }
 
     @Override

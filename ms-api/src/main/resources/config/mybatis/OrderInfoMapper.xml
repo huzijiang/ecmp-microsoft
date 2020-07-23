@@ -729,7 +729,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         oodi.car_group_user_mode carGroupUserMode,
         oodi.next_car_group_id nextCarGroupId,
         cgi.car_group_name carGroupName,
-        s.it_is_supplement itIsSupplement
+        s.it_is_supplement itIsSupplement,
+        ji.use_time useTime
         from order_info s
         left join order_dispatche_detail_info oodi on oodi.order_id = s.order_id
         LEFT join journey_user_car_power jucp on jucp.power_id=s.power_id
@@ -764,7 +765,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="deptName != null and  deptName!='' "> and eo.dept_name = #{deptName}</if>
                 <if test="deptId != null and  deptId!='' "> and eu.dept_id = #{deptId}</if>
                 <if test="state == 1">
-                    and z.state  in ('S911','S900','S699','S616','S600','S500','S299','S635','S380')
+                    and z.state  in ('S911','S900','S699','S616','S600','S500','S299','S635','S380','S921')
                 </if>
                 <if test="state == 2">
                     and z.state  in ('S699','S616','S600','S500','S299','S635','S380')
@@ -801,6 +802,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         si.name sceneName,
         srr.scene_id sceneId,
         s.order_id orderId,
+        s.journey_id journeyId,
         s.order_number orderNumber,
         eu.nick_name applyName,
         eu.phonenumber applyPhoneNumber,
@@ -828,6 +830,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         s.service_type serviceType,
         ji.charter_car_type charterCarType,
         ji.use_time useTime,
+        ji.old_use_time oldUseTime,
         ifnull(ecti.name,s.demand_car_level) carLevel,
         CONVERT(osi.total_mileage,DECIMAL(10,2)) totalMileage,
         osi.total_time totalTime,
@@ -2574,6 +2577,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         ci.car_color  carColor,
         -- 用车时间
         ji.use_time useTime,
+        --  历史用车时间
+        ji.old_use_time oldUseTime,
         -- 用车开始时间
         ji.start_date beginTime,
         -- 用车结束时间
@@ -3142,7 +3147,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 乘车人数
        ifnull(jpi.peer_number, '无') peerName,
        -- 目的地
-       ifnull(oai.address_long, '无')  shortName,
+       ifnull(oai.address, '无')  shortName,
        -- 用车天数
        ifnull(ji.use_time, '无') useTime,
         -- 预约用车时间
@@ -3653,4 +3658,19 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
                 <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
             </where>
     </select>
+
+
+    <select id="getOrderStateByOrderInfo" resultType="java.lang.String"  parameterType="com.hq.ecmp.mscore.domain.OrderInfo" >
+        SELECT ost.state
+        FROM  order_info  ord
+        LEFT JOIN order_state_trace_info ost ON ost.order_id=ord.order_id
+        <where>
+            1=1   AND ord.state != 'S900'
+            <if test="orderId != null and '' != orderId "> and ord.order_id = #{orderId} </if>
+            <if test="orderNumber != null and '' != orderNumber "> and ord.order_number = #{orderNumber} </if>
+        </where>
+        ORDER BY ost.create_time  DESC
+        LIMIT 1
+    </select>
+
 </mapper>

@@ -104,6 +104,9 @@ public class DispatchVo {
     @ApiModelProperty(value = "包车总天数")
     private Double charterCarDaysCount;
 
+    @ApiModelProperty(value = "历史包车天数")
+    private String oldUseTime;
+
     @ApiModelProperty(value = "所用车型id")
     private Long carTypeId;
 
