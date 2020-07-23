@@ -205,6 +205,7 @@ public class DispatchServiceImpl implements IDispatchService {
         selectCarConditionBo.setCarLicense(dispatchSelectCarDto.getPlateLicence());
         selectCarConditionBo.setCarTypeInfo(dispatchSelectCarDto.getCarTypeInfo());
         selectCarConditionBo.setDispatcherId(0L);
+        selectCarConditionBo.setItIsSelfDriver(dispatchSelectCarDto.getItIsSelfDriver());
         if (StringUtils.isNotEmpty(dispatchSelectCarDto.getDispatcherId())) {
             selectCarConditionBo.setDispatcherId(Long.parseLong(loginUser.getUser().getUserId().toString()));
         }
