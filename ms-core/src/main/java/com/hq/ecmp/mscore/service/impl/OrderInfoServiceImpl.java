@@ -2343,20 +2343,22 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfo.setOrderId(orderId);
             List<OrderAddressInfo> selectOrderAddressInfoList = iOrderAddressInfoService.selectOrderAddressInfoList(orderAddressInfo);
             if (null != selectOrderAddressInfoList && selectOrderAddressInfoList.size() > 0) {
-                String cityPostalCode = selectOrderAddressInfoList.get(0).getCityPostalCode();
-                if (StringUtil.isNotEmpty(cityPostalCode)) {
-                    CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityPostalCode);
-                    if (null != cityInfo) {
-                        dispatchSendCarPageInfo.setCityName(cityInfo.getCityName());
-                        dispatchSendCarPageInfo.setStartCity(cityInfo.getCityFullName());
-                    }
-                }
-                if (selectOrderAddressInfoList.size()>1) {
-                    String cityCode = selectOrderAddressInfoList.get(1).getCityPostalCode();
-                    if (StringUtil.isNotEmpty(cityCode)) {
-                        CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityCode);
+                for (OrderAddressInfo addressInfo : selectOrderAddressInfoList) {
+                    String cityPostalCode = addressInfo.getCityPostalCode();
+                    String type = addressInfo.getType();
+                    if (StringUtils.isNotEmpty(cityPostalCode) && StringUtils.isNotEmpty(type)) {
+                        CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityPostalCode);
+
                         if (null != cityInfo) {
-                            dispatchSendCarPageInfo.setEndCity(cityInfo.getCityFullName());
+                            if ("A000".equals(type)) {
+                                //出发地城市
+                                dispatchSendCarPageInfo.setCityName(cityInfo.getCityName());
+                                dispatchSendCarPageInfo.setStartCity(cityInfo.getCityFullName());
+                            }
+                            if ("A999".equals(type)) {
+                                //目的地城市
+                                dispatchSendCarPageInfo.setEndCity(cityInfo.getCityFullName());
+                            }
                         }
                     }
                 }
