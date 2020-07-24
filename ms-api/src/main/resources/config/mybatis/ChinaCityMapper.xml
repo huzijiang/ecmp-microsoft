@@ -43,7 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 
 	<select id="queryCityByCityCode" resultType="com.hq.ecmp.mscore.vo.CityInfo">
-		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName,PROVINCE_CODE as provinceCode
+		select CITY_ID as cityId, CITY_CODE as cityCode,SHORT_NAME as cityName,PROVINCE_CODE as provinceCode, CITY_NAME as cityFullName
 	from
 	china_city where CITY_CODE=#{cityCode} and data_state = 1
 	</select>

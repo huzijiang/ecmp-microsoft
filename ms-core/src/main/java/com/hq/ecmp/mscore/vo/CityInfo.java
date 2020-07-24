@@ -23,5 +23,6 @@ CityInfo {
     @ApiModelProperty(name = "cityCode",value = "城市code码")
     private String cityCode;
     private String provinceCode;
+    private String cityFullName;
 
 }

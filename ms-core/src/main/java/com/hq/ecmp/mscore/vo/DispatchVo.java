@@ -62,6 +62,12 @@ public class DispatchVo {
     @ApiModelProperty(value="用车城市")
     private String useCarCity;
 
+    @ApiModelProperty(value="出发地城市")
+    private String startCity;
+
+    @ApiModelProperty(value="目的地地城市")
+    private String endCity;
+
     @ApiModelProperty(value="用车场景")
     private String userCarScene;
 

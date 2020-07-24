@@ -2348,6 +2348,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                     CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityPostalCode);
                     if (null != cityInfo) {
                         dispatchSendCarPageInfo.setCityName(cityInfo.getCityName());
+                        dispatchSendCarPageInfo.setStartCity(cityInfo.getCityFullName());
+                    }
+                }
+                if (selectOrderAddressInfoList.size()>1) {
+                    String cityCode = selectOrderAddressInfoList.get(1).getCityPostalCode();
+                    if (StringUtil.isNotEmpty(cityCode)) {
+                        CityInfo cityInfo = chinaCityMapper.queryCityByCityCode(cityCode);
+                        if (null != cityInfo) {
+                            dispatchSendCarPageInfo.setEndCity(cityInfo.getCityFullName());
+                        }
                     }
                 }
             }

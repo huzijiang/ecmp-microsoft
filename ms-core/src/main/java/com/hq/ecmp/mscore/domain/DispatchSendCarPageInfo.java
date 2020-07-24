@@ -54,4 +54,8 @@ public class DispatchSendCarPageInfo {
 	 * 历史用车天数
 	 */
 	String oldUseTime;
+
+	String startCity;
+
+	String endCity;
 }

@@ -2984,6 +2984,8 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             oaib.address as startSite,
             oaie.address as endSite,
             cc.short_name useCarCity,
+            cc.city_name startCity,
+            cci.city_name endCity,
             oddi.car_group_user_mode carGroupUserMode,
             oddi.it_is_self_driver selfDriver,
             oddi.it_is_use_inner_car_group useCarGroupType,
@@ -3013,6 +3015,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             left join order_address_info oaib  on oaib.order_id=o.order_id and oaib.type='A000'
             left join order_address_info oaie  on oaie.order_id=o.order_id and oaie.type='A999'
             left join china_city cc on cc.city_code=oaib.city_postal_code
+            left join china_city cci on cci.city_code=oaie.city_postal_code
             LEFT JOIN journey_passenger_info jpi ON  jpi.journey_id = o.journey_id
             where
             1=1
