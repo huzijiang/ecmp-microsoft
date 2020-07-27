@@ -1539,6 +1539,28 @@ public class SmsBusinessImpl implements IsmsBusiness {
         log.info("短信结束-订单{},司机结束服务", orderId);
     }
 
+    @Async
+    @Override//发送反馈短信
+    public void sendSmsQuestionnaire(long orderId) {
+        log.info("发送反馈短信,orderId={}", orderId);
+        try {
+            DriverSmsInfo orderCommonInfo = getOrderinfo(orderId);
+            if (null != orderCommonInfo.getTotalFee()) {
+                BigDecimal totalFee = orderCommonInfo.getTotalFee();
+                BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
+                orderCommonInfo.setTotalFee(totalFee2);
+            }
+            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            //用车人
+            String applyMobile = orderCommonInfo.getApplyMobile();
+            log.info("短信已发送用车人电话：{}", applyMobile);
+            log.info("sendSmsQuestionnaire发送短信内容={}",orderCommonInfoMap);
+            iSmsTemplateInfoService.sendSms(SmsTemplateConstant.QUESTIONNAIRE, orderCommonInfoMap, applyMobile);
+        } catch (Exception e) {
+            log.error("业务处理异常", e);
+        }
+    }
+
     private Map<String, String> objToMap(DriverSmsInfo orderCommonInfo) throws IllegalAccessException {
         Map<String, String> orderCommonInfoMap = new HashMap();
         Class<?> clazz = orderCommonInfo.getClass();

@@ -32,6 +32,8 @@ public interface OrderInfoMapper {
      */
     public OrderInfo selectOrderInfoById(Long orderId);
 
+    OrderInfo selectOrderInfoByOrderNumber(@Param("orderNumber") String orderNumber);
+
     /**
      * 查询【请填写功能名称】列表
      *

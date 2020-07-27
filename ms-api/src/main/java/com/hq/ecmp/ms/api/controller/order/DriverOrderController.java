@@ -253,7 +253,8 @@ public class DriverOrderController {
 
             //司机服务-结束不发送短信，应该在提交金额后在发短信 GONGCHE-67
             ismsBusiness.sendSmsDriverServiceEnd(orderSettlingInfoVo.getOrderId());
-
+            //发送评价短信
+            ismsBusiness.sendSmsQuestionnaire(orderSettlingInfoVo.getOrderId());
         } catch (Exception e) {
             logger.error("业务处理异常", e);
             return ApiResponse.error(e.getMessage());

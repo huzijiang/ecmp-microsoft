@@ -97,6 +97,11 @@ LEFT JOIN journey_info h on a.journey_id=h.journey_id
         where order_id = #{orderId}
     </select>
 
+    <select id="selectOrderInfoByOrderNumber" parameterType="String" resultMap="OrderInfoResult">
+        <include refid="selectOrderInfoVo"/>
+        where order_number = #{orderNumber}
+    </select>
+
     <insert id="insertOrderInfo" parameterType="com.hq.ecmp.mscore.domain.OrderInfo">
         <selectKey keyColumn="order_id" keyProperty="orderId" resultType="long" order="AFTER">
             select last_insert_id();

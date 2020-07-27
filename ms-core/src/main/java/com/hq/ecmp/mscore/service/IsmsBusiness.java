@@ -153,6 +153,8 @@ public interface IsmsBusiness {
 
     void sendSmsDriverServiceEnd(long orderId);
 
+    void sendSmsQuestionnaire(long orderId);
+
     /**
      * 撤销待服务短信
      * @param undoSMSTemplate

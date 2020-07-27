@@ -47,6 +47,8 @@ public class SmsTemplateConstant {
     public static final String PRICAR_DRIVER_START_SERVICE = "pricar_driver_start_service";
     //司机结束服务-
     public static final String PRICAR_DRIVER_SERVICE_END = "pricar_driver_service_end";
+    //司机反馈评价-
+    public static final String QUESTIONNAIRE = "questionnaire";
 
 
 

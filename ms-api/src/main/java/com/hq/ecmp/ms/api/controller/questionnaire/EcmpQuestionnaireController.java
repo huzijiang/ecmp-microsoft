@@ -18,6 +18,7 @@ import com.hq.ecmp.mscore.vo.PageResult;
 import com.hq.ecmp.mscore.vo.QuestionnaireVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +62,10 @@ public class EcmpQuestionnaireController {
             //时间倒叙，理论上最新的车辆相关订单就是当前评价的订单
             orderInfos.sort(Comparator.comparing(OrderInfo::getCreateTime).reversed());
             OrderInfo info = orderInfos.get(0);
+            if (StringUtils.isNotBlank(ecmpQuestionnaire.getOrderNumber())) {
+                info = orderInfoMapper.selectOrderInfoByOrderNumber(ecmpQuestionnaire.getOrderNumber());
+            }
+
 //  奇怪的绑定订单操作，先注释掉，默认绑定车辆最新的订单  update_by huzj
 //            for(OrderInfo x:orderInfos){
 //                Map map = new HashMap();
