@@ -187,7 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 and c.car_group_id in (select i.car_group_id from car_group_dispatcher_info i where i.user_id = #{userId})
             </if>
         </where>
-             order by c.car_group_name
+           order by case when c.it_is_inner='C000' then 0 else 1 end,c.car_group_name
     </select>
 
     <select id="selectSubCarGroupInfoList" resultType="com.hq.ecmp.mscore.vo.CarGroupListVO" parameterType="long">
