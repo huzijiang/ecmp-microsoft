@@ -1550,7 +1550,10 @@ public class SmsBusinessImpl implements IsmsBusiness {
                 BigDecimal totalFee2 = totalFee.setScale(2, RoundingMode.HALF_UP);//保留两位小数
                 orderCommonInfo.setTotalFee(totalFee2);
             }
-            Map<String, String> orderCommonInfoMap = objToMap(orderCommonInfo);
+            Map<String, String> orderCommonInfoMap = new HashMap<>();
+            orderCommonInfoMap.put("orderBusinessNumber", orderCommonInfo.getOrderNumber());
+            orderCommonInfoMap.put("carLicense", orderCommonInfo.getCarLicense());
+            orderCommonInfoMap.put("orderNumber", orderCommonInfo.getOrderNumber());
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
             log.info("短信已发送用车人电话：{}", applyMobile);
