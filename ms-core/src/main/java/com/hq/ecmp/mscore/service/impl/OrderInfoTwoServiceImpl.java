@@ -1222,7 +1222,7 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
         if(journeyPlanPriceInfos != null && journeyPlanPriceInfos.size() > 0){
             JourneyPlanPriceInfo info = journeyPlanPriceInfos.get(0);
             Date arriveDate = info.getPlannedArrivalTime();
-            int day = DateFormatUtils.compareDayAndTimeSecond(arriveDate, new Date());
+            int day = DateFormatUtils.compareDay(arriveDate, new Date());
             if (day == -1){
                throw new BaseException("当前时间不可还车");
             }
