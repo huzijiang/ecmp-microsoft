@@ -1,5 +1,6 @@
 package com.hq.ecmp.mscore.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.hq.api.system.domain.SysRole;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
@@ -1035,6 +1036,12 @@ public class DispatchServiceImpl implements IDispatchService {
         Boolean fourExist = false;
         Boolean eightExist = false;
 
+        log.info("指派司机时价格计划检查："+"rentTime-"+rentTime+
+                "CarGroupId-"+carGroupInfo_car.getCarGroupId()+
+                "CityPostalCode-"+orderAddressInfo.getCityPostalCode()+
+                "carGroupServiceMode-"+carGroupServiceMode+
+                "costConfigDetailInfoVoList-"+ JSON.toJSONString(costConfigDetailInfoVoList));
+
         while (costConfigDetailInfoVoIterator.hasNext()) {
             CostConfigDetailInfoVo costConfigDetailInfoVo = costConfigDetailInfoVoIterator.next();
             if (rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())) {
@@ -1091,7 +1098,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
         }
-
+        log.info("指派司机时价格计划检查："+"fourExist-"+fourExist+"eightExist-"+eightExist);
         if (rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())) {
             if (!fourExist) {
                 return ApiResponse.error("未找到匹配的价格计划。");
@@ -1185,7 +1192,11 @@ public class DispatchServiceImpl implements IDispatchService {
         //价格计划是否存在
         Boolean fourExist = false;
         Boolean eightExist = false;
-
+        log.info("指派司机时价格计划检查："+"rentTime-"+rentTime+
+                "CarGroupId-"+carGroupInfo_driver.getCarGroupId()+
+                "CityPostalCode-"+orderAddressInfo.getCityPostalCode()+
+                "carGroupServiceMode-"+carGroupServiceMode+
+                "costConfigDetailInfoVoList-"+ JSON.toJSONString(costConfigDetailInfoVoList));
         while (costConfigDetailInfoVoIterator.hasNext()) {
             CostConfigDetailInfoVo costConfigDetailInfoVo = costConfigDetailInfoVoIterator.next();
 
@@ -1243,7 +1254,7 @@ public class DispatchServiceImpl implements IDispatchService {
                 }
             }
         }
-
+        log.info("指派司机时价格计划检查："+"fourExist-"+fourExist+"eightExist-"+eightExist);
         if (rentTime.equals(CarRentTypeEnum.FOUR_HOURS.getCode())) {
             if (!fourExist) {
                 return ApiResponse.error("未找到匹配的价格计划。");
