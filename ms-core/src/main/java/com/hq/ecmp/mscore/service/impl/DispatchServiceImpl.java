@@ -1129,7 +1129,7 @@ public class DispatchServiceImpl implements IDispatchService {
     public ApiResponse checkDriverOwnCarGroupPricePlanInfo(DispatchLockDriverDto dispatchLockDriverDto) {
         //包车时长  半日 整日  多日
         String rentTime = dispatchLockDriverDto.getRentTime();
-        if (Double.parseDouble(rentTime) > 1.0) {
+        if (Double.parseDouble(rentTime) >= 1.0) {
             if (((int) (Double.parseDouble(rentTime) * 10) / 10) != 0) {
                 rentTime = "T009";
             } else {
