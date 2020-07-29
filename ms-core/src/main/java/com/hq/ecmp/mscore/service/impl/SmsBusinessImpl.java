@@ -25,10 +25,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1552,7 +1555,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             }
             Map<String, String> orderCommonInfoMap = new HashMap<>();
             orderCommonInfoMap.put("orderBusinessNumber", orderCommonInfo.getOrderNumber());
-            orderCommonInfoMap.put("carLicense", orderCommonInfo.getCarLicense());
+            orderCommonInfoMap.put("carLicense", URLEncoder.encode(orderCommonInfo.getCarLicense().trim(), "utf-8"));
             orderCommonInfoMap.put("orderNumber", orderCommonInfo.getOrderNumber());
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
