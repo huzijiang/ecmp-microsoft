@@ -1559,7 +1559,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
             orderCommonInfoMap.put("orderNumber", orderCommonInfo.getOrderNumber());
             //用车人
             String applyMobile = orderCommonInfo.getApplyMobile();
-            log.info("短信已发送用车人电话：{}", applyMobile);
+            log.info("短信已发送用车人电话：{} ", applyMobile);
             log.info("sendSmsQuestionnaire发送短信内容={}",orderCommonInfoMap);
             iSmsTemplateInfoService.sendSms(SmsTemplateConstant.QUESTIONNAIRE, orderCommonInfoMap, applyMobile);
         } catch (Exception e) {
