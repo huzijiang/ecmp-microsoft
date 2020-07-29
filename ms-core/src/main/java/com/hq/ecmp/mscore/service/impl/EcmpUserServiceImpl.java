@@ -3,10 +3,15 @@ package com.hq.ecmp.mscore.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.hq.api.system.domain.SysDept;
 import com.hq.api.system.mapper.SysDeptMapper;
 import com.hq.api.system.mapper.SysUserMapper;
@@ -18,6 +23,8 @@ import com.hq.ecmp.constant.RoleConstant;
 import com.hq.ecmp.mscore.domain.*;
 import com.hq.ecmp.mscore.dto.*;
 import com.hq.ecmp.mscore.mapper.*;
+import com.hq.ecmp.mscore.vo.AddressVO;
+import com.hq.ecmp.mscore.vo.UserAddressVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -79,6 +86,9 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 
     @Autowired(required = false)
     private SysDeptMapper deptMapper;
+
+    @Autowired
+    private UserAddressMapper userAddressMapper;
 
 
     /**
@@ -686,4 +696,91 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
 	public int updateEcmpUserjobNumber(EcmpUser ecmpUser) {
 		return ecmpUserMapper.updateEcmpUserjobNumber(ecmpUser);
 	}
+
+    /**
+     * 保存用户常用地址信息
+     */
+    @Override
+    public void updateUserAddress(Long userId, AddressVO startAddress,AddressVO endAddress,List<AddressVO> multipleDropAddress) {
+        Map<String,List<AddressVO>> addressInfo = Maps.newHashMap();
+        logger.info("开始保存用户常用地址,userId:{},startAddress:{},endAddress:{}",userId,startAddress,endAddress);
+        UserAddress userAddress = userAddressMapper.getByUserId(userId);
+        if(userAddress!=null&&StringUtils.isNotBlank(userAddress.getAddressJson())){
+            JSONObject jsonMap = JSON.parseObject(userAddress.getAddressJson());
+            jsonMap.keySet().forEach(key->addressInfo.put(key,jsonMap.getJSONArray(key).toJavaList(AddressVO.class)));
+        }
+
+        //拼装开始地址信息
+        if(startAddress!=null){
+            String startCode = startAddress.getCityCode()+"_start";
+            fillAddressInfo(addressInfo,startCode,startAddress);
+        }
+
+        if(endAddress!=null) {
+            //拼装结束地址信息
+            String endCode = endAddress.getCityCode() + "_end";
+            fillAddressInfo(addressInfo, endCode, endAddress);
+        }
+
+        //拼装途径点
+        if(multipleDropAddress!=null&&multipleDropAddress.size()>0){
+            multipleDropAddress.forEach(addressVO -> {
+                String endCode = addressVO.getCityCode() + "_end";
+                fillAddressInfo(addressInfo, endCode, addressVO);
+            });
+        }
+
+        if(userAddress==null){
+            userAddress = UserAddress.builder().userId(userId).build();
+            userAddress.setAddressJson(JSON.toJSONString(addressInfo));
+            userAddress.setCreateBy(userId.toString());
+            userAddressMapper.insertUserAddress(userAddress);
+            logger.info("新增用户常用地址成功,userAddress:{}",userAddress);
+        }else{
+            userAddress.setAddressJson(JSON.toJSONString(addressInfo));
+            userAddressMapper.updateUserAddress(userAddress);
+            userAddress.setUpdateBy(userId.toString());
+            logger.info("更新用户常用地址成功,userAddress:{}",userAddress);
+        }
+    }
+
+    //拼装地址数据
+    private void fillAddressInfo(Map<String,List<AddressVO>> addressInfo,String code,AddressVO addressVO){
+        if(addressVO==null){
+            return;
+        }
+        List<AddressVO> addressList = addressInfo.get(code);
+        if(addressList==null){
+            addressList = Lists.newArrayList(addressVO);
+            addressInfo.put(code,addressList);
+        }else{
+            Long count = addressList.stream().filter(address->address.getLongAddress().equals(addressVO.getLongAddress())).count();
+            if(count==0){
+                addressList.add(0,addressVO);
+                addressList = addressList.size()>10?addressList.subList(0,10):addressList;
+            }else{
+                AddressVO addressvo = addressList.stream().filter(address->address.getLongAddress().equals(addressVO.getLongAddress())).findFirst().get();
+                addressList.remove(addressvo);
+                addressList.add(0,addressVO);
+            }
+        }
+    }
+
+    /**
+     * 获取用户常用地址信息
+     */
+    @Override
+    public UserAddressVO getUserAddress(Long userId) {
+        UserAddress userAddress = userAddressMapper.getByUserId(userId);
+        UserAddressVO userAddressVO = new UserAddressVO();
+        if(userAddress==null){
+            userAddressVO.setAddressInfo(Maps.newHashMap());
+            return userAddressVO;
+        }
+        Map<String,List<AddressVO>> addressMap = Maps.newHashMap();
+        JSONObject jsonMap = JSON.parseObject(userAddress.getAddressJson());
+        jsonMap.keySet().forEach(key->addressMap.put(key,jsonMap.getJSONArray(key).toJavaList(AddressVO.class)));
+        userAddressVO.setAddressInfo(addressMap);
+        return userAddressVO;
+    }
 }

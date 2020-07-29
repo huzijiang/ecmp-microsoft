@@ -117,6 +117,9 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
     @Autowired
     private OrderDispatcheDetailInfoMapper dispatcheDetailInfoMapper;
 
+    @Autowired
+    private IEcmpUserService userService;
+
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("apply-pool-%d").build();
     private ExecutorService executor = new ThreadPoolExecutor(5, 200,
             0L, TimeUnit.MILLISECONDS,
@@ -2163,6 +2166,15 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         orderDispatcheDetailInfo.setCreateBy(String.valueOf(applySingleVO.getUserId()));
         orderDispatcheDetailInfo.setCreateTime(DateUtils.getNowDate());
         int i = orderDispatcheDetailInfoMapper.insertOrderDispatcheDetailInfo(orderDispatcheDetailInfo);
+
+        //8.保存用户常用地址
+        try {
+            userService.updateUserAddress(loginUser.getUser().getUserId(),applySingleVO.getStartAddr(),applySingleVO.getEndAddr(),applySingleVO.getMultipleDropAddress());
+        }catch (Exception e){
+            log.error("保存用户常用地址信息出错",e);
+        }
+
+
         if(i == 1){
             apiResponse.setMsg("提交申请单成功");
         }else {

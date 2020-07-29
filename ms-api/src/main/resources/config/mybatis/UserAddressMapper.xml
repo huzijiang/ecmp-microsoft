@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.UserAddressMapper">
+
+    <resultMap type="com.hq.ecmp.mscore.domain.UserAddress" id="UserAddressResult">
+        <result property="userId"    column="user_id"    />
+        <result property="addressJson"    column="address_json"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectUserAddressVo">
+        select user_id, address_json, create_by, create_time, update_by, update_time from user_address
+    </sql>
+
+    <select id="getByUserId" parameterType="java.lang.Long" resultMap="UserAddressResult">
+        <include refid="selectUserAddressVo"/> where user_id = #{userId} limit 1
+    </select>
+
+    <insert id="insertUserAddress" parameterType="com.hq.ecmp.mscore.domain.UserAddress" useGeneratedKeys="true" keyProperty="id">
+        insert into user_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null ">user_id,</if>
+            <if test="addressJson != null and addressJson!=''">address_json,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createBy != null  and createBy != ''">update_by,</if>
+            create_time,update_time,
+         </trim>
+
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null ">#{userId},</if>
+            <if test="addressJson != null and addressJson!=''">#{addressJson},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            now(),now(),
+         </trim>
+    </insert>
+
+    <update id="updateUserAddress" parameterType="com.hq.ecmp.mscore.domain.UserAddress">
+        update user_address
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="addressJson != null and addressJson!=''">address_json = #{addressJson},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            update_by = now(),
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+</mapper>

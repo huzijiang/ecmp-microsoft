@@ -10,6 +10,7 @@ import com.hq.ecmp.ms.api.dto.order.OrderDto;
 import com.hq.ecmp.mscore.domain.EcmpUser;
 import com.hq.ecmp.mscore.domain.EcmpUserFeedbackInfo;
 import com.hq.ecmp.mscore.service.IEcmpUserService;
+import com.hq.ecmp.mscore.vo.UserAddressVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,8 +134,16 @@ public class UserController {
     }
 
 
-
+    /**
+     * 获得员工常用地址
+     */
+    @ApiOperation(value = "getAddress",notes = "获得员工常用地址",httpMethod ="POST")
+    @PostMapping("/getAddress")
+    public ApiResponse getAddress(){
+        HttpServletRequest request = ServletUtils.getRequest();
+        LoginUser loginUser = tokenService.getLoginUser(request);
+        UserAddressVO userAddressVO = iEcmpUserService.getUserAddress(loginUser.getUser().getUserId());
+        return ApiResponse.success(userAddressVO);
+    }
     
-
-
 }

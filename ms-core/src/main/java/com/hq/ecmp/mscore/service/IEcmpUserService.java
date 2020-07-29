@@ -3,12 +3,15 @@ package com.hq.ecmp.mscore.service;
 import com.hq.common.core.api.ApiResponse;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.mscore.domain.EcmpUser;
+import com.hq.ecmp.mscore.domain.UserAddress;
 import com.hq.ecmp.mscore.dto.EcmpOrgDto;
 import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.dto.UserRegisterDTO;
+import com.hq.ecmp.mscore.vo.AddressVO;
 import com.hq.ecmp.mscore.vo.EcmpUserVo;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.mscore.vo.UserAddressVO;
 
 import java.util.Date;
 import java.util.List;
@@ -229,4 +232,11 @@ public interface IEcmpUserService {
 
 
     public int updateEcmpUserjobNumber(EcmpUser ecmpUser);
+
+    /**
+     * 保存用户常用地址信息
+     */
+    void updateUserAddress(Long userId, AddressVO startAddress, AddressVO endAddress,List<AddressVO> multipleDropAddress);
+
+    UserAddressVO getUserAddress(Long userId);
 }
