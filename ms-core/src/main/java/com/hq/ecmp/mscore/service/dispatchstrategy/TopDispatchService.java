@@ -348,9 +348,11 @@ public abstract class TopDispatchService {
                 //查询外部车队信息
                 String dispatcher="";
                 CarGroupInfo carGroupInfo1 = carGroupInfoMapper.selectCarGroupInfoById(dispatchSendCarDto.getOutCarGroupId());
-
-                if(CollectionUtils.isNotEmpty(carGroupDispatcherInfos)){
-                    Long outerDispatcher = carGroupDispatcherInfos.get(0).getUserId();
+                CarGroupDispatcherInfo cg = new CarGroupDispatcherInfo();
+                cg.setCarGroupId(dispatchSendCarDto.getOutCarGroupId());
+                List<CarGroupDispatcherInfo> cgDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(cg);
+                if(CollectionUtils.isNotEmpty(cgDispatcherInfos)){
+                    Long outerDispatcher = cgDispatcherInfos.get(0).getUserId();
                     EcmpUser outDispatcher = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
                     dispatcher=outDispatcher.getNickName()+" "+outDispatcher.getPhonenumber();
                 }
