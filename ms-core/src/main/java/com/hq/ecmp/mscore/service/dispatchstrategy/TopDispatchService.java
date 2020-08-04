@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.dispatchstrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.hq.common.exception.BaseException;
 import com.hq.common.utils.DateUtils;
+import com.hq.common.utils.StringUtils;
 import com.hq.core.sms.service.ISmsTemplateInfoService;
 import com.hq.ecmp.constant.*;
 import com.hq.ecmp.mscore.domain.*;
@@ -342,6 +343,30 @@ public abstract class TopDispatchService {
                     CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupId);
                     carGroupName = carGroupInfo.getCarGroupName();
                 }
+
+                //内部调度员把订单指派给外部车队的时候，需要给申请人发短信-S
+                //查询外部车队信息
+                String dispatcher="";
+                CarGroupInfo carGroupInfo1 = carGroupInfoMapper.selectCarGroupInfoById(dispatchSendCarDto.getOutCarGroupId());
+                CarGroupDispatcherInfo cg = new CarGroupDispatcherInfo();
+                cg.setCarGroupId(dispatchSendCarDto.getOutCarGroupId());
+                List<CarGroupDispatcherInfo> cgDispatcherInfos = carGroupDispatcherInfoMapper.selectCarGroupDispatcherInfoList(cg);
+                if(CollectionUtils.isNotEmpty(cgDispatcherInfos)){
+                    Long outerDispatcher = cgDispatcherInfos.get(0).getUserId();
+                    EcmpUser outDispatcher = ecmpUserMapper.selectEcmpUserById(outerDispatcher);
+                    dispatcher=outDispatcher.getNickName()+" "+outDispatcher.getPhonenumber();
+                }
+                Map<String,String> stringStringMap = new HashMap<>(7);
+                stringStringMap.put("useTime", useCarTime);
+                stringStringMap.put("applyDeptName", applyDeptName);
+                stringStringMap.put("useCarPeople", name+" "+mobile);
+                stringStringMap.put("carGroupName", carGroupInfo1.getCarGroupName());
+                stringStringMap.put("carGroupNm", carGroupInfo1.getCarGroupName());
+                stringStringMap.put("carGroupTel", carGroupInfo1.getTelephone());
+                stringStringMap.put("dispatcher", StringUtils.isEmpty(dispatcher)?" ":dispatcher);
+                log.info("orderId={} 给申请人发短信={}", dispatchSendCarDto.getOrderId(),JSONObject.toJSONString(stringStringMap));
+                iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_NOTIFY_APPLY_PEO_MSG, stringStringMap, applyNameMobile);
+                //内部调度员把订单指派给外部车队的时候，需要给申请人发短信-E
             }
             if(dispatchSendCarDto.getOutCarGroupId() != null){
                 Map<String,String> stringStringMap = new HashMap<>(8);
