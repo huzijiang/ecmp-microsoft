@@ -3459,7 +3459,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and
           g.car_group_id = #{carGroupId}
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
-        <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
+        <![CDATA[ AND adr.action_time <= #{endDate} ]]>
         GROUP BY o.order_id
 
         UNION
@@ -3495,7 +3495,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
         and
           ci.car_group_id = #{carGroupId}
         <![CDATA[ AND DATE_FORMAT( #{startDate}, '%Y-%m-%d' ) <= adr.action_time ]]>
-        <![CDATA[ AND adr.action_time <= DATE_FORMAT( #{endDate}, '%Y-%m-%d' ) ]]>
+        <![CDATA[ AND adr.action_time <= #{endDate} ]]>
         GROUP BY o.order_id
 
     </select>
