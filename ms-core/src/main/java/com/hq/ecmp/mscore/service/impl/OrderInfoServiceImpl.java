@@ -2921,13 +2921,15 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("otherCost", otherCost);
                 orderSettlingInfo.setOutPrice(JSON.toJSONString(map));
+
+                log.info("修改结算明细,orderSettlingInfo={}", JSON.toJSONString(orderSettlingInfo));
                 orderSettlingInfoMapper.updateOrderSettlingInfo(orderSettlingInfo);
             }
             // 修改账户明细
         } catch (Exception e) {
             log.error("修改结算明细异常!", e);
         }
-
+        log.info("修改费用明细={}", JSON.toJSONString(data));
         // 修改费用明细
         data.setUpdateBy(userId);
         data.setUpdateTime(new Date());
