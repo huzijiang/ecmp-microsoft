@@ -2908,6 +2908,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         }
         try {
             // 修改结算明细（抠一个值出来改，好难）
+            log.info("修改结算明细,start");
             OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(data.getOrderId());
             if (orderSettlingInfo != null) {
                 // 总费用
@@ -2916,10 +2917,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 HashMap otherCostTmp = JSONObject.parseObject(orderSettlingInfo.getOutPrice(), HashMap.class);
                 // 其他费用-子项赋值
                 List<OtherCostBean> otherCost = JSONObject.parseArray(otherCostTmp.get("otherCost").toString(), OtherCostBean.class);
-                otherCost = otherCost.stream().map(otherCostBean -> doOtherCost(otherCostBean, data.getOthersFee())).collect(Collectors.toList());
+                log.info("修改结算明细,otherCost={}", otherCost);
+                List<OtherCostBean> otherCostN = otherCost.stream().map(otherCostBean -> doOtherCost(otherCostBean, data.getOthersFee())).collect(Collectors.toList());
+                log.info("修改结算明细,otherCostN={}", otherCostN);
                 // 其他费用-封装 转 json 修改
                 Map<String, Object> map = new HashMap<>();
-                map.put("otherCost", otherCost);
+                map.put("otherCost", otherCostN);
                 orderSettlingInfo.setOutPrice(JSON.toJSONString(map));
 
                 log.info("修改结算明细,orderSettlingInfo={}", JSON.toJSONString(orderSettlingInfo));
