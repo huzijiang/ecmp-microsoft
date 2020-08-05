@@ -61,21 +61,7 @@ import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
 import com.hq.ecmp.mscore.service.IRegimeInfoService;
 import com.hq.ecmp.mscore.service.IsmsBusiness;
 import com.hq.ecmp.mscore.service.ThirdService;
-import com.hq.ecmp.mscore.vo.ApplyDispatchVo;
-import com.hq.ecmp.mscore.vo.CancelOrderCostVO;
-import com.hq.ecmp.mscore.vo.CarLevelAndPriceReVo;
-import com.hq.ecmp.mscore.vo.CityInfo;
-import com.hq.ecmp.mscore.vo.DriverOrderInfoVO;
-import com.hq.ecmp.mscore.vo.FlightInfoVo;
-import com.hq.ecmp.mscore.vo.OfficialOrderReVo;
-import com.hq.ecmp.mscore.vo.OrderCostDetailVO;
-import com.hq.ecmp.mscore.vo.OrderFeeDetailVO;
-import com.hq.ecmp.mscore.vo.OrderStateVO;
-import com.hq.ecmp.mscore.vo.OrderVO;
-import com.hq.ecmp.mscore.vo.OtherCostBean;
-import com.hq.ecmp.mscore.vo.OtherCostVO;
-import com.hq.ecmp.mscore.vo.PageResult;
-import com.hq.ecmp.mscore.vo.ThridCarTypeVo;
+import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.CommonUtils;
 import com.hq.ecmp.util.DateFormatUtils;
 import com.hq.ecmp.util.MacTools;
@@ -2916,10 +2902,43 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             log.info("orderAddressInfoEnd={}", JSON.toJSONString(orderAddressInfo));
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
+        // 如果其他费用是负数，总费用需要减掉
+        if (data.getOthersFee() != null && data.getOthersFee().compareTo(BigDecimal.ZERO) < 0) {
+            data.setTotalFee(data.getTotalFee().subtract(data.getOthersFee()));
+        }
+        try {
+            // 修改结算明细（抠一个值出来改，好难）
+            OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(data.getOrderId());
+            if (orderSettlingInfo != null) {
+                // 总费用
+                orderSettlingInfo.setAmount(data.getTotalFee());
+                // 其他费用-map
+                HashMap otherCostTmp = JSONObject.parseObject(orderSettlingInfo.getOutPrice(), HashMap.class);
+                // 其他费用-子项赋值
+                List<OtherCostBean> otherCost = JSONObject.parseArray(otherCostTmp.get("otherCost").toString(), OtherCostBean.class);
+                otherCost = otherCost.stream().map(otherCostBean -> doOtherCost(otherCostBean, data.getOthersFee())).collect(Collectors.toList());
+                // 其他费用-封装 转 json 修改
+                Map<String, Object> map = new HashMap<>();
+                map.put("otherCost", otherCost);
+                orderSettlingInfo.setOutPrice(JSON.toJSONString(map));
+                orderSettlingInfoMapper.updateOrderSettlingInfo(orderSettlingInfo);
+            }
+            // 修改账户明细
+        } catch (Exception e) {
+            log.error("修改结算明细异常!", e);
+        }
+
         // 修改费用明细
         data.setUpdateBy(userId);
         data.setUpdateTime(new Date());
         return orderServiceCostDetailRecordInfoMapper.update(data);
+    }
+
+    private OtherCostBean doOtherCost(OtherCostBean costBean, BigDecimal othersFee) {
+        if ("其他费用".equals(costBean.getTypeName())) {
+            costBean.setCost(othersFee.toString());
+        }
+        return costBean;
     }
 
 
