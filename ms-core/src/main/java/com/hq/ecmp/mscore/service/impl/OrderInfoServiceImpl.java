@@ -2907,7 +2907,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             data.setTotalFee(data.getTotalFee().subtract(data.getOthersFee()));
         }
         try {
-            // 修改结算明细（扣一个值出来改，好难）
+            // 修改结算明细（抠一个值出来改，好难）
             OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(data.getOrderId());
             if (orderSettlingInfo != null) {
                 // 总费用
