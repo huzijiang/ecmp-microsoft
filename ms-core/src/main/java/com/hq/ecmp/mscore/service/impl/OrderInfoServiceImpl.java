@@ -2902,14 +2902,14 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             log.info("orderAddressInfoEnd={}", JSON.toJSONString(orderAddressInfo));
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
-        // 如果其他费用是负数，总费用需要减掉
-        log.info("修改结算明细,start");
-        if (data.getOthersFee() != null && data.getOthersFee().compareTo(BigDecimal.ZERO) < 0) {
-            data.setTotalFee(data.getTotalFee().subtract(data.getOthersFee()));
-        }
         try {
+            // 如果其他费用是负数，总费用需要减掉
+            OrderServiceCostDetailRecordInfo orderServiceCostDetailRecordInfo = orderServiceCostDetailRecordInfoMapper.queryById(data.getRecordId());
+            if (data.getOthersFee() != null && data.getOthersFee().compareTo(BigDecimal.ZERO) < 0) {
+                // 加一个负数，等于减
+                data.setTotalFee(orderServiceCostDetailRecordInfo.getTotalFee().add(data.getOthersFee()));
+            }
             // 修改结算明细（抠一个值出来改，好难）
-            log.info("修改结算明细,start");
             OrderSettlingInfo orderSettlingInfo = orderSettlingInfoMapper.selectOrderSettlingInfoByOrderId(data.getOrderId());
             if (orderSettlingInfo != null) {
                 // 总费用
@@ -2918,12 +2918,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
                 HashMap otherCostTmp = JSONObject.parseObject(orderSettlingInfo.getOutPrice(), HashMap.class);
                 // 其他费用-子项赋值
                 List<OtherCostBean> otherCost = JSONObject.parseArray(otherCostTmp.get("otherCost").toString(), OtherCostBean.class);
-                log.info("修改结算明细,otherCost={}", otherCost);
-                List<OtherCostBean> otherCostN = otherCost.stream().map(otherCostBean -> doOtherCost(otherCostBean, data.getOthersFee())).collect(Collectors.toList());
-                log.info("修改结算明细,otherCostN={}", otherCostN);
+                otherCost = otherCost.stream().map(otherCostBean -> doOtherCost(otherCostBean, data.getOthersFee())).collect(Collectors.toList());
                 // 其他费用-封装 转 json 修改
                 Map<String, Object> map = new HashMap<>();
-                map.put("otherCost", otherCostN);
+                map.put("otherCost", otherCost);
                 orderSettlingInfo.setOutPrice(JSON.toJSONString(map));
 
                 log.info("修改结算明细,orderSettlingInfo={}", JSON.toJSONString(orderSettlingInfo));
