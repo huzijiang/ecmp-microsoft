@@ -21,7 +21,6 @@ public class OtherCostBean {
 
     private String typeName;
     private String cost;
-    private Double costFee;
 
     public String getTypeName() {
         return typeName;
