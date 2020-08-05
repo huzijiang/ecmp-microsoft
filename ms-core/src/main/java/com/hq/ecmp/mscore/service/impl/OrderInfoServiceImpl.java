@@ -2903,6 +2903,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             orderAddressInfoMapper.updateOrderAddressInfoByOrderId(orderAddressInfo);
         }
         // 如果其他费用是负数，总费用需要减掉
+        log.info("修改结算明细,start");
         if (data.getOthersFee() != null && data.getOthersFee().compareTo(BigDecimal.ZERO) < 0) {
             data.setTotalFee(data.getTotalFee().subtract(data.getOthersFee()));
         }
