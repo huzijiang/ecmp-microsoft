@@ -83,6 +83,10 @@ public class DriverOrderController {
         //需要处理4种情况 | 司机出发、司机到达、开始服务、服务完成
         //记录订单的状态跟踪表
         try {
+            Double mileageKm=Double.parseDouble(mileage);
+            mileageKm=mileageKm/1000;
+            mileage=mileageKm.toString();
+
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
             logger.info("获取都当前登录用户1 = ");
