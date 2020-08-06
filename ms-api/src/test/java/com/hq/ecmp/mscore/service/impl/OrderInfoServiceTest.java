@@ -3,6 +3,7 @@ package com.hq.ecmp.mscore.service.impl;
 import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.ms.api.MsApiApplication;
+import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Map;
 @AutoConfigureMockMvc
 @ActiveProfiles("testk8s")
 @Slf4j
-@SpringBootTest(classes = {  MsApiApplication.class})
+@SpringBootTest(classes = {MsApiApplication.class})
 public class OrderInfoServiceTest {
     @Autowired
     private IOrderInfoService orderInfoService;
@@ -41,6 +43,22 @@ public class OrderInfoServiceTest {
     public void getOrderList() throws Exception {
         OrderListBackDto orderListBackDto = new OrderListBackDto();
         LoginUser loginUser = new LoginUser();
-        PageResult<OrderListBackDto> aa = orderInfoService.getOrderListBackDto(orderListBackDto,loginUser);
+        PageResult<OrderListBackDto> aa = orderInfoService.getOrderListBackDto(orderListBackDto, loginUser);
+    }
+
+    @Test
+    public void updateOrder() throws Exception {
+        OrderServiceCostDetailRecordInfo data = new OrderServiceCostDetailRecordInfo();
+        data.setAccommodationFee(BigDecimal.ZERO);
+        data.setBeyondMileage(BigDecimal.ZERO);
+        data.setBeyondTime(0);
+        data.setFoodFee(BigDecimal.ZERO);
+        data.setHighwayTollFee(BigDecimal.ZERO);
+        data.setOrderId(1105L);
+        data.setOthersFee(BigDecimal.valueOf(-1));
+        data.setRecordId(849L);
+        data.setSetMealCost(BigDecimal.ZERO);
+        data.setStopCarFee(BigDecimal.ZERO);
+        orderInfoService.updateTheOrder(201897L, data);
     }
 }
