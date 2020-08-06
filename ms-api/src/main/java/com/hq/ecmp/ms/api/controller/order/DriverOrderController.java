@@ -85,8 +85,10 @@ public class DriverOrderController {
         try {
             //获取调用接口的用户信息
             HttpServletRequest request = ServletUtils.getRequest();
+            logger.info("获取都当前登录用户1 = ");
             LoginUser loginUser = tokenService.getLoginUser(request);
             Long userId = loginUser.getDriver().getDriverId();
+            logger.info("获取都当前登录用户 = "+userId);
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
             e.printStackTrace();
