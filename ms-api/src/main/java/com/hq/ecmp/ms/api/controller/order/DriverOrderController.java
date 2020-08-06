@@ -91,7 +91,7 @@ public class DriverOrderController {
             logger.info("获取都当前登录用户 = "+userId);
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("修改订单异常",e);
             return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
