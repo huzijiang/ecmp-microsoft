@@ -28,6 +28,15 @@ public class QuestionnaireVo {
     /** 星级评分 */
     private Integer score;
 
+    /** 司机所属车队 */
+    private String driverGroupName;
+
+    /** 车辆所属车队 */
+    private String carInfoGroupName;
+
+    /** 乘客所属单位 */
+    private String deptName;
+
     /** 是否按时 */
     private String itIsOnTime;
 

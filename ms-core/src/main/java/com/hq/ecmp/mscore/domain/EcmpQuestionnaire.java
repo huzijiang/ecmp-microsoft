@@ -78,6 +78,18 @@ public class EcmpQuestionnaire extends BaseEntity
     @Excel(name = "星级评分")
     private Integer score;
 
+    /** 司机所属车队 */
+    @Excel(name = "司机所属车队")
+    private String driverGroupName;
+
+    /** 车辆所属车队 */
+    @Excel(name = "车辆所属车队")
+    private String carInfoGroupName;
+
+    /** 乘客所属单位 */
+    @Excel(name = "乘客所属单位")
+    private String deptName;
+
     /** 用户反馈 */
     @Excel(name = "用户反馈")
     private String content;
@@ -217,6 +229,30 @@ public class EcmpQuestionnaire extends BaseEntity
         this.score = score;
     }
 
+    public String getDriverGroupName() {
+        return driverGroupName;
+    }
+
+    public void setDriverGroupName(String driverGroupName) {
+        this.driverGroupName = driverGroupName;
+    }
+
+    public String getCarInfoGroupName() {
+        return carInfoGroupName;
+    }
+
+    public void setCarInfoGroupName(String carInfoGroupName) {
+        this.carInfoGroupName = carInfoGroupName;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -224,6 +260,9 @@ public class EcmpQuestionnaire extends BaseEntity
             .append("driverId", getDriverId())
             .append("carId", getCarId())
             .append("score", getScore())
+            .append("driverGroupName", getDriverGroupName())
+            .append("carInfoGroupName", getCarInfoGroupName())
+            .append("deptName", getDeptName())
             .append("itIsOnTime", getItIsOnTime())
             .append("itIsHelp", getItIsHelp())
             .append("itIsCalm", getItIsCalm())
