@@ -10,6 +10,12 @@ import lombok.Data;
  */
 @Data
 public class JourneyNameDto {
+
+    /**
+     * 登录人部门ID
+     */
+    private Long deptId;
+
     /**
      * 申请人名称
      */
