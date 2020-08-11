@@ -6,6 +6,7 @@ import com.hq.ecmp.mscore.dto.EcmpUserDto;
 import com.hq.ecmp.mscore.dto.PageRequest;
 import com.hq.ecmp.mscore.vo.*;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -396,5 +397,19 @@ public interface EcmpUserMapper
      * @return
      */
     EcmpUserDto dispatcherPhone(Long orderId);
+
+
+    /**
+     * 根据部门ID查询同部门用户手机号
+     *
+     * @author 郝大龙
+     * @date 2020-08-11 14:06
+     * @param deptId
+     * @return java.util.List<java.lang.String>
+     **/
+    @Select("SELECT phonenumber FROM ecmp_user WHERE dept_id = #{deptId} ")
+    List<String> selectEcmpUserPhoneList(Long deptId);
+
+
 }
 

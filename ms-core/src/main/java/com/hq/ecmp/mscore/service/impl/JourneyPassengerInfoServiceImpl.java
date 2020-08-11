@@ -1,15 +1,19 @@
 package com.hq.ecmp.mscore.service.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.hq.common.utils.DateUtils;
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
 import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
+import com.hq.ecmp.mscore.mapper.EcmpUserMapper;
 import com.hq.ecmp.mscore.mapper.JourneyPassengerInfoMapper;
 import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
+import com.hq.ecmp.util.GsonUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -17,11 +21,15 @@ import org.springframework.stereotype.Service;
  * @author hqer
  * @date 2020-01-02
  */
+@Slf4j
 @Service
 public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoService
 {
     @Autowired
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
+
+    @Autowired
+    private EcmpUserMapper ecmpUserMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -116,14 +124,29 @@ public class JourneyPassengerInfoServiceImpl implements IJourneyPassengerInfoSer
     /**
      * 根据乘车人名称模糊查询
      *
+     * @param deptId
      * @param name
      * @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.JourneyPassengerInfo>>
      * @author Chenkp
      * @date 2020-07-17 15:32
      */
     @Override
-    public List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(String name) {
-        List<JourneyPassengerInfoDto> journeyPassengerInfoDtos = journeyPassengerInfoMapper.selectJourneyPassengerInfoByName(name);
-        return journeyPassengerInfoDtos.stream().distinct().collect(Collectors.toList());
+    public List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(Long deptId,String name) {
+
+        /**通过部门获取该部门下用户手机号**/
+        List<String> userPhoneList = ecmpUserMapper.selectEcmpUserPhoneList(deptId);
+        if (CollectionUtils.isEmpty(userPhoneList)){
+            return null;
+        }
+        log.info("部门用户手机号={}", GsonUtils.objectToJson(userPhoneList));
+
+        /**查询申请记录表**/
+        List<JourneyPassengerInfoDto> dtoList = journeyPassengerInfoMapper.selectLikeName(name);
+
+        /**用手机号确定同一个人，来排重过滤**/
+        return dtoList.stream()
+                .distinct()
+                .filter(dto->userPhoneList.contains(dto.getMobile()))
+                .collect(Collectors.toList());
     }
 }
