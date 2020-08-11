@@ -4,8 +4,10 @@ import com.hq.core.security.LoginUser;
 import com.hq.ecmp.constant.enumerate.DispatchStrategyEnum;
 import com.hq.ecmp.ms.api.MsApiApplication;
 import com.hq.ecmp.mscore.domain.OrderServiceCostDetailRecordInfo;
+import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
 import com.hq.ecmp.mscore.dto.OrderListBackDto;
 import com.hq.ecmp.mscore.service.IDispatchService;
+import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
 import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategy;
 import com.hq.ecmp.mscore.vo.PageResult;
@@ -19,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +36,9 @@ import java.util.Map;
 public class OrderInfoServiceTest {
     @Autowired
     private IOrderInfoService orderInfoService;
+
+    @Autowired
+    private IJourneyPassengerInfoService journeyPassengerInfoService;
 
     @Test
     public void downloadOrderData() throws Exception {
@@ -60,5 +66,14 @@ public class OrderInfoServiceTest {
         data.setSetMealCost(BigDecimal.ZERO);
         data.setStopCarFee(BigDecimal.ZERO);
         orderInfoService.updateTheOrder(201897L, data);
+    }
+
+    @Test
+    public void doTest() {
+
+        List<JourneyPassengerInfoDto> list = journeyPassengerInfoService.selectJourneyPassengerInfoByName(491L,"");
+        list.forEach(dto->System.out.println(String.join(",",dto.getName(),dto.getMobile())));
+        System.out.println("集合--》"+list.size());
+
     }
 }

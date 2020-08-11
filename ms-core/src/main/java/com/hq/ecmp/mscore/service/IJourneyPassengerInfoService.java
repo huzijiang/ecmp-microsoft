@@ -77,10 +77,11 @@ public interface IJourneyPassengerInfoService
     /**
      * 根据乘车人名称模糊查询
      *
+     * @param deptId
      * @param name
      * @return com.hq.common.core.api.ApiResponse<java.util.List<com.hq.ecmp.mscore.domain.JourneyPassengerInfo>>
      * @author Chenkp
      * @date 2020-07-17 15:32
      */
-    List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(String name);
+    List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(Long deptId,String name);
 }

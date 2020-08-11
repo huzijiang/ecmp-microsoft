@@ -2,6 +2,7 @@ package com.hq.ecmp.mscore.mapper;
 
 import com.hq.ecmp.mscore.domain.JourneyPassengerInfo;
 import com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -70,13 +71,16 @@ public interface JourneyPassengerInfoMapper
     public List<String> queryPeerUserNameList(Long journeyId);
     public JourneyPassengerInfo queryJourneyPassengerInfoByJourneyId(Long journeyId);
 
+
     /**
      * 根据名称模糊查询
      *
+     * @author 郝大龙
+     * @date 2020-08-11 11:45
      * @param name
-     * @return java.util.List<com.hq.ecmp.mscore.domain.JourneyPassengerInfo>
-     * @author Chenkp
-     * @date 2020-07-17 15:34
-     */
-    List<JourneyPassengerInfoDto> selectJourneyPassengerInfoByName(String name);
+     * @return java.util.List<com.hq.ecmp.mscore.dto.JourneyPassengerInfoDto>
+     **/
+    @Select("SELECT name,mobile FROM journey_passenger_info WHERE name LIKE CONCAT('%',#{name},'%')  ")
+    List<JourneyPassengerInfoDto> selectLikeName(String name);
+
 }

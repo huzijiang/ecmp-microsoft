@@ -24,6 +24,7 @@ import com.hq.ecmp.mscore.service.IApplyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyInfoService;
 import com.hq.ecmp.mscore.service.IJourneyPassengerInfoService;
 import com.hq.ecmp.mscore.vo.*;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/journey")
+@Api(value = "JourneyController", tags = "申请单相关")
 public class JourneyController {
 
     private static final Logger logger = LoggerFactory.getLogger(JourneyController.class);
@@ -324,11 +326,11 @@ public class JourneyController {
         return ApiResponse.error("ApiResponse");
     }
 
-    @ApiOperation(value = "getJourneyPassengerInfoByName",notes = "根据乘车人名称模糊查询",httpMethod ="POST")
+    @ApiOperation(value = "根据乘车人名称模糊查询",notes = "暂无",httpMethod ="POST")
     @PostMapping("/getJourneyPassengerInfoByName")
-    public ApiResponse<List<JourneyPassengerInfoDto>> getJourneyPassengerInfoByName(@RequestBody JourneyNameDto journeyNameDto) {
+    public ApiResponse<List<JourneyPassengerInfoDto>> getJourneyPassengerInfoByName(@RequestBody JourneyNameDto dto) {
         try{
-            return ApiResponse.success(iJourneyPassengerInfoService.selectJourneyPassengerInfoByName(journeyNameDto.getName()));
+            return ApiResponse.success(iJourneyPassengerInfoService.selectJourneyPassengerInfoByName(dto.getDeptId(),dto.getName()));
         } catch (Exception e) {
             logger.error("根据乘车人名称模糊查询异常", e);
         }
