@@ -3156,8 +3156,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             }
         }
 
-
-
         OrderDetailBackDto orderDetailBackDto = orderInfoMapper.getOrderListDetail(String.valueOf(orderId));
         if(orderDetailBackDto == null){
             return result;
@@ -3166,7 +3164,12 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         JourneyNodeInfo journeyNodeInfo = journeyNodeInfoMapper.selectJourneyNodeInfoByJourneyId(orderDetailBackDto.getJourneyId());
         //按需求，此处导出计划地址，不按照实际地址导出
         if(journeyNodeInfo != null){
-            shortName = journeyNodeInfo.getPlanEndAddress();
+            if(!StringUtils.isEmpty(journeyNodeInfo.getPlanEndAddress())){
+                shortName = journeyNodeInfo.getPlanEndAddress();
+            }
+            if(!StringUtils.isEmpty(journeyNodeInfo.getPlanBeginAddress())){
+                result.put("addressLong",journeyNodeInfo.getPlanBeginAddress());
+            }
         }
         String newEndAdress = orderDetailBackDto.getNewEndAddress();
         if(!StringUtils.isEmpty(newEndAdress)){
