@@ -260,7 +260,9 @@ public class DriverInfoServiceImpl implements IDriverInfoService
     		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
         	if(null !=userId){
         		driverCarRelationInfo.setUserId(userId);
-        	}
+        	} else {
+				driverCarRelationInfo.setUserId(-1L);
+			}
         	if(newUserId != null){
                 driverCarRelationInfo.setUserId(newUserId);
             }
