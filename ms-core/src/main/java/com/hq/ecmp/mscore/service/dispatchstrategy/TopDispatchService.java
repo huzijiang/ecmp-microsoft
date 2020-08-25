@@ -153,6 +153,8 @@ public abstract class TopDispatchService {
         orderDispatcheDetailInfo.setNextCarGroupId(dispatchSendCarDto.getOutCarGroupId());
         orderDispatcheDetailInfo.setCharterCarType(dispatchSendCarDto.getCharterType());
         orderDispatcheDetailInfo.setCarId(dispatchSendCarDto.getCarId());
+        //派车备注
+        orderDispatcheDetailInfo.setRemark(dispatchSendCarDto.getRemark());
         if(dispatchSendCarDto.getCarId() != null){
             CarInfo carInfo = carInfoMapper.selectCarInfoById(dispatchSendCarDto.getCarId());
             if(carInfo == null){

@@ -178,4 +178,8 @@ public class DispatchVo {
      * 订单号
      */
     private String orderNum;
+
+
+    @ApiModelProperty(value = "派车备注")
+    private String remark;
 }

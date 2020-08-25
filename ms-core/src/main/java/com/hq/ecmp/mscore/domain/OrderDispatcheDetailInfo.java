@@ -65,6 +65,18 @@ public class OrderDispatcheDetailInfo extends BaseEntity
     private Long innerDispatcher;
     private Long outerDispatcher;
 
+    @Override
+    public String getRemark() {
+        return remark;
+    }
+
+    @Override
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    private String remark;
+
     public void setDispatchId(Integer dispatchId) 
     {
         this.dispatchId = dispatchId;

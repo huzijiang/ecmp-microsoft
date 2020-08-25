@@ -148,6 +148,7 @@
            car_cg_id = #{carCgId},
            driver_id = #{driverId},
            driver_cg_id = #{driverCgId},
+            remark = #{remark},
             <if test="dispatchState != null  and dispatchState != ''">dispatch_state = #{dispatchState},</if>
             <if test="innerDispatcher != null  and innerDispatcher != ''">inner_dispatcher = #{innerDispatcher},</if>
             <if test="outerDispatcher != null  and outerDispatcher != ''">outer_dispatcher = #{outerDispatcher},</if>
