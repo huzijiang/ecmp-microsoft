@@ -3175,7 +3175,7 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
        -- 车牌号
        ifnull(ci.car_license, '无')    carNumber,
        -- 套餐价
-       ifnull((select  distinct set_meal_cost from order_service_cost_detail_record_info where order_id=#{orderId}), 0) setMealCost,
+       ifnull((select  sum(set_meal_cost) from order_service_cost_detail_record_info where order_id=#{orderId}), 0) setMealCost,
        -- 超里程费用
        ifnull((select sum(beyond_mileage_fee) from order_service_cost_detail_record_info where order_id = #{orderId}),0)beyondMileageFee,
        -- 超时长费用
