@@ -758,6 +758,7 @@ public class EcmpUserServiceImpl implements IEcmpUserService {
             if(count==0){
                 addressList.add(0,addressVO);
                 addressList = addressList.size()>10?addressList.subList(0,10):addressList;
+                addressInfo.put(code,addressList);
             }else{
                 AddressVO addressvo = addressList.stream().filter(address->address.getLongAddress().equals(addressVO.getLongAddress())).findFirst().get();
                 addressList.remove(addressvo);

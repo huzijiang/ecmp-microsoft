@@ -2108,6 +2108,12 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             apiResponse.setMsg("非常抱歉，您的用车申请无可服务车队，申请失败，如有问题，请联系管理员！");
             return apiResponse;
         }
+        Date applyDate = applySingleVO.getApplyDate();
+        if(applyDate == null || applyDate.before(new Date())){
+            apiResponse.setCode(1);
+            apiResponse.setMsg("申请用车时间不符合要求！");
+            return apiResponse;
+        }
         //申请人id
         applySingleVO.setUserId(loginUser.getUser().getUserId());
         //申请人公司
