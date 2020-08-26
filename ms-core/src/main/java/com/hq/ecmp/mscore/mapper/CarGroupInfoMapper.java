@@ -245,4 +245,6 @@ public interface CarGroupInfoMapper
     Long findgroupIdByUserId(@Param("userId") Long userId);
 
     List<CarGroupInfo> selectListByDispatcherId(Long userId);
+
+    List<String> selectGroupDispatcherList(@Param("carGroupId")Long carGroupId);
 }

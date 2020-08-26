@@ -445,4 +445,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
 
+    <select id="selectGroupDispatcherList" parameterType="long" resultType="String">
+        SELECT user.user_name FROM
+	      car_group_dispatcher_info dispatcher left join ecmp_user user on dispatcher.user_id=user.user_id
+        WHERE dispatcher.car_group_id = #{carGroupId};
+    </select>
+
+
 </mapper>

@@ -133,5 +133,7 @@ public class SmsTemplateConstant {
     //内部调度员改派给外部调度员的时候，给申请人发短信
     public static final String SMS_NOTIFY_APPLY_PEO_MSG = "notify_apply_peo_msg";
 
+    //内部调度员多次改派外部车队，给之前的外部车队发短信
+    public static final String NOTIFY_OUT_GROUP_MSG = "notify_out_group_msg";
 
 }
