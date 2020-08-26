@@ -195,7 +195,7 @@
     where order_id = #{orderId}
 </select>
 
-    <select id="selectDispatchRemark" parameterType="long" resultMap="String">
+    <select id="selectDispatchRemark" parameterType="long" resultType="String">
         select remark from order_dispatche_detail_info where order_id=#{orderId} order by update_time desc limit 1
     </select>
 </mapper>
