@@ -194,4 +194,8 @@
     left join ecmp_user c on c.user_id=a.inner_dispatcher
     where order_id = #{orderId}
 </select>
+
+    <select id="selectDispatchRemark" parameterType="long" resultMap="String">
+        select remark from order_dispatche_detail_info where order_id=#{orderId} order by update_time desc limit 1
+    </select>
 </mapper>

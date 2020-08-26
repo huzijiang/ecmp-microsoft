@@ -2357,6 +2357,10 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     @Override
     public DispatchSendCarPageInfo getUserDispatchedOrder(Long orderId) {
         DispatchSendCarPageInfo dispatchSendCarPageInfo = getDispatchSendCarPageInfo(orderId);
+        //查询派车备注
+        String dispatchRemark=orderDispatcheDetailInfoMapper.selectDispatchRemark(orderId);
+        dispatchSendCarPageInfo.setDispatchRemark(dispatchRemark);
+
         if (iOrderStateTraceInfoService.isReassignment(orderId)) {
             //是改派过的单子  则查询原有调度信息
             DispatchOptRecord oldDispatchOptRecord = new DispatchOptRecord();
