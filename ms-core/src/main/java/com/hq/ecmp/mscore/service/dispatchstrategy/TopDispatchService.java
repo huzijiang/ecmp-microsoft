@@ -196,55 +196,59 @@ public abstract class TopDispatchService {
         orderDispatcheDetailInfoMapper.updateOrderDispatcheDetailInfoByOrderId(orderDispatcheDetailInfo);
 
         //如果是内部调度员把订单转给外部调度员需要发短信
-        if(dispatchSendCarDto.getInOrOut() == 1 ){
-            Long dispatchOutCarGroupId=dispatchSendCarDto.getOutCarGroupId();
-            log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> outCarGroupId:{}",dispatchSendCarDto.getOrderId(),dispatchOutCarGroupId);
-            if(null!=dispatchOutCarGroupId) {
-                if (null != orginOrderDispatcheDetailInfo) {
-                    Long beforeCarGroupId = orginOrderDispatcheDetailInfo.getNextCarGroupId();
-                    log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> 改派前,库里carGroupId:{}",dispatchSendCarDto.getOrderId(),beforeCarGroupId);
-                    if(null!=beforeCarGroupId){
-                        if(!dispatchOutCarGroupId.equals(beforeCarGroupId)){
-                            //给之前的外部调度员发短信
-                            List<String> groupDispatcherList = carGroupInfoMapper.selectGroupDispatcherList(beforeCarGroupId);
-                            if(CollectionUtils.isNotEmpty(groupDispatcherList)){
-                                //发短信
-                                OrderInfo queryOrder = orderInfoMapper.selectOrderInfoById(dispatchSendCarDto.getOrderId());
+        try {
+            if(dispatchSendCarDto.getInOrOut() == 1 ){
+                Long dispatchOutCarGroupId=dispatchSendCarDto.getOutCarGroupId();
+                log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> outCarGroupId:{}",dispatchSendCarDto.getOrderId(),dispatchOutCarGroupId);
+                if(null!=dispatchOutCarGroupId) {
+                    if (null != orginOrderDispatcheDetailInfo) {
+                        Long beforeCarGroupId = orginOrderDispatcheDetailInfo.getNextCarGroupId();
+                        log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> 改派前,库里carGroupId:{}",dispatchSendCarDto.getOrderId(),beforeCarGroupId);
+                        if(null!=beforeCarGroupId){
+                            if(!dispatchOutCarGroupId.equals(beforeCarGroupId)){
+                                //给之前的外部调度员发短信
+                                List<String> groupDispatcherList = carGroupInfoMapper.selectGroupDispatcherList(beforeCarGroupId);
+                                if(CollectionUtils.isNotEmpty(groupDispatcherList)){
+                                    //发短信
+                                    OrderInfo queryOrder = orderInfoMapper.selectOrderInfoById(dispatchSendCarDto.getOrderId());
 
-                                JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
-                                //用车时间
-                                Date startDate = journeyInfo.getStartDate();
-                                String useCarTime = DateUtils.parseDateToStr("yyyy年MM月dd日 HH:mm", startDate);
+                                    JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(queryOrder.getJourneyId());
+                                    //用车时间
+                                    Date startDate = journeyInfo.getStartDate();
+                                    String useCarTime = DateUtils.parseDateToStr("yyyy年MM月dd日 HH:mm", startDate);
 
-                                JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
-                                journeyPassengerInfo.setJourneyId(orderInfo.getJourneyId());
-                                List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(journeyPassengerInfo);
-                                //用车人姓名
-                                String name = journeyPassengerInfos.get(0).getName();
-                                //用车人电话
-                                String mobile = journeyPassengerInfos.get(0).getMobile();
+                                    JourneyPassengerInfo journeyPassengerInfo = new JourneyPassengerInfo();
+                                    journeyPassengerInfo.setJourneyId(queryOrder.getJourneyId());
+                                    List<JourneyPassengerInfo> journeyPassengerInfos = journeyPassengerInfoMapper.selectJourneyPassengerInfoList(journeyPassengerInfo);
+                                    //用车人姓名
+                                    String name = journeyPassengerInfos.get(0).getName();
+                                    //用车人电话
+                                    String mobile = journeyPassengerInfos.get(0).getMobile();
 
-                                EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
-                                //内部调度员姓名和电话
-                                String userName = ecmpUser.getNickName();
-                                String phoneNumber = ecmpUser.getPhonenumber();
+                                    EcmpUser ecmpUser = ecmpUserMapper.selectEcmpUserById(dispatchSendCarDto.getUserId());
+                                    //内部调度员姓名和电话
+                                    String userName = ecmpUser.getNickName();
+                                    String phoneNumber = ecmpUser.getPhonenumber();
 
-                                Map<String,String> stringStringMap = new HashMap<>(4);
-                                stringStringMap.put("orderNumber", queryOrder.getOrderNumber());
-                                stringStringMap.put("useTime", useCarTime);
-                                stringStringMap.put("useCarPeople", name+" "+mobile);
-                                stringStringMap.put("dispatcher", userName+" "+phoneNumber);
-                                log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> 短信内容:{}",dispatchSendCarDto.getOrderId(),stringStringMap);
-                                for(String dispatcherMobile:groupDispatcherList){
-                                    //用车人发短信
-                                    iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NOTIFY_OUT_GROUP_MSG, stringStringMap, dispatcherMobile);
+                                    Map<String,String> stringStringMap = new HashMap<>(4);
+                                    stringStringMap.put("orderNumber", queryOrder.getOrderNumber());
+                                    stringStringMap.put("useTime", useCarTime);
+                                    stringStringMap.put("useCarPeople", name+" "+mobile);
+                                    stringStringMap.put("dispatcher", userName+" "+phoneNumber);
+                                    log.info("orderId:{} 内部调用员操作 dispatchCommonBusiness==> 短信内容:{}",dispatchSendCarDto.getOrderId(),stringStringMap);
+                                    for(String dispatcherMobile:groupDispatcherList){
+                                        //用车人发短信
+                                        iSmsTemplateInfoService.sendSms(SmsTemplateConstant.NOTIFY_OUT_GROUP_MSG, stringStringMap, dispatcherMobile);
+                                    }
                                 }
-                            }
 
+                            }
                         }
                     }
                 }
             }
+        }catch (Exception e){
+            log.error("orderId:{} 内部调度员多次派车给外部调度员，发短信失败,e:{}",dispatchSendCarDto.getOrderId(),e);
         }
     }
 
