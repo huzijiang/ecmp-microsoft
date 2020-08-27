@@ -1,9 +1,9 @@
 package com.hq.ecmp.mscore.domain;
 
+import lombok.Data;
+
 import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 
 @Data
 public class DispatchSendCarPageInfo {
@@ -58,4 +58,7 @@ public class DispatchSendCarPageInfo {
 	String startCity;
 
 	String endCity;
+
+	//改派备注
+	String dispatchRemark;
 }

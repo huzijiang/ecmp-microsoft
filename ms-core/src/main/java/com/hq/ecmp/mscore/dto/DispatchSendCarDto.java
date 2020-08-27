@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.dto;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -52,5 +51,8 @@ public class DispatchSendCarDto {
 
     @ApiModelProperty(value = "操作用id",hidden = true)
    private Long userId;
+
+    @ApiModelProperty(value = "派车备注")
+    private String remark;
 
 }

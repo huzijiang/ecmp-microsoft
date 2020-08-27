@@ -256,7 +256,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          ai.it_is_self_driver itIsSelfDriver,
          ai.reason reason,
          ai.safe_remind safeRemind,
-         cgi.car_group_name  carGroupName
+         cgi.car_group_name  carGroupName,
+         oddi.remark remark
         from apply_info ai
         left join enterprise_car_type_info ecti on ecti.car_type_id=ai.car_type_id
         LEFT  JOIN order_info o ON  ai.journey_id = o.journey_id and o.state!='S900'

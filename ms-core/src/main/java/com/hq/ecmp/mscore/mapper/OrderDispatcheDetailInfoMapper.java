@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.mapper;
 
-import com.hq.ecmp.mscore.domain.CarGroupInfo;
 import com.hq.ecmp.mscore.domain.OrderDispatcheDetailInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -92,4 +91,11 @@ public interface OrderDispatcheDetailInfoMapper
     OrderDispatcheDetailInfo selectDispatcheInfo(@Param("orderId") Long orderId);
 
     Map<String,String> selectGroupInfo(@Param("orderId") Long orderId);
+
+    /**
+     * 查询派车备注
+     * @param orderId
+     * @return
+     */
+    String selectDispatchRemark(@Param("orderId") Long orderId);
 }

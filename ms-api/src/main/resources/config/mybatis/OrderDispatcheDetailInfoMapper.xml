@@ -148,6 +148,7 @@
            car_cg_id = #{carCgId},
            driver_id = #{driverId},
            driver_cg_id = #{driverCgId},
+            remark = #{remark},
             <if test="dispatchState != null  and dispatchState != ''">dispatch_state = #{dispatchState},</if>
             <if test="innerDispatcher != null  and innerDispatcher != ''">inner_dispatcher = #{innerDispatcher},</if>
             <if test="outerDispatcher != null  and outerDispatcher != ''">outer_dispatcher = #{outerDispatcher},</if>
@@ -193,4 +194,8 @@
     left join ecmp_user c on c.user_id=a.inner_dispatcher
     where order_id = #{orderId}
 </select>
+
+    <select id="selectDispatchRemark" parameterType="long" resultType="String">
+        select remark from order_dispatche_detail_info where order_id=#{orderId} order by update_time desc limit 1
+    </select>
 </mapper>
