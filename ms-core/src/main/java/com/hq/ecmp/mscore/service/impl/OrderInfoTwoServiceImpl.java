@@ -1513,6 +1513,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getDispatchOrderJourneyInfos(DispatchVo dispatchVo){
         DispatchVo dispatchJourneyInfoByJourneyId = journeyInfoMapper.getDispatchJourneyInfoByJourneyId(dispatchVo.getJourneyId());
+        //兼容脏数据
+        if(null==dispatchJourneyInfoByJourneyId){
+            return;
+        }
         BeanUtils.copyProperties(dispatchJourneyInfoByJourneyId, dispatchVo,BeauUtilsCommon.getNullField(dispatchJourneyInfoByJourneyId));
     }
 
@@ -1521,6 +1525,10 @@ public class OrderInfoTwoServiceImpl implements OrderInfoTwoService {
      */
     public void getDispatchOrderApplyInfos(DispatchVo dispatchVo){
         DispatchVo dispatchApplyInfoByJourneyId = applyInfoMapper.getDispatchApplyInfoByJourneyId(dispatchVo.getJourneyId());
+        //兼容脏数据
+        if(null==dispatchApplyInfoByJourneyId){
+            return;
+        }
         log.info("获取订单的社会租赁车队数据，journeyId:{},dispatchVo:{}",dispatchVo.getJourneyId(),JSONObject.toJSONString(dispatchApplyInfoByJourneyId));
         //查询外部车队，设置外部车队名称
         String carGroupName= applyInfoMapper.getOutDispatchApplyNameByJourneyId(dispatchVo.getJourneyId());
