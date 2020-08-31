@@ -3204,7 +3204,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             if(carInfo != null){
                 CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
                 if(carGroupInfo != null && !StringUtils.isEmpty(carGroupInfo.getCarGroupName())){
-                    if(!StringUtils.isEmpty(carGroupName)){
+                    if(!StringUtils.isEmpty(carGroupName) && !carGroupName.equals(carGroupInfo.getCarGroupName())){
                         carGroupName = carGroupName +","+ carGroupInfo.getCarGroupName();
                     }else {
                         carGroupName = carGroupInfo.getCarGroupName();
