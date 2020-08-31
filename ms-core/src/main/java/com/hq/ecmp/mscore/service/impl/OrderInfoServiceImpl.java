@@ -189,6 +189,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     private OrderDispatcheDetailInfoMapper orderDispatcheDetailInfoMapper;
     @Resource
     private IOrderSettlingInfoService orderSettlingInfoService;
+    @Resource
+    private CarGroupDriverRelationMapper carGroupDriverRelationMapper;
 
 
     @Value("${thirdService.enterpriseId}") //企业编号
@@ -3180,7 +3182,38 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             shortName = shortName+","+newEndAdress;
         }
         result.put("shortName",shortName);
-       return result;
+        //车队名称
+        OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
+        if(orderInfo == null){
+            return result;
+        }
+        Long carId = orderInfo.getCarId();
+        Long driverId = orderInfo.getDriverId();
+        String carGroupName = "";
+        if(driverId != null){
+            CarGroupDriverRelation carGroupDriverRelation = carGroupDriverRelationMapper.selectCarGroupDriverRelationById(driverId);
+            if(carGroupDriverRelation != null){
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carGroupDriverRelation.getCarGroupId());
+                if(carGroupInfo != null && !StringUtils.isEmpty(carGroupInfo.getCarGroupName())){
+                    carGroupName = carGroupInfo.getCarGroupName();
+                }
+            }
+        }
+        if(carId != null){
+            CarInfo carInfo = carInfoMapper.selectCarInfoById(carId);
+            if(carInfo != null){
+                CarGroupInfo carGroupInfo = carGroupInfoMapper.selectCarGroupInfoById(carInfo.getCarGroupId());
+                if(carGroupInfo != null && !StringUtils.isEmpty(carGroupInfo.getCarGroupName())){
+                    if(!StringUtils.isEmpty(carGroupName)){
+                        carGroupName = carGroupName +","+ carGroupInfo.getCarGroupName();
+                    }else {
+                        carGroupName = carGroupInfo.getCarGroupName();
+                    }
+                }
+            }
+        }
+        result.put("carGroupName",carGroupName);
+        return result;
     }
 
     /***
