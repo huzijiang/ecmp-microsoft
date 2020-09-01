@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -1494,6 +1495,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
      * @param applyId
      * @param userId
      */
+    @Transactional
     private List<Long> initPowerAndOrder(Long journeyId, String applyType, Long applyId, Long userId,ApplyOfficialRequest officialCommitApply) {
         try {
             ArrayList<Long> orderIds = new ArrayList<>();
@@ -1508,8 +1510,7 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(carAuthorityInfos)){
                 int flag=carAuthorityInfos.get(0).getDispatchOrder()?ONE:ZERO;
                 if("F001".equals(officialCommitApply.getSmsDifference())){
-                    //佛山用户申请短信
-                    ismsBusiness.sendVehicleUserApply(journeyId,applyId,officialCommitApply);
+
                 }else {
                     ecmpMessageService.applyUserPassMessage(applyId, userId, userId, null, carAuthorityInfos.get(0).getTicketId(), flag);
                 }
@@ -1531,6 +1532,8 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
                         orderIds.add(orderId);
                     }
                     if("F001".equals(officialCommitApply.getSmsDifference())){
+                        //佛山用户申请短信  发送时机后移
+                        ismsBusiness.sendVehicleUserApply(journeyId,applyId,officialCommitApply);
                         //佛山调度员申请短信
                         ismsBusiness.sendDispatcherApply(journeyId,applyId,officialCommitApply);
                     }else {
