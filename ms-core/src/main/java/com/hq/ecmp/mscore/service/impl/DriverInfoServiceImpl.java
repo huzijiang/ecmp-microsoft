@@ -422,7 +422,7 @@ public class DriverInfoServiceImpl implements IDriverInfoService
 		List<Long> carId = driverCreateInfo.getCarId();
 		if(CollectionUtils.isNotEmpty(carId)){
 			DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-			driverCarRelationInfo.setUserId(driverCreateInfo.getUserId());
+			driverCarRelationInfo.setUserId(driverCreateInfo.getUserId() == null ? -1 : driverCreateInfo.getUserId());
 			driverCarRelationInfo.setDriverId(driverCreateInfo.getDriverId());
 			driverCarRelationInfo.setCarIdList(carId);
 			driverCarRelationInfoService.batchDriverCarList(driverCarRelationInfo);
