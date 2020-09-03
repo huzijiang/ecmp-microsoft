@@ -4,6 +4,7 @@ package com.hq.ecmp.mscore.mapper;
 import com.hq.ecmp.mscore.domain.ApplyUseCarType;
 import com.hq.ecmp.mscore.vo.UseCarTypeVO;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.data.repository.RepositoryDefinition;
 import org.springframework.security.core.parameters.P;
 
 import java.util.Date;

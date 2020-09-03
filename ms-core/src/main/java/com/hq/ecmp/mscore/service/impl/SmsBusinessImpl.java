@@ -1146,6 +1146,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
         Map<String, String> map = Maps.newHashMap();
         map.put("drivingTime", drivingTime); // 用车时间
         map.put("vehicleUser", vehicleUser);//业务员信息
+        map.put("orderNumber", undoSMSTemplate.getOrderNumber());//订单号
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, map, undoSMSTemplate.getVehicleUserMobile());
         /**预约用车给申请人也发短信**/
         if (!undoSMSTemplate.getPhonenumber().equals(undoSMSTemplate.getVehicleUserMobile())) {
@@ -1380,6 +1381,7 @@ public class SmsBusinessImpl implements IsmsBusiness {
         mapTwo.put("drivingTime", subscribeTime);//用车时间
         mapTwo.put("vehicleUser", salesman); //业务员
         mapTwo.put("telephone", telephone); //内部车队座机
+        mapTwo.put("orderNumber", orderNumber);
         iSmsTemplateInfoService.sendSms(SmsTemplateConstant.SMS_FOSHAN_VEHICLE_APPLICANT, mapTwo, undoSMSTemplate.getVehicleUserMobile());
         log.info("短信结束-用车人申请短信:用车人申请短信结束", JSON.toJSON(mapTwo));
         //------------------------------------------------------------
