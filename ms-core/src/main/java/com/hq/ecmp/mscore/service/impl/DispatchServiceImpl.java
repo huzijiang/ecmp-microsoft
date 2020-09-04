@@ -1130,7 +1130,7 @@ public class DispatchServiceImpl implements IDispatchService {
         //包车时长  半日 整日  多日
         String rentTime = dispatchLockDriverDto.getRentTime();
         if (Double.parseDouble(rentTime) >= 1.0) {
-            if (((int) (Double.parseDouble(rentTime) * 10) / 10) != 0) {
+            if (((int) (Double.parseDouble(rentTime) * 10) % 10) != 0) {
                 rentTime = "T009";
             } else {
                 rentTime = "T002";

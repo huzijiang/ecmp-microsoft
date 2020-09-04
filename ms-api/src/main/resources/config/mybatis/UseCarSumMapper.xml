@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hq.ecmp.mscore.mapper.UseCarSumMapper">
+    <select id="getUseCarSumExportVoList" parameterType="com.hq.ecmp.vo.UseCarSumVo" resultType="com.hq.ecmp.vo.UseCarSumExportVo">
+        SELECT t.deptName,t.ordersByIn, t.useTimesByIn, t.amountByIn, t.ordersByOut, t.useTimesByOut, t.amountByOut, t.ordersByOut+t.ordersByIn as orders,t.useTimesByOut + t.useTimesByIn as useTimes, t.amountByOut + t.amountByIn as amount  from (
+        (SELECT deptId,deptName,ordersByIn,useTimesByIn,amountByIn,IFNULL(ordersByOut,0) as ordersByOut,IFNULL(useTimesByOut,0) as useTimesByOut,IFNULL(amountByOut,0) as amountByOut from (
+        select
+        eo.dept_id deptId,
+        eo.dept_name deptName,
+        osti.state state,
+        count(oi.order_id) ordersByIn,
+        sum(ji.use_time) useTimesByIn,
+        sum(osi.amount) amountByIn
+        from order_info oi
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+        LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+        LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+        LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
+        LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
+        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+        where osti.state in ('S900','S901')
+        and cgi.it_is_inner = 'C000'
+        and  ji.end_date >= #{startDate}
+        and  ji.end_date &lt;= #{endDate}
+        group by eo.dept_id
+        ) i LEFT JOIN (
+        select
+        eo.dept_name deptNameOut,
+        osti.state stateOut,
+        count(oi.order_id) ordersByOut,
+        sum(ji.use_time) useTimesByOut,
+        sum(osi.amount) amountByOut
+        from order_info oi
+        left join (SELECT state,order_id FROM `order_state_trace_info` where trace_id in (select max(trace_id) from
+        order_state_trace_info GROUP BY order_id) ) osti on osti.order_id=oi.order_id
+        LEFT JOIN  journey_info ji ON oi.journey_id = ji.journey_id
+        LEFT JOIN  order_settling_info osi ON osi.order_id = oi.order_id
+        LEFT JOIN  ecmp_user eu  ON eu.user_id = oi.user_id
+        LEFT JOIN  ecmp_org eo   ON eo.dept_id  = eu.dept_id
+        LEFT JOIN  car_group_driver_relation cgdr ON cgdr.driver_id = oi.driver_id
+        LEFT JOIN  car_group_info cgi ON cgi.car_group_id = cgdr.car_group_id
+        where osti.state in ('S900','S901')
+        and cgi.it_is_inner = 'C111'
+        and  ji.end_date >= #{startDate}
+        and  ji.end_date &lt;= #{endDate}
+        group by eo.dept_id
+        ) o on i.deptName = o.deptNameOut )
+        ) t
+    </select>
+</mapper>
