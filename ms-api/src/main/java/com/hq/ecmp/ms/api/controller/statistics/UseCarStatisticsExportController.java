@@ -1,4 +1,4 @@
-package com.hq.ecmp.ms.api.controller.report;
+package com.hq.ecmp.ms.api.controller.statistics;
 
 import com.hq.api.monitor.domain.SysOperLog;
 import com.hq.api.monitor.domain.vo.SysOperLogVo;
@@ -30,16 +30,15 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/useCar")
 @Api(tags = {"报表"})
-public class UseCarSumController {
+public class UseCarStatisticsExportController {
     @Autowired
     private TokenService tokenService;
     @Autowired
     private UseCarSumService useCarSumService;
 
-    @Log(title = "操作日志",content = "导出用车数据", businessType = BusinessType.EXPORT)
-    @PreAuthorize("@ss.hasPermi('monitor:report:export')")
+    @Log(title = "用车统计",content = "导出用车数据", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(UseCarSumVo useCarSumVo)
     {
