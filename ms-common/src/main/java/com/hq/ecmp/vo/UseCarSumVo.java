@@ -14,6 +14,7 @@ import java.util.Date;
 @Data
 public class UseCarSumVo implements Serializable {
     private Integer carGroupId;
+    private Integer deptId;
     private Date beginDate;
     private Date endDate;
 }
