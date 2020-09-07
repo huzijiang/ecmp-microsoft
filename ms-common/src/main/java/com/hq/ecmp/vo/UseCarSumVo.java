@@ -2,6 +2,7 @@ package com.hq.ecmp.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,7 +12,8 @@ import java.util.Date;
  * @date: 2020/9/4 16:09
  */
 @Data
-public class UseCarSumVo {
-    private Date startDate;
+public class UseCarSumVo implements Serializable {
+    private Integer carGroupId;
+    private Date beginDate;
     private Date endDate;
 }
