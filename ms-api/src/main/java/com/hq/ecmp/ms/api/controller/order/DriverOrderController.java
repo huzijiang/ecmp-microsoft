@@ -106,7 +106,7 @@ public class DriverOrderController {
             iDriverOrderService.handleDriverOrderStatus(type,currentPoint,orderNo,userId,mileage,travelTime);
         } catch (Exception e) {
             logger.error("handleStatus异常", e);
-            return ApiResponse.error(e.getMessage());
+            return ApiResponse.error("请输入目的地。");
         }
         return ApiResponse.success();
     }
