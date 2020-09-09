@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +34,7 @@ public class UseCarStatisticsExportController {
     private UseCarSumService useCarSumService;
 
     @Log(title = "用车统计",content = "导出用车数据", businessType = BusinessType.EXPORT)
-    @GetMapping("/export")
+    @PostMapping("/export")
     public ApiResponse<List<UseCarSumExportVo>>  export(UseCarSumVo useCarSumVo) {
         log.info("导出用车数据==========={}", JSONObject.toJSONString(useCarSumVo));
         return ApiResponse.success(useCarSumService.export(useCarSumVo));
