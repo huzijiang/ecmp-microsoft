@@ -23,9 +23,8 @@ public class UseCarSumServiceImpl implements UseCarSumService {
     private UseCarSumMapper useCarSumMapper;
 
     @Override
-    public AjaxResult export(UseCarSumVo useCarSumVo) {
+    public List<UseCarSumExportVo> export(UseCarSumVo useCarSumVo) {
         List<UseCarSumExportVo> list = useCarSumMapper.getUseCarSumExportVoList(useCarSumVo);
-        ExcelUtil<UseCarSumExportVo> util = new ExcelUtil<>(UseCarSumExportVo.class);
-        return util.exportExcel(list, "导出用车数据");
+        return list;
     }
 }

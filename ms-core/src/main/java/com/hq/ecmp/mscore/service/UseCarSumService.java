@@ -13,5 +13,5 @@ import java.util.List;
  * @date: 2020/9/4 16:10
  */
 public interface UseCarSumService {
-    AjaxResult export(UseCarSumVo useCarSumVo);
+    List<UseCarSumExportVo> export(UseCarSumVo useCarSumVo);
 }
