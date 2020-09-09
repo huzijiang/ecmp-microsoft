@@ -42,6 +42,7 @@ public class UseCarStatisticsExportController {
     @GetMapping("/export")
     public AjaxResult export(UseCarSumVo useCarSumVo)
     {
+        log.info("导出用车数据===========");
 //        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         return useCarSumService.export(useCarSumVo);
     }
