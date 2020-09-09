@@ -1,5 +1,6 @@
 package com.hq.ecmp.ms.api.controller.statistics;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hq.api.monitor.domain.SysOperLog;
 import com.hq.api.monitor.domain.vo.SysOperLogVo;
 import com.hq.common.core.api.ApiResponse;
@@ -44,7 +45,7 @@ public class UseCarStatisticsExportController {
     @Log(title = "用车统计",content = "导出用车数据", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public ApiResponse<List<UseCarSumExportVo>>  export(UseCarSumVo useCarSumVo) {
-        log.info("导出用车数据===========");
+        log.info("导出用车数据==========={}", JSONObject.toJSONString(useCarSumVo));
         return ApiResponse.success(useCarSumService.export(useCarSumVo));
     }
 }
