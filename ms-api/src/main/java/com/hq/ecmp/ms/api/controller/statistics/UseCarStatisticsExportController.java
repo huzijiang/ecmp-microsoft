@@ -34,7 +34,7 @@ public class UseCarStatisticsExportController {
     private UseCarSumService useCarSumService;
 
     @Log(title = "用车统计",content = "导出用车数据", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
+    @PostMapping("/list")
     public ApiResponse<List<UseCarSumExportVo>>  export(UseCarSumVo useCarSumVo) {
         log.info("导出用车数据==========={}", JSONObject.toJSONString(useCarSumVo));
         return ApiResponse.success(useCarSumService.export(useCarSumVo));
