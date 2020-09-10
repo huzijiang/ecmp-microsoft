@@ -1785,7 +1785,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         applyInfo.setUpdateTime(null);
         //2.13 申请单编号
         applyInfo.setApplyNumber(RandomUtil.getRandomNumber());
-
         applyInfoMapper.insertApplyInfo(applyInfo);
     }
 
