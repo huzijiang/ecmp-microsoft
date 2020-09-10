@@ -339,7 +339,6 @@ public class ApplyInfoServiceImpl implements IApplyInfoService
         }
         //如果有往返，则创建返程节点。返程 出发地为最初目的地，返程目的地为最初出发地。返程开始时间为去程结束时间
         if(CommonConstant.IS_RETURN.equals(travelCommitApply.getIsGoBack())) {
-
             String json = GsonUtils.objectToJson(travelCommitApply);
             Type type = new TypeToken<ApplyTravelRequest>() {
             }.getRawType();
