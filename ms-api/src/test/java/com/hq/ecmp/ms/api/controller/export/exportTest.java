@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.export;
 
 import com.hq.ecmp.ms.api.controller.statistics.UseCarStatisticsExportController;
+import com.hq.ecmp.mscore.dto.statistics.StatisticsForAdmin;
 import com.hq.ecmp.vo.UseCarSumVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ class exportTest {
 
     @Test
     void contextLoads() {
-        UseCarSumVo useCarStatisticsParamDTO = new UseCarSumVo();
-        useCarStatisticsParamDTO.setDeptId(null);
-        useCarStatisticsExportController.export(useCarStatisticsParamDTO);
+        StatisticsForAdmin statisticsParam = new StatisticsForAdmin();
+        statisticsParam.setBeginDate(null);
+//        useCarStatisticsExportController.export(useCarStatisticsParamDTO);
     }
 
 }
