@@ -32,7 +32,7 @@ public class UseCarStatisticsExportController {
 
     @Log(title = "用车统计",content = "导出用车数据", businessType = BusinessType.EXPORT)
     @PostMapping("/list")
-    public ApiResponse<List<StatisticsForAdminVo>>  export(@RequestBody StatisticsForAdmin statisticsParam) {
+    public ApiResponse<List<StatisticsForAdminVo>>  export(StatisticsForAdmin statisticsParam) {
         log.info("导出用车数据参数==========={}", JSONObject.toJSONString(statisticsParam));
         return ApiResponse.success(useCarSumService.getData(statisticsParam));
     }
