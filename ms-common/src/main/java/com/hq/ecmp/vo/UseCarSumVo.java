@@ -1,5 +1,6 @@
 package com.hq.ecmp.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,8 +14,7 @@ import java.util.Date;
  */
 @Data
 public class UseCarSumVo implements Serializable {
-    private Integer carGroupId;
-    private Integer deptId;
+    private String deptId;
     private Date beginDate;
     private Date endDate;
 }

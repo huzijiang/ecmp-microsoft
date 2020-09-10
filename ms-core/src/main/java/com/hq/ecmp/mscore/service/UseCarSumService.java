@@ -1,6 +1,5 @@
 package com.hq.ecmp.mscore.service;
 
-import com.hq.core.web.domain.AjaxResult;
 import com.hq.ecmp.vo.UseCarSumExportVo;
 import com.hq.ecmp.vo.UseCarSumVo;
 
