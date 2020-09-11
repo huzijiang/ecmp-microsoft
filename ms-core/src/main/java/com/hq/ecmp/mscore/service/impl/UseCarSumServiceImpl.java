@@ -56,11 +56,11 @@ public class UseCarSumServiceImpl implements UseCarSumService {
     public List<StatisticsForAdminVo> getData(StatisticsForAdmin statisticsForAdmin){
         List<StatisticsForAdminVo> list = new ArrayList<>();
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
-        if(loginUser == null){
-            log.warn("数据导出用户未登陆");
-            return list;
+        Long companyId = null;
+        if(loginUser != null){
+            log.warn("数据导出用户已经登陆");
+            companyId = loginUser.getUser().getOwnerCompany();
         }
-        Long companyId = loginUser.getUser().getOwnerCompany();
         statisticsForAdmin.setCompanyId(companyId);
         statisticsForAdmin.setBeginDate(statisticsForAdmin.getBeginDate().substring(0, 10)+" 00:00:00");
         statisticsForAdmin.setEndDate(statisticsForAdmin.getEndDate().substring(0, 10)+" 23:59:59");
