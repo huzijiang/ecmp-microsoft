@@ -58,7 +58,7 @@ public class UseCarSumServiceImpl implements UseCarSumService {
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         Long companyId = null;
         if(loginUser != null){
-            log.warn("数据导出用户已经登陆");
+            log.warn("数据导出用户已经登陆==");
             companyId = loginUser.getUser().getOwnerCompany();
         }
         statisticsForAdmin.setCompanyId(companyId);
