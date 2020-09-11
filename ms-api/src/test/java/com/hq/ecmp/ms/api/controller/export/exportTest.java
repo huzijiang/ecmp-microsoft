@@ -21,9 +21,9 @@ class exportTest {
     @Test
     void contextLoads() {
         StatisticsForAdmin statisticsParam = new StatisticsForAdmin();
-        statisticsParam.setBeginDate("2020-08-10 14:53:32");
-        statisticsParam.setEndDate("2020-08-10 14:53:32");
-        useCarStatisticsExportController.export(statisticsParam);
+        statisticsParam.setBeginDate("2020-05-10 14:53:32");
+        statisticsParam.setEndDate("2020-10-10 14:53:32");
+        useCarStatisticsExportController.export("",statisticsParam);
     }
 
 }
