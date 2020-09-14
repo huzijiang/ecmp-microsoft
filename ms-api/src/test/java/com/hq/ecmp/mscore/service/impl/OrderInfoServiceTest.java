@@ -13,6 +13,7 @@ import com.hq.ecmp.mscore.service.IOrderInfoService;
 import com.hq.ecmp.mscore.service.UseCarSumService;
 import com.hq.ecmp.mscore.service.dispatchstrategy.DispatchStrategy;
 import com.hq.ecmp.mscore.vo.PageResult;
+import com.hq.ecmp.vo.UseCarSumExportVo;
 import com.hq.ecmp.vo.UseCarSumVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -53,9 +54,10 @@ public class OrderInfoServiceTest {
     @Test
     public void useCarSumServiceTest() throws Exception {
         UseCarSumVo useCarSumVo = new UseCarSumVo();
-        useCarSumVo.setStartDate(DateUtils.strToDate("2020-06-01 00:00:00",DateUtils.YYYY_MM_DD_HH_MM_SS));
+        useCarSumVo.setBeginDate(DateUtils.strToDate("2020-06-01 00:00:00",DateUtils.YYYY_MM_DD_HH_MM_SS));
         useCarSumVo.setEndDate(DateUtils.strToDate("2020-08-23 23:59:59",DateUtils.YYYY_MM_DD_HH_MM_SS));
-        Map aa = useCarSumService.export(useCarSumVo);
+        List<UseCarSumExportVo> aa = useCarSumService.export(useCarSumVo);
+        System.out.println(aa);
     }
 
 
