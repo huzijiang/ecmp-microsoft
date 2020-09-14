@@ -50,17 +50,7 @@ import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.IDispatchService;
-import com.hq.ecmp.mscore.service.IEcmpConfigService;
-import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
-import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import com.hq.ecmp.mscore.service.IsmsBusiness;
-import com.hq.ecmp.mscore.service.ThirdService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.CommonUtils;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -2421,6 +2411,16 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             }
         }
         dispatchSendCarPageInfo.setCurrentDispatchOptRecord(currentDispatchOptRecord);
+
+        //查询当前订单是否为自驾单，补充数据
+        ApplyInfo  applyInfo=new ApplyInfo();
+                   applyInfo.setJourneyId(dispatchSendCarPageInfo.getJourneyId());
+        List<ApplyInfo> applyInfos=applyInfoMapper.selectApplyInfoList(applyInfo);
+        if(!applyInfos.isEmpty()){
+            applyInfo=applyInfos.get(0);
+        }
+        dispatchSendCarPageInfo.setItIsSelfDriver(applyInfo.getItIsSelfDriver());
+
         return dispatchSendCarPageInfo;
     }
 
