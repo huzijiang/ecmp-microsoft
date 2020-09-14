@@ -2286,7 +2286,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         if (null != orderInfo) {
             JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+
             if (null != journeyInfo) {
+                //查询当前订单是否为自驾单，补充数据
+                ApplyInfo  applyInfo=new ApplyInfo();
+                applyInfo.setJourneyId(journeyInfo.getJourneyId());
+                List<ApplyInfo> applyInfos=applyInfoMapper.selectApplyInfoList(applyInfo);
+                if(!applyInfos.isEmpty()){
+                    applyInfo=applyInfos.get(0);
+                }
+                dispatchSendCarPageInfo.setItIsSelfDriver(applyInfo.getItIsSelfDriver());
+
                 dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
                 dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
                 dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
@@ -2411,15 +2421,6 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             }
         }
         dispatchSendCarPageInfo.setCurrentDispatchOptRecord(currentDispatchOptRecord);
-
-        //查询当前订单是否为自驾单，补充数据
-        ApplyInfo  applyInfo=new ApplyInfo();
-                   applyInfo.setJourneyId(dispatchSendCarPageInfo.getJourneyId());
-        List<ApplyInfo> applyInfos=applyInfoMapper.selectApplyInfoList(applyInfo);
-        if(!applyInfos.isEmpty()){
-            applyInfo=applyInfos.get(0);
-        }
-        dispatchSendCarPageInfo.setItIsSelfDriver(applyInfo.getItIsSelfDriver());
 
         return dispatchSendCarPageInfo;
     }
