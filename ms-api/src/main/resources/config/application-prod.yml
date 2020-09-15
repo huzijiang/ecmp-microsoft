@@ -34,7 +34,7 @@ spring:
       validationQuery: SELECT 1 FROM DUAL
       testWhileIdle: true
       testOnBorrow: true
-      testOnReturn: true
+      testOnReturn: false
       webStatFilter:
         enabled: on
       statViewServlet:
