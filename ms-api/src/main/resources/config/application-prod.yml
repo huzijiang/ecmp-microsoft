@@ -32,9 +32,9 @@ spring:
       maxEvictableIdleTimeMillis: 900000
       # 配置检测连接是否有效
       validationQuery: SELECT 1 FROM DUAL
-      testWhileIdle: on
-      testOnBorrow: false
-      testOnReturn: false
+      testWhileIdle: true
+      testOnBorrow: true
+      testOnReturn: true
       webStatFilter:
         enabled: on
       statViewServlet:
