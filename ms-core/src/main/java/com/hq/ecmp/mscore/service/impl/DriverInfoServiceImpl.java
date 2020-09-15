@@ -551,17 +551,17 @@ public class DriverInfoServiceImpl implements IDriverInfoService
      */
     @Override
     public ApiResponse deleteDriver(Long driverId)throws Exception {
-		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
-		driverCarRelationInfo.setDriverId(driverId);
-		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
-		int size = driverCarRelationInfos.size();
-		if(size != 0){
-			return ApiResponse.error("请先删除该驾驶员下的所有车辆，再尝试删除");
-		}
+//		DriverCarRelationInfo driverCarRelationInfo = new DriverCarRelationInfo();
+//		driverCarRelationInfo.setDriverId(driverId);
+//		List<DriverCarRelationInfo> driverCarRelationInfos = driverCarRelationInfoMapper.selectDriverCarRelationInfoList(driverCarRelationInfo);
+//		int size = driverCarRelationInfos.size();
+//		if(size != 0){
+//			return ApiResponse.error("请先删除该驾驶员下的所有车辆，再尝试删除");
+//		}
 		int i=driverInfoMapper.deleteDriver(driverId);
 		if(i!=0){
-			driverCarRelationInfoService.deleteCarByDriverId(driverId);
-			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
+//			driverCarRelationInfoService.deleteCarByDriverId(driverId);
+//			carGroupDriverRelationService.deleteCarGroupDriverRelationById(driverId);
 		}else {
 			throw new Exception("删除失败");
 		}

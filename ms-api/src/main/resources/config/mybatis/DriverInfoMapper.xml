@@ -464,7 +464,7 @@ WHERE
     </select>
 
     <delete id="deleteDriver" parameterType="Long">
-        delete from driver_info where driver_id = #{driverId}
+        update driver_info set state='S444' where driver_id = #{driverId}
     </delete>
 
     <update id="updateDriver" parameterType="com.hq.ecmp.mscore.domain.DriverCreateInfo" >
