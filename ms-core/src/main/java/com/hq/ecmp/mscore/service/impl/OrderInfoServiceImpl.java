@@ -130,6 +130,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     @Resource
     private EcmpUserMapper ecmpUserMapper;
     @Autowired
+    private  EcmpOrgMapper ecmpOrgMapper;
+    @Autowired
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
     @Resource
     private IOrderAddressInfoService iOrderAddressInfoService;
@@ -1551,6 +1553,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         }
         List<String> imgUrls = orderSettlingInfoMapper.selectOrderSettlingImageList(orderId);
         vo.setFeeImageUrls(imgUrls);
+
+        //查询订单用车人申请单位
+        try {
+            JourneyInfo journeyInfo=new JourneyInfo();
+            if(!journeyPassengerInfos.isEmpty()){
+                journeyInfo=journeyInfoMapper.selectJourneyInfoById(journeyPassengerInfos.get(0).getJourneyId());
+            }
+            EcmpUser  ecmpUser=new EcmpUser();
+                      ecmpUser=ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
+            EcmpOrg   ecmpOrg=new EcmpOrg();
+                      ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+            vo.setUserOwnerOrg(ecmpOrg.getDeptName());
+        }catch (Exception e){
+            log.info("orderId "+orderId+"查询订单用车单位发生错误。");
+        }
         return vo;
     }
 

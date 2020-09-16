@@ -93,6 +93,12 @@ public class DriverOrderInfoVO {
     private Date labelStateOptTime;
     private String labelStateContent;
 
+    /**
+     * 用车人归属单位（实际是订单申请人 的信息）
+     */
+    @ApiModelProperty(name = "userOwnerOrg",value = "申请人归属单位")
+    private String userOwnerOrg;
+
 
 
 }
