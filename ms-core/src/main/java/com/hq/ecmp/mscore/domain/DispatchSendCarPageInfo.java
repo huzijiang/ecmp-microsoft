@@ -61,4 +61,11 @@ public class DispatchSendCarPageInfo {
 
 	//改派备注
 	String dispatchRemark;
+
+	/**
+	 * 是否自驾
+	 */
+	String itIsSelfDriver;
+
+
 }

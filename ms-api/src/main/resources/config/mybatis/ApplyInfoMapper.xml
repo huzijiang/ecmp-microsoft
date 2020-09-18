@@ -20,18 +20,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
-         <result property="applyType"    column="apply_type"    />
+        <result property="applyType"    column="apply_type"    />
+        <result property="itIsSelfDriver" column="it_is_self_driver"></result>
     </resultMap>
 
     <sql id="selectApplyInfoVo">
-        select apply_id, journey_id,apply_number, project_id, regimen_id,apply_type, approver_name, cost_center, state,car_type_id, reason, create_by, create_time, update_by, update_time,company_id
+        select apply_id, journey_id,apply_number, project_id, regimen_id,apply_type, approver_name, cost_center, state,car_type_id, reason, create_by, create_time, update_by, update_time,company_id,it_is_self_driver
         from apply_info
     </sql>
 
     <select id="selectApplyInfoList" parameterType="com.hq.ecmp.mscore.domain.ApplyInfo" resultMap="ApplyInfoResult">
         <include refid="selectApplyInfoVo"/>
         <where>
-            <if test="journeyId != null "> and journey_id = #{journeyId}</if>
+            <if test="journeyId != 0L and journeyId != null "> and journey_id = #{journeyId}</if>
             <if test="projectId != null "> and project_id = #{projectId}</if>
             <if test="regimenId != null "> and regimen_id = #{regimenId}</if>
             <if test="approverName != null  and approverName != ''"> and approver_name like concat('%', #{approverName}, '%')</if>

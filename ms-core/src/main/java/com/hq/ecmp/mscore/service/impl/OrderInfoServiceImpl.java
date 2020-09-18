@@ -50,17 +50,7 @@ import com.hq.ecmp.mscore.dto.ReckoningDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockCarDto;
 import com.hq.ecmp.mscore.dto.dispatch.DispatchLockDriverDto;
 import com.hq.ecmp.mscore.mapper.*;
-import com.hq.ecmp.mscore.service.IDispatchService;
-import com.hq.ecmp.mscore.service.IEcmpConfigService;
-import com.hq.ecmp.mscore.service.IEcmpOrgService;
-import com.hq.ecmp.mscore.service.IJourneyUserCarPowerService;
-import com.hq.ecmp.mscore.service.IOrderAddressInfoService;
-import com.hq.ecmp.mscore.service.IOrderInfoService;
-import com.hq.ecmp.mscore.service.IOrderSettlingInfoService;
-import com.hq.ecmp.mscore.service.IOrderStateTraceInfoService;
-import com.hq.ecmp.mscore.service.IRegimeInfoService;
-import com.hq.ecmp.mscore.service.IsmsBusiness;
-import com.hq.ecmp.mscore.service.ThirdService;
+import com.hq.ecmp.mscore.service.*;
 import com.hq.ecmp.mscore.vo.*;
 import com.hq.ecmp.util.CommonUtils;
 import com.hq.ecmp.util.DateFormatUtils;
@@ -139,6 +129,8 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
     private CarGroupDispatcherInfoMapper carGroupDispatcherInfoMapper;
     @Resource
     private EcmpUserMapper ecmpUserMapper;
+    @Autowired
+    private  EcmpOrgMapper ecmpOrgMapper;
     @Autowired
     private JourneyPassengerInfoMapper journeyPassengerInfoMapper;
     @Resource
@@ -1561,6 +1553,21 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         }
         List<String> imgUrls = orderSettlingInfoMapper.selectOrderSettlingImageList(orderId);
         vo.setFeeImageUrls(imgUrls);
+
+        //查询订单用车人申请单位
+        try {
+            JourneyInfo journeyInfo=new JourneyInfo();
+            if(!journeyPassengerInfos.isEmpty()){
+                journeyInfo=journeyInfoMapper.selectJourneyInfoById(journeyPassengerInfos.get(0).getJourneyId());
+            }
+            EcmpUser  ecmpUser=new EcmpUser();
+                      ecmpUser=ecmpUserMapper.selectEcmpUserById(journeyInfo.getUserId());
+            EcmpOrg   ecmpOrg=new EcmpOrg();
+                      ecmpOrg=ecmpOrgMapper.selectEcmpOrgById(ecmpUser.getDeptId());
+            vo.setUserOwnerOrg(ecmpOrg.getDeptName());
+        }catch (Exception e){
+            log.info("orderId "+orderId+"查询订单用车单位发生错误。");
+        }
         return vo;
     }
 
@@ -2296,7 +2303,17 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         OrderInfo orderInfo = orderInfoMapper.selectOrderInfoById(orderId);
         if (null != orderInfo) {
             JourneyInfo journeyInfo = journeyInfoMapper.selectJourneyInfoById(orderInfo.getJourneyId());
+
             if (null != journeyInfo) {
+                //查询当前订单是否为自驾单，补充数据
+                ApplyInfo  applyInfo=new ApplyInfo();
+                applyInfo.setJourneyId(journeyInfo.getJourneyId());
+                List<ApplyInfo> applyInfos=applyInfoMapper.selectApplyInfoList(applyInfo);
+                if(!applyInfos.isEmpty()){
+                    applyInfo=applyInfos.get(0);
+                }
+                dispatchSendCarPageInfo.setItIsSelfDriver(applyInfo.getItIsSelfDriver());
+
                 dispatchSendCarPageInfo.setServiceType(journeyInfo.getServiceType());
                 dispatchSendCarPageInfo.setUseCarMode(journeyInfo.getUseCarMode());
                 dispatchSendCarPageInfo.setItIsReturn(journeyInfo.getItIsReturn());
@@ -2421,6 +2438,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             }
         }
         dispatchSendCarPageInfo.setCurrentDispatchOptRecord(currentDispatchOptRecord);
+
         return dispatchSendCarPageInfo;
     }
 

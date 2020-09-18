@@ -155,8 +155,14 @@ public class NoticeController {
     public ApiResponse<List<EcmpNotice>> getNoticeList(EcmpNotice ecmpNotice){
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         SysUser sysUser= loginUser.getUser();
-        long userId = sysUser.getUserId();
-        EcmpUser ecmpUser = iEcmpUserService.selectEcmpUserById(userId);
+        EcmpUser ecmpUser=null;
+        try{
+            long userId = sysUser.getUserId();
+            ecmpUser = iEcmpUserService.selectEcmpUserById(userId);
+        }catch (Exception e){
+            return  ApiResponse.success();
+        }
+
         long deptId = sysUser.getDeptId();
         List<SysRole> roles =sysUser.getRoles();
         String  role = "";
