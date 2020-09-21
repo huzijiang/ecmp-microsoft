@@ -70,23 +70,35 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
     public PageResult<LeaseSettlementDto> getOrdinaryUserList(LeaseSettlementDto data, LoginUser user) throws Exception {
         log.info("结算单列表，请求参数：LeaseSettlementDto={} LoginUser={}", data, user);
         boolean isDispatcher = isDispatcher(user);
-//        if (isDispatcher) {
+        if (isDispatcher) {
             /**
              * 获取当前调度员所在车队服务的机构的id
              */
-//            Long userId = user.getUser().getUserId();
-//            Integer carGroupIdOfDispatcher = ecmpOrgMapper.selectCarGroupIdOfDispatcher(userId);
-//            if (null == carGroupIdOfDispatcher) {
-//                log.info("当前调度员车队id为null，请检查核对后重试");
-//                return null;
-//            }
-//            log.info("当前调度员车队id={}", carGroupIdOfDispatcher);
-//            data.setCarGroupId(carGroupIdOfDispatcher.toString());
+            Long userId = user.getUser().getUserId();
+            Integer carGroupIdOfDispatcher = ecmpOrgMapper.selectCarGroupIdOfDispatcher(userId);
+            if (null == carGroupIdOfDispatcher) {
+                log.info("当前调度员车队id为null，请检查核对后重试");
+                return null;
+            }
+            log.info("当前调度员车队id={}", carGroupIdOfDispatcher);
+            data.setCarGroupId(carGroupIdOfDispatcher.toString());
 
             List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryListForDispatcher(data);
             PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
             return new PageResult<>(info.getTotal(), info.getPages(), list);
-//        }
+        } else {
+            String roleKey = isRole(user);
+            if(!("admin".equals(roleKey) || "C000".equals(roleKey))){
+                if("C111".equals(roleKey)){
+                    data.setCreateBy(user.getUser().getUserId());
+                }else{
+                    data.setServiceOrg(user.getUser().getDeptId());
+                }
+            }
+            List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
+            PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
+            return new PageResult<>(info.getTotal(),info.getPages(),list);
+        }
 //        log.info("非调度员，不能查看结算单列表");
 //        return null;
     }
