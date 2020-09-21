@@ -116,4 +116,18 @@ public class UseCarStatisticsController {
         }
     }
 
+    @ApiOperation(value = "userDeptUseCarDetailExport",notes = "按车队分页查询用户部门用车统计订单列表导出",httpMethod ="POST")
+    @Log(title = "按车队查询用户部门用车统计订单列表导出", content = "按车队分页查询用户部门用车统计订单列表导出",businessType = BusinessType.OTHER)
+    @PostMapping("/userDeptUseCarDetailExport")
+    public ApiResponse<List<StatisticsForAdminDetailVo>> userDeptUseCarDetailExport(@RequestBody UserDeptUseCarDetailDto userDeptUseCarDetailDto){
+        try {
+            LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            List<StatisticsForAdminDetailVo> result =  orderStateTraceInfoService.userDeptUseCarDetailExport(userDeptUseCarDetailDto,loginUser);
+            return ApiResponse.success("查询成功",result);
+        } catch (Exception e) {
+            log.error("业务处理异常", e);
+            return ApiResponse.error("微服务查询用户部门用车详情数据失败");
+        }
+    }
+
 }

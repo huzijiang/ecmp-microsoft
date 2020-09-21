@@ -335,4 +335,15 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		PageInfo<StatisticsForAdminDetailVo> info = new PageInfo<>(list);
 		return new PageResult<>(info.getTotal(),info.getPages(),list);
 	}
+
+	@Override
+	public List<StatisticsForAdminDetailVo> userDeptUseCarDetailExport(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser) {
+		//用户部门
+		Long deptId = loginUser.getUser().getDept().getDeptId();
+		String beginDate = userDeptUseCarDetailDto.getBeginDate();
+		String endDate = userDeptUseCarDetailDto.getEndDate();
+		String carGroupName = userDeptUseCarDetailDto.getCarGroupName();
+		List<StatisticsForAdminDetailVo> list = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
+		return list;
+	}
 }

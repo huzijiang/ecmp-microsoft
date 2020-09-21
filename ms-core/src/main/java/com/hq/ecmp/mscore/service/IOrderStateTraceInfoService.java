@@ -138,4 +138,7 @@ public interface IOrderStateTraceInfoService
     PageResult<UseCarDataVo> userDeptUseCarDataByCarGroup(UseCarDataByGroupDto useCarDataByGroupDto, LoginUser loginUser);
 
     PageResult<StatisticsForAdminDetailVo> userDeptUseCarDetail(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser);
+
+    List<StatisticsForAdminDetailVo> userDeptUseCarDetailExport(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser);
+
 }
