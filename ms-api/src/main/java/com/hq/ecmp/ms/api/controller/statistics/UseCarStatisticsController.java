@@ -126,7 +126,7 @@ public class UseCarStatisticsController {
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
             log.error("业务处理异常", e);
-            return ApiResponse.error("微服务查询用户部门用车详情数据失败");
+            return ApiResponse.error("微服务查询用户部门用车详情数据导出失败");
         }
     }
 
