@@ -345,6 +345,12 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 		String beginDate = userDeptUseCarDetailDto.getBeginDate();
 		String endDate = userDeptUseCarDetailDto.getEndDate();
 		String carGroupName = userDeptUseCarDetailDto.getCarGroupName();
+		if(pageNum == null){
+			pageNum = 1;
+		}
+		if(pageSize == null){
+			pageSize = 100;
+		}
 		PageHelper.startPage(pageNum,pageSize);
 		boolean isgo = true;
 		List<StatisticsForAdminDetailVo> list  = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
