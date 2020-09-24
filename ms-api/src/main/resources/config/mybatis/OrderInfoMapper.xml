@@ -3632,7 +3632,6 @@ LEFT JOIN ecmp_user e ON e.user_id = c.user_id
             and  osti.create_time &lt;= #{endDate}
         </if>
         <if test="carGroupName!=null and '' != carGroupName">
-          --  and cgi.it_is_inner in ('C000','C111')
             and  cgi.car_group_name = #{carGroupName}
         </if>
     </select>
