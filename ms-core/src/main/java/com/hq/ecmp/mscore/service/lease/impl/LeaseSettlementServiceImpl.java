@@ -86,9 +86,21 @@ public class LeaseSettlementServiceImpl implements LeaseSettlementService {
             List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryListForDispatcher(data);
             PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
             return new PageResult<>(info.getTotal(), info.getPages(), list);
+        } else {
+            String roleKey = isRole(user);
+            if(!("admin".equals(roleKey) || "C000".equals(roleKey))){
+                if("C111".equals(roleKey)){
+                    data.setCreateBy(user.getUser().getUserId());
+                }else{
+                    data.setServiceOrg(user.getUser().getDeptId());
+                }
+            }
+            List<LeaseSettlementDto> list = collectionQuittanceInfoMapper.getOrdinaryUserList(data);
+            PageInfo<LeaseSettlementDto> info = new PageInfo<>(list);
+            return new PageResult<>(info.getTotal(),info.getPages(),list);
         }
-        log.info("非调度员，不能查看结算单列表");
-        return null;
+//        log.info("非调度员，不能查看结算单列表");
+//        return null;
     }
 
     /***
