@@ -1,6 +1,7 @@
 package com.hq.ecmp.ms.api.controller.statistics;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.hq.api.system.domain.SysDept;
 import com.hq.api.system.domain.SysUser;
 import com.hq.common.core.api.ApiResponse;
@@ -22,7 +23,6 @@ import com.hq.ecmp.mscore.vo.UseCarDataVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -122,6 +122,7 @@ public class UseCarStatisticsController {
     public ApiResponse<List<StatisticsForAdminDetailVo>> userDeptUseCarDetailExport(@RequestBody UserDeptUseCarDetailDto userDeptUseCarDetailDto){
         try {
             LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+            log.info("userDeptUseCarDetailExport请求参数={},用户={}", JSONObject.toJSONString(userDeptUseCarDetailDto),JSONObject.toJSONString(loginUser));
             List<StatisticsForAdminDetailVo> result =  orderStateTraceInfoService.userDeptUseCarDetailExport(userDeptUseCarDetailDto,loginUser);
             return ApiResponse.success("查询成功",result);
         } catch (Exception e) {
