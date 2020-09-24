@@ -339,32 +339,13 @@ public class OrderStateTraceInfoServiceImpl implements IOrderStateTraceInfoServi
 	@Override
 	public List<StatisticsForAdminDetailVo> userDeptUseCarDetailExport(UserDeptUseCarDetailDto userDeptUseCarDetailDto, LoginUser loginUser) {
 		//用户部门
-		Long deptId = 491l;
-		Integer pageNum = userDeptUseCarDetailDto.getPageNum();
-		Integer pageSize = userDeptUseCarDetailDto.getPageSize();
+		Long deptId = loginUser.getUser().getDept().getDeptId();
 		String beginDate = userDeptUseCarDetailDto.getBeginDate();
 		String endDate = userDeptUseCarDetailDto.getEndDate();
 		String carGroupName = userDeptUseCarDetailDto.getCarGroupName();
+
 		List<StatisticsForAdminDetailVo> list  = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
 
-//		if(pageNum == null){
-//			pageNum = 1;
-//		}
-//		if(pageSize == null){
-//			pageSize = 100;
-//		}
-//		PageHelper.startPage(pageNum,pageSize);
-//		boolean isgo = true;
-//		List<StatisticsForAdminDetailVo> list  = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
-//		while (isgo){
-//			pageNum = pageNum+1;
-//			PageHelper.startPage(pageNum,pageSize);
-//			List<StatisticsForAdminDetailVo> tmp = orderInfoMapper.userDeptUseCarDetail(beginDate,endDate,carGroupName,deptId);
-//			if(tmp == null || tmp.size()==0){
-//				isgo = false;
-//			}
-//			list.addAll(tmp);
-//		}
 		return list;
 	}
 }
